@@ -332,7 +332,7 @@ int do_powerup(object *obj)
 				}
 				else
 				{
-					PALETTE_FLASH_ADD(15, 0, 0);
+					PALETTE_FLASH_ADD(0, 0, 15);
 					HUD_init_message(HM_MULTI, "%s has picked up the \x01\xC0\ red \x01\x99\ Flag!", Players[Player_num].callsign);
 				}
 
