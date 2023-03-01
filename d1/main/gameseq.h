@@ -91,6 +91,7 @@ extern int add_player_to_high_scores(player *pp);
 extern void input_name (int place);
 extern int reset_high_scores();
 extern void init_player_stats_level(int secret_flag);
+extern void init_keys();
 
 void open_message_window(void);
 void close_message_window(void);

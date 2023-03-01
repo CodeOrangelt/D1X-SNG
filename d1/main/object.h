@@ -227,7 +227,9 @@ typedef struct light_info {
 } __pack__ light_info;
 
 typedef struct powerup_info {
-	int     count;          // how many/much we pick up (vulcan cannon only?)
+	int     count;			// how many/much we pick up (vulcan cannon only?)
+	fix64   creation_time;  // Absolute time of creation.
+	int     flags;          // spat by player?
 } __pack__ powerup_info;
 
 typedef struct vclip_info {
@@ -271,6 +273,9 @@ typedef struct object {
 	sbyte   matcen_creator; // Materialization center that created this object, high bit set if matcen-created
 	fix     lifeleft;       // how long until goes away, or 7fff if immortal
 	// -- Removed, MK, 10/16/95, using lifeleft instead: int     lightlevel;
+
+	#define PF_SPAT_BY_PLAYER   1   //this powerup was spat by the player
+
 
 	// movement info, determined by MOVEMENT_TYPE
 	union {

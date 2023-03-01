@@ -63,7 +63,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "piggy.h"
 #include "robot.h"
-#include "gameseq.h"
 #include "playsave.h" 
 #include "timer.h"
 
@@ -207,10 +206,20 @@ void draw_object_blob(object *obj,bitmap_index bmi)
 		obj->id == PLAYER_SMART_HOMING_ID &&
 		obj->ctype.laser_info.parent_num == Players[Player_num].objnum) {
 
-		g3_draw_bitmap_colorwarp(&pos,fixmuldiv(obj->size,bm->bm_w,bm->bm_h),obj->size,bm, 0.0, 0.4, 0.0);
+		g3_draw_bitmap_colorwarp(&pos,fixmuldiv(obj->size,bm->bm_w,bm->bm_h),obj->size,bm, 0.0, 0.5, 0.0);
 
 	} else
 	#endif
+
+	#ifdef Color_Wep
+		if ((Game_mode & GM_MULTI) &&
+			obj->type == OBJ_WEAPON &&
+			obj->id == FLARE_ID &&
+			obj->ctype.laser_info.parent_num == Players[Player_num].objnum) {
+
+			g3_draw_bitmap_colorwarp(&pos, fixmuldiv(obj->size, bm->bm_w, bm->bm_h), obj->size, bm, 5.0, 0.0, 0.0);
+	#endif	
+
 	{
 		if (bm->bm_w > bm->bm_h)
 			g3_draw_bitmap(&pos,obj->size,fixmuldiv(obj->size,bm->bm_h,bm->bm_w),bm);
@@ -390,7 +399,7 @@ void draw_polygon_object(object *obj)
 #ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 		if (Netgame.BrightPlayers)
-			light.r = light.g = light.b = F1_0*2;
+			light.r = light.g = light.b = F1_0*4;
 #endif
 
 	imsave = Interpolation_method;
@@ -1505,6 +1514,8 @@ void dead_player_frame(void)
 		}
 		// end addition by WX
 
+		extern int drop_powerup(int type, int id, int num, vms_vector * init_vel, vms_vector * pos, int segnum);
+
 		if (time_dead > DEATH_SEQUENCE_EXPLODE_TIME) {
 			if (!Player_exploded) {
 
@@ -1514,6 +1525,18 @@ void dead_player_frame(void)
 					HUD_init_message_literal(HM_DEFAULT, TXT_SHIP_DESTROYED_1);
 				else
 					HUD_init_message_literal(HM_DEFAULT, TXT_SHIP_DESTROYED_0);
+					if (Netgame.CTF && Players[Player_num].flags & PLAYER_FLAGS_RED_KEY)
+					{
+						Players[Player_num].flags &= ~PLAYER_FLAGS_RED_KEY;
+						drop_powerup(OBJ_POWERUP, POW_KEY_RED, 1, &vmd_zero_vector, &red_key_pos, red_key_seg);
+
+					}
+					if (Netgame.CTF && Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY)
+					{
+						Players[Player_num].flags &= ~PLAYER_FLAGS_BLUE_KEY;
+						drop_powerup(OBJ_POWERUP, POW_KEY_BLUE, 1, &vmd_zero_vector, &blue_key_pos, blue_key_seg);
+
+					}
 				Players[Player_num].hostages_on_board = 0;
 
 				Player_exploded = 1;

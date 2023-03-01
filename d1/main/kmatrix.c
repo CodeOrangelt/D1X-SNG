@@ -199,7 +199,7 @@ void kmatrix_redraw(kmatrix_screen *km)
 	{
 		kmatrix_redraw_coop();
 	}
-	else
+	else 
 	{
 		multi_sort_kill_list();
 		grd_curcanv->cv_font = MEDIUM3_FONT;

@@ -39,6 +39,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "scores.h"
 #include "multi.h"
 #include "newdemo.h"
+#include "gamefont.h"
+
 #ifdef EDITOR
 #include "gr.h"	//	for powerup outline drawing
 #include "editor/editor.h"
@@ -200,11 +202,18 @@ int pick_up_vulcan_ammo(void)
 	return used;
 }
 
+vms_vector blue_key_pos;// position flag(blue) is in
+int blue_key_seg;// segment flag(blue) is in
+vms_vector red_key_pos;// position flag(red) is in
+int red_key_seg;// segment flag(red) is in
+
+//  code for pickups of powerups - code
 //	returns true if powerup consumed
 int do_powerup(object *obj)
 {
 	int used=0;
 	int vulcan_ammo_to_add_with_cannon;
+
 
 	if ((Player_is_dead) || (ConsoleObject->type == OBJ_GHOST) || (Players[Player_num].shields < 0))
 		return 0;
@@ -280,8 +289,20 @@ int do_powerup(object *obj)
 		case POW_MISSILE_4:
 			used=pick_up_secondary(CONCUSSION_INDEX,4);
 			break;
-
 		case POW_KEY_BLUE:
+			blue_key_pos = obj->pos;
+			blue_key_seg = obj->segnum;
+			if (Netgame.CTF && !(Players[Player_num].flags & PLAYER_FLAGS_RED_KEY))
+			{
+				PALETTE_FLASH_ADD(0, 0, 15);
+				HUD_init_message(HM_MULTI, "%s has picked up the \x01\x56\ blue \x01\x99\ Flag!", Players[Player_num].callsign);
+			}
+			if (Netgame.CTF)
+				if (get_team(Player_num) == 0)
+				{
+					used = 0;
+				}
+			break;
 			if (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY)
 				break;
 #ifdef NETWORK
@@ -289,22 +310,37 @@ int do_powerup(object *obj)
 #endif
 			digi_play_sample( Powerup_info[obj->id].hit_sound, F1_0 );
 			Players[Player_num].flags |= PLAYER_FLAGS_BLUE_KEY;
-			powerup_basic(0, 0, 15, KEY_SCORE, "%s %s",TXT_BLUE,TXT_ACCESS_GRANTED);
-			if (Game_mode & GM_MULTI)
+			if (!Netgame.CTF)
+				powerup_basic(0, 0, 15, KEY_SCORE, "%s %s",TXT_BLUE,TXT_ACCESS_GRANTED);
+			else if ((Game_mode & GM_MULTI) & !Netgame.CTF)
 				used=0;
 			else
 				used=1;
 			break;
 		case POW_KEY_RED:
+			red_key_pos = obj->pos;
+			red_key_seg = obj->segnum;
+			if (Netgame.CTF && !(Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY))
+			{
+				PALETTE_FLASH_ADD(15, 0, 0);
+				HUD_init_message(HM_MULTI, "%s has picked up the \x01\xC0\ red \x01\x99\ Flag!", Players[Player_num].callsign);
+			}
+			if (Netgame.CTF)
+				if (get_team(Player_num) == 1)
+				{
+					used = 0;
+				}
 			if (Players[Player_num].flags & PLAYER_FLAGS_RED_KEY)
 				break;
+
 #ifdef NETWORK
 			multi_send_play_sound(Powerup_info[obj->id].hit_sound, F1_0);
 #endif
 			digi_play_sample( Powerup_info[obj->id].hit_sound, F1_0 );
 			Players[Player_num].flags |= PLAYER_FLAGS_RED_KEY;
-			powerup_basic(15, 0, 0, KEY_SCORE, "%s %s",TXT_RED,TXT_ACCESS_GRANTED);
-			if (Game_mode & GM_MULTI)
+			if(!Netgame.CTF)
+				powerup_basic(15, 0, 0, KEY_SCORE, "%s %s",TXT_RED,TXT_ACCESS_GRANTED);
+			else if ((Game_mode & GM_MULTI) & !Netgame.CTF)
 				used=0;
 			else
 				used=1;
@@ -442,12 +478,15 @@ int do_powerup(object *obj)
 		default:
 			break;
 		}
+		
+
+
 
 //always say used, until physics problem (getting stuck on unused powerup)
 //is solved.  Note also the break statements above that are commented out
 //!!	used=1;
 
-	if (used && Powerup_info[obj->id].hit_sound  > -1 ) {
+	if (!(PLAYER_FLAGS_RED_KEY & PLAYER_FLAGS_BLUE_KEY) && used && Powerup_info[obj->id].hit_sound  > -1 ) {
 		#ifdef NETWORK
 		if (Game_mode & GM_MULTI) // Added by Rob, take this out if it turns out to be not good for net games!
 			multi_send_play_sound(Powerup_info[obj->id].hit_sound, F1_0);
@@ -456,6 +495,7 @@ int do_powerup(object *obj)
 	}
 
 	return used;
+
 
 }
 

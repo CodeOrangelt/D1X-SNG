@@ -240,17 +240,17 @@ void CycleSecondary ()
 //if message flag set, print message saying selected
 void select_weapon(int weapon_num, int secondary_flag, int print_message, int wait_for_rearm)
 {
-	if(! secondary_flag && weapon_num == 16) {
-		weapon_num = LASER_INDEX; 
+	if (!secondary_flag && weapon_num == 16) {
+		weapon_num = LASER_INDEX;
 
-		if(Primary_weapon == LASER_INDEX)
+		if (Primary_weapon == LASER_INDEX)
 			return;
 	}
 
-	char	*weapon_name;
+	char* weapon_name;
 
 #ifndef SHAREWARE
-	if (Newdemo_state==ND_STATE_RECORDING )
+	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_player_weapon(secondary_flag, weapon_num);
 #endif
 
@@ -258,22 +258,23 @@ void select_weapon(int weapon_num, int secondary_flag, int print_message, int wa
 		if (Primary_weapon != weapon_num) {
 #ifndef FUSION_KEEPS_CHARGE
 			//added 8/6/98 by Victor Rachels to fix fusion charge bug
-                        Fusion_charge=0;
+			Fusion_charge = 0;
 			//end edit - Victor Rachels
 #endif
-			if (wait_for_rearm) digi_play_sample_once( SOUND_GOOD_SELECTION_PRIMARY, F1_0 );
+			if (wait_for_rearm) digi_play_sample_once(SOUND_GOOD_SELECTION_PRIMARY, F1_0);
 
-			if(weapon_num == VULCAN_INDEX && PlayerCfg.VulcanAmmoWarnings && Players[Player_num].primary_ammo[VULCAN_INDEX] != 0) {
-				if(Players[Player_num].primary_ammo[VULCAN_INDEX] < 500/12) {
-					HUD_init_message_literal(HM_MULTI, "Vulcan ammo critical!"); 
+			if (weapon_num == VULCAN_INDEX && PlayerCfg.VulcanAmmoWarnings && Players[Player_num].primary_ammo[VULCAN_INDEX] != 0) {
+				if (Players[Player_num].primary_ammo[VULCAN_INDEX] < 500 / 12) {
+					HUD_init_message_literal(HM_MULTI, "Vulcan ammo critical!");
 					digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
-				} else if(Players[Player_num].primary_ammo[VULCAN_INDEX] < 1000/12) {
-					HUD_init_message_literal(HM_MULTI, "Vulcan ammo low."); 
+				}
+				else if (Players[Player_num].primary_ammo[VULCAN_INDEX] < 1000 / 12) {
+					HUD_init_message_literal(HM_MULTI, "Vulcan ammo low.");
 					digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 				}
 			}
 #ifdef NETWORK
-			if (Game_mode & GM_MULTI)	{
+			if (Game_mode & GM_MULTI) {
 				if (wait_for_rearm) multi_send_play_sound(SOUND_GOOD_SELECTION_PRIMARY, F1_0);
 			}
 #endif
@@ -282,17 +283,19 @@ void select_weapon(int weapon_num, int secondary_flag, int print_message, int wa
 			else
 				Next_laser_fire_time = 0;
 			Global_laser_firing_count = 0;
-		} else 	{
-			if (wait_for_rearm) digi_play_sample( SOUND_ALREADY_SELECTED, F1_0 );
+		}
+		else {
+			if (wait_for_rearm) digi_play_sample(SOUND_ALREADY_SELECTED, F1_0);
 		}
 		Primary_weapon = weapon_num;
 		weapon_name = PRIMARY_WEAPON_NAMES(weapon_num);
-	} else {
+	}
+	else {
 
 		if (Secondary_weapon != weapon_num) {
-			if (wait_for_rearm) digi_play_sample_once( SOUND_GOOD_SELECTION_SECONDARY, F1_0 );
+			if (wait_for_rearm) digi_play_sample_once(SOUND_GOOD_SELECTION_SECONDARY, F1_0);
 #ifdef NETWORK
-			if (Game_mode & GM_MULTI)	{
+			if (Game_mode & GM_MULTI) {
 				if (wait_for_rearm) multi_send_play_sound(SOUND_GOOD_SELECTION_PRIMARY, F1_0);
 			}
 #endif
@@ -301,17 +304,21 @@ void select_weapon(int weapon_num, int secondary_flag, int print_message, int wa
 			else
 				Next_missile_fire_time = 0;
 			Global_missile_firing_count = 0;
-		} else	{
-			if (wait_for_rearm) digi_play_sample_once( SOUND_ALREADY_SELECTED, F1_0 );
+		}
+		else {
+			if (wait_for_rearm) digi_play_sample_once(SOUND_ALREADY_SELECTED, F1_0);
 		}
 		Secondary_weapon = weapon_num;
 		weapon_name = SECONDARY_WEAPON_NAMES(weapon_num);
 	}
-
-	if (print_message)
-		HUD_init_message(HM_DEFAULT, "%s %s", weapon_name, TXT_SELECTED);
+	//weapon cycle color modifications, thanks for the script arne - code.
+	if (print_message) {
+		static int primary_colors[] = { 0x99/*laser*/, 0xB9/*vulcan*/, 0x53/*spread*/, 0x98/*plasma*/, 0x63/*fusion*/};
+		static int secondary_colors[] = { 0x70/*concussion*/, 0x52/*homer*/, 0xc0/*proxy*/, 0x99/*smart*/, 0xc4/*mega*/};
+		int color = secondary_flag ? secondary_colors[weapon_num] : primary_colors[weapon_num];
+		HUD_init_message(HM_DEFAULT, "\x01%c%s %s", color, weapon_name, TXT_SELECTED);
+	}
 }
-
 //	------------------------------------------------------------------------------------
 //	Select a weapon, primary or secondary.
 void do_weapon_select(int weapon_num, int secondary_flag)

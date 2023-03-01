@@ -330,6 +330,7 @@ void init_player_stats_level(int secret_flag)
 	Players[Player_num].hostages_total += Players[Player_num].hostages_level;
 	Players[Player_num].hostages_on_board = 0;
 
+
 		Players[Player_num].flags &= (~KEY_BLUE);
 		Players[Player_num].flags &= (~KEY_RED);
 		Players[Player_num].flags &= (~KEY_GOLD);
@@ -340,8 +341,9 @@ void init_player_stats_level(int secret_flag)
 		Players[Player_num].cloak_time = 0;
 		Players[Player_num].invulnerable_time = 0;
 
-		if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
+		if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) && !Netgame.CTF)
 			Players[Player_num].flags |= (KEY_BLUE | KEY_RED | KEY_GOLD);
+
 
 	Player_is_dead = 0; // Added by RH
 	Dead_player_camera = NULL;
@@ -404,13 +406,21 @@ void init_player_stats_new_ship(ubyte pnum)
 	RespawningConcussions[pnum] = 0; 
 
 	digi_kill_sound_linked_to_object(Players[pnum].objnum);
+
+	if (Netgame.Deathmatch)
+		Players[Player_num].shields = i2f(2000);
+		Players[Player_num].lives = (1);
+
+	if (Netgame.PointCapture)
+		Players[Player_num].lives = (100);
+	
 }
 
 #ifdef EDITOR
 
 extern int game_handler(window *wind, d_event *event, void *data);
 
-//reset stuff so game is semi-normal when playing from editor
+//reset stuff so game is semi-normal when playing from editor	
 void editor_reset_stuff_on_level()
 {
 	gameseq_init_network_players();
@@ -486,7 +496,10 @@ void set_sound_sources()
 						vms_vector pnt;
 
 						compute_center_point_on_side(&pnt,seg,sidenum);
-						digi_link_sound_to_pos(sn,segnum,sidenum,&pnt,1, F1_0/2);
+						if(Netgame.QuietFan)
+							digi_link_sound_to_pos(sn,segnum,sidenum,&pnt,1, F1_0/4);
+						else if (!Netgame.QuietFan)
+							digi_link_sound_to_pos(sn, segnum, sidenum, &pnt, 1, F1_0 / 2);
 
 					}
 		}
@@ -993,6 +1006,17 @@ int AdvanceLevel(int secret_flag)
 //called when the player has died
 void DoPlayerDead()
 {
+
+	if (Player_exploded & Netgame.Deathmatch && Network_status == NETSTAT_PLAYING)
+	{
+		timer_delay(3);
+		multi_leave_game();
+		multi_quit_game = 1;
+		multi_reset_stuff(); 
+		//game_leave_menus(); 
+		//GM_OBSERVER
+	}
+
 	int cycle_window_vis = 1;
 #ifdef NETWORK
 	if ( (Game_mode & GM_MULTI) && (Netgame.SpawnStyle == SPAWN_STYLE_PREVIEW))  {
@@ -1032,11 +1056,12 @@ void DoPlayerDead()
 #endif
 	{				//Note link to above else!
 		Players[Player_num].lives--;
-		if (Players[Player_num].lives == 0)
+		if (Players[Player_num].lives == 0 && !Netgame.PointCapture)
 		{
 			DoGameOver();
 			return;
 		}
+
 	}
 
 	if ( Control_center_destroyed ) {
@@ -1096,6 +1121,7 @@ void DoPlayerDead()
 	if (Game_wind  && cycle_window_vis)
 		window_set_visible(Game_wind, 1);
 	reset_time();
+
 }
 
 //called when the player is starting a new level for normal game mode and restore state
@@ -1115,22 +1141,40 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 
 	if (Newdemo_state == ND_STATE_RECORDING) {
 		newdemo_set_new_level(level_num);
-		newdemo_record_start_frame(FrameTime );
-	} 
+		newdemo_record_start_frame(FrameTime);
+	}
 
 	LoadLevel(level_num, page_in_textures);
 
 	Assert(Current_level_num == level_num);	//make sure level set right
 
 	gameseq_init_network_players(); // Initialize the Players array for
-											  // this level
+	// this level
+
+	if (Netgame.CTF)
+	{
+		for (int i = 0; i <= Highest_object_index; i++)
+		{
+			if (Objects[i].type == OBJ_POWERUP && Objects[i].id == POW_KEY_BLUE)
+			{
+				blue_key_pos = Objects[i].pos;
+				blue_key_seg = Objects[i].segnum;
+			}
+			if (Objects[i].type == OBJ_POWERUP && Objects[i].id == POW_KEY_RED)
+			{
+				red_key_pos = Objects[i].pos;
+				red_key_seg = Objects[i].segnum;
+			}
+
+		}
+	}
 
 #ifdef NETWORK
 	if (Game_mode & GM_NETWORK)
 	{
-		if(multi_level_sync()) // After calling this, Player_num is set
+		if (multi_level_sync()) // After calling this, Player_num is set
 		{
-			songs_play_song( SONG_TITLE, 1 ); // level song already plays but we fail to start level...
+			songs_play_song(SONG_TITLE, 1); // level song already plays but we fail to start level...
 			return;
 		}
 	}
@@ -1142,7 +1186,7 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 
 	init_player_stats_level(secret_flag);
 
-	gr_use_palette_table( "palette.256" );
+	gr_use_palette_table("palette.256");
 	gr_palette_load(gr_palette);
 
 #ifndef SHAREWARE
@@ -1211,13 +1255,16 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 	if (!((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
 		palette_save();
 
-	if(Game_mode & GM_MULTI && PlayerCfg.AutoDemo && Newdemo_state != ND_STATE_RECORDING) {
+	if (Game_mode & GM_MULTI && PlayerCfg.AutoDemo && Newdemo_state != ND_STATE_RECORDING) {
 		newdemo_start_recording();
 	}
 
+
 	if (!Game_wind)
 		game();
+
 }
+
 
 #ifdef NETWORK
 extern char PowerupsInMine[MAX_POWERUP_TYPES], MaxPowerupsAllowed[MAX_POWERUP_TYPES];
@@ -1368,10 +1415,10 @@ void StartLevel(int random)
 
 	if (Game_mode & GM_MULTI)
 	{
-		if ((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS))
+		if ((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS || Netgame.PointCapture || Netgame.CTF))
 			multi_send_score();
-	 	multi_send_reappear();
-		multi_do_protocol_frame(1, 1);
+	 		multi_send_reappear();
+			multi_do_protocol_frame(1, 1);
 	}
 	else // in Singleplayer, after we died ...
 	{

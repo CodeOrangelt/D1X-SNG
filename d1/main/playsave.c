@@ -1253,8 +1253,8 @@ void read_netgame_profile(netgame_info *ng)
 				ng->RetroProtocol = strtol(value, NULL, 10);
 			else if (!strcmp(token, "RespawnConcs"))
 				ng->RespawnConcs = strtol(value, NULL, 10);	
-			//else if (!strcmp(token, "DarkSmartBlobs"))
-			//	ng->DarkSmartBlobs = strtol(value, NULL, 10);
+			else if (!strcmp(token, "DarkSmartBlobs"))
+				ng->DarkSmartBlobs = strtol(value, NULL, 10);
 			else if (!strcmp(token, "LowVulcan"))
 				ng->LowVulcan = strtol(value, NULL, 10);
 			else if (!strcmp(token, "AllowPreferredColors"))
@@ -1269,6 +1269,8 @@ void read_netgame_profile(netgame_info *ng)
 				ng->obs_delay = strtol(value, NULL, 10);																	
 			else if (!strcmp(token, "HomingUpdateRate"))
 				ng->HomingUpdateRate = strtol(value, NULL, 10);
+			else if (!strcmp(token, "Death Match"))
+				ng->Deathmatch = strtol(value, NULL, 10);
 #ifdef USE_TRACKER
 			else if (!strcmp(token, "Tracker"))
 				ng->Tracker = strtol(value, NULL, 10);
@@ -1311,7 +1313,7 @@ void write_netgame_profile(netgame_info *ng)
 	PHYSFSX_printf(file, "NoFriendlyFire=%i\n", ng->NoFriendlyFire);
 	PHYSFSX_printf(file, "RetroProtocol=%i\n", ng->RetroProtocol);
 	PHYSFSX_printf(file, "RespawnConcs=%i\n", ng->RespawnConcs);
-	//PHYSFSX_printf(file, "DarkSmartBlobs=%i\n", ng->DarkSmartBlobs);
+	PHYSFSX_printf(file, "DarkSmartBlobs=%i\n", ng->DarkSmartBlobs);
 	PHYSFSX_printf(file, "LowVulcan=%i\n", ng->LowVulcan);
 	PHYSFSX_printf(file, "AllowPreferredColors=%i\n", ng->AllowPreferredColors);
 	PHYSFSX_printf(file, "AllowColoredLighting=%i\n", ng->AllowColoredLighting);
@@ -1319,6 +1321,7 @@ void write_netgame_profile(netgame_info *ng)
 	PHYSFSX_printf(file, "BlackAndWhitePyros=%i\n", ng->BlackAndWhitePyros);
 	PHYSFSX_printf(file, "ObsDelay=%i\n", ng->obs_delay);
 	PHYSFSX_printf(file, "HomingUpdateRate=%i\n", ng->HomingUpdateRate);
+	PHYSFSX_printf(file, "Deathmatch=%i\n", ng->Deathmatch);
 #ifdef USE_TRACKER
 	PHYSFSX_printf(file, "Tracker=%i\n", ng->Tracker);
 #else

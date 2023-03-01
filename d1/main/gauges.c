@@ -714,12 +714,6 @@ void hud_show_score()
 
 	gr_set_curfont( GAME_FONT );
 
-	if ( (Game_mode & GM_MULTI) && !((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS)) ) {
-		sprintf(score_str, "%s: %5d", TXT_KILLS, Players[Player_num].net_kills_total);
-	} else {
-		sprintf(score_str, "%s: %5d", TXT_SCORE, Players[Player_num].score);
-  	}
-
 	gr_get_string_size(score_str, &w, &h, &aw );
 
 	if (Color_0_31_0 == -1)
@@ -803,7 +797,6 @@ void sb_show_score()
 	char	score_str[20];
 	int x,y;
 	int	w, h, aw;
-
 	gr_set_curfont( GAME_FONT );
 	gr_set_fontcolor(BM_XRGB(0,20,0),-1 );
 
@@ -999,7 +992,7 @@ static inline const char *SECONDARY_WEAPON_NAMES_VERY_SHORT(const unsigned u)
 void show_bomb_count(int x,int y,int bg_color,int always_show,int right_align)
 {
 	int bomb,count,w=0,h=0,aw=0;
-	char txt[5],*t;
+	char txt[10],*t;
 
 	if (!PlayerCfg.BombGauge)
 		return;
@@ -1017,7 +1010,7 @@ void show_bomb_count(int x,int y,int bg_color,int always_show,int right_align)
 	else
 		gr_set_fontcolor(bg_color,bg_color);	//erase by drawing in background color
 
-	snprintf(txt, sizeof(txt), "B:%02d", count);
+	snprintf(txt, sizeof(txt), "Bombs:%02d", count);
 
 	while ((t=strchr(txt,'1')) != NULL)
 		*t = '\x84';	//convert to wide '1'
@@ -1266,13 +1259,21 @@ void sb_show_lives()
 	grs_bitmap * bm = &GameBitmaps[Gauges[GAUGE_LIVES].index];
 	x = SB_LIVES_X;
 	y = SB_LIVES_Y;
+	int scoreut = Players[Player_num].score;
+	int secs = f2i(Players[Player_num].time_level) % 60;
+	int mins = f2i(Players[Player_num].time_level) / 60;
 
 	gr_set_curfont( GAME_FONT );
 	gr_set_fontcolor(BM_XRGB(0,20,0),-1 );
 	if (Game_mode & GM_MULTI)
-		gr_printf(HUD_SCALE_X(SB_LIVES_LABEL_X),HUD_SCALE_Y(y),"%s:", TXT_DEATHS);
+		//x,y -> (110)/(2.5)
+		gr_printf(SWIDTH - FSPACX(110), GHEIGHT - (LINE_SPACING * 2.5), "Total Time: %d:%02d", mins, secs);
 	else
-		gr_printf(HUD_SCALE_X(SB_LIVES_LABEL_X),HUD_SCALE_Y(y),"%s:", TXT_LIVES);
+		gr_printf(SWIDTH - FSPACX(125), GHEIGHT - (LINE_SPACING * 3), "Total Time: %d:%02d", mins, secs);
+
+	if (Netgame.PointCapture)
+		gr_printf(SWIDTH - FSPACX(417), GHEIGHT - (LINE_SPACING * 39), "\x01\xB0\Point Capture: %d", scoreut);
+
 
 	if (Game_mode & GM_MULTI)
 	{
@@ -1280,8 +1281,8 @@ void sb_show_lives()
 		int w, h, aw;
 		static int last_x[4] = {SB_SCORE_RIGHT_L,SB_SCORE_RIGHT_L,SB_SCORE_RIGHT_H,SB_SCORE_RIGHT_H};
 		int x;
-
-		sprintf(killed_str, "%5d", Players[Player_num].net_killed_total);
+		// "" gives room for total time - code \/
+		sprintf(killed_str, "", Players[Player_num].net_killed_total);
 		gr_get_string_size(killed_str, &w, &h, &aw);
 		gr_setcolor(BM_XRGB(0,0,0));
 		gr_rect(last_x[HIRESMODE], HUD_SCALE_Y(y), HUD_SCALE_X(SB_SCORE_RIGHT), HUD_SCALE_Y(y)+LINE_SPACING);
@@ -1337,27 +1338,24 @@ void add_points_to_score(int points)
 	if (points == 0 || cheats.enabled)
 		return;
 
-	if ((Game_mode & GM_MULTI) && !( (Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS) ))
+	if (!Game_mode & GM_MULTI_COOP || Game_mode & GM_MULTI_ROBOTS)
 		return;
 
 	prev_score=Players[Player_num].score;
 
 	Players[Player_num].score += points;
 
-#ifndef SHAREWARE
+#ifdef SHAREWARE
 	if (Newdemo_state == ND_STATE_RECORDING)
-		newdemo_record_player_score(points);
+		newdescons o_record_player_score(points);
 #endif
 
 #ifndef SHAREWARE
 #ifdef NETWORK
-	if ((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS))
+	if ((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS || Netgame.PointCapture || Netgame.CTF))
 		multi_send_score();
 #endif
 #endif
-
-	if (Game_mode & GM_MULTI)
-		return;
 
 	if (Players[Player_num].score/EXTRA_SHIP_SCORE != prev_score/EXTRA_SHIP_SCORE) {
 		int snd;
@@ -1756,7 +1754,7 @@ void draw_weapon_info(int weapon_type,int weapon_num)
 	if (PlayerCfg.HudMode!=0)
 		hud_show_weapons_mode(weapon_type,1,x,y);
 }
-
+//missile count 000 - Code
 void draw_ammo_info(int x,int y,int ammo_count,int primary)
 {
 	if (PlayerCfg.HudMode!=0)
@@ -1765,7 +1763,7 @@ void draw_ammo_info(int x,int y,int ammo_count,int primary)
 	{
 		gr_setcolor(BM_XRGB(0,0,0));
 		gr_set_fontcolor(BM_XRGB(20,0,0),-1 );
-		gr_printf(x,y,"%03d",ammo_count);
+		gr_printf(x,y,"\x01\xB0" "  \n %d",ammo_count);
 	}
 }
 
@@ -2193,6 +2191,10 @@ void fontcolor_good() {
 	gr_set_fontcolor(BM_XRGB(0, 18, 0), -1);
 }
 
+void fontcolor_ehh() {
+	gr_set_fontcolor(BM_XRGB(255, 165, 0), -1);
+}
+
 #ifdef NETWORK
 void hud_show_kill_list()
 {
@@ -2331,7 +2333,15 @@ void hud_show_kill_list()
 			name[strlen(name)-1]=0;
 			gr_get_string_size(name,&sw,&sh,&aw);
 		}
-		gr_printf(x0,y,"%s",name);
+
+		//improvised gr_print of score counter next to name.
+		
+		/*if (Netgame.PointCapture)
+			gr_printf(x0, y,"%s  \x01\xB0%d", name, Players[Player_num].score);
+		else if (!Netgame.PointCapture)*/
+			gr_printf(x0,y,"%s",name);
+		
+		//name drawn for hud kill list - Code
 
 
 		if (Players[player_num].connected == CONNECT_PLAYING) {
@@ -2366,7 +2376,9 @@ void hud_show_kill_list()
 
 			if (Netgame.PlayTimeAllowed || Netgame.KillGoal)
 				gr_printf(x1,y,"%3d(%d)",Players[player_num].net_kills_total,Players[player_num].KillGoalCount);
-			else
+			else if (Netgame.PointCapture | Netgame.CTF)
+				gr_printf(x1, y, "%d", Players[player_num].score);
+			else // this is the default normal multi game mode score count.
 				gr_printf(x1,y,"%3d",Players[player_num].net_kills_total);
 
 		}
@@ -2388,9 +2400,11 @@ void hud_show_kill_list()
 			}
 
 			if(lag != -1) {
-				if(lag > 100) {
+				if (lag > 100) {
 					fontcolor_bad();
-				} else {
+				} else if (lag > 70) {
+					fontcolor_ehh();
+				} else if (lag > 1) {
 					fontcolor_good();
 				}
 
@@ -2425,22 +2439,18 @@ void hud_show_kill_list()
 			}
 
 
-			
-
-
-
-
-
 			if(connection_statuses[player_num].type == PROXY) {
 				fontcolor_bad();
 
+				//New Proxy indicator, better than the "P" symbol... eww - Code
 				if(loss_up > 0 || loss_down > 0) {
-					gr_printf(cnxx + FSPACX(5), y,"P");
+					gr_printf(cnxx + FSPACX(5), y,"Proxy");
 				} else {
-					gr_printf(loss_upx,y,"P");
+					gr_printf(loss_upx,y,"Proxy");
 				}
 			}
 
+			// add a +1 indicator for kill next to placement for proxy, FSPACX(6-9) for new room. - Code - reminder.
 			
 		}
 
@@ -2514,6 +2524,8 @@ void observer_show_kill_list()
 			strcpy(name, Netgame.team_name[i]);
 		else if (Game_mode & GM_BOUNTY && player_num == Bounty_target && GameTime64&0x10000)
 			strcpy(name,"[TARGET]");
+
+		//generate flowing with player name - code - reminder
 		else
 			strcpy(name,Players[player_num].callsign);	// Note link to above if!!
 
@@ -2560,7 +2572,7 @@ void observer_show_kill_list()
 		gr_set_curfont( GAME_FONT );
 		
 		// Determine last major event for player.
-		if (kill_streak[player_num] >= 3) {
+		if (kill_streak[player_num] >= 3 | kill_streak[player_num] >= 3 & Netgame.Deathmatch) {
 			sprintf(major_event, "Kill Streak: %i", kill_streak[player_num]);
 		} else if (last_kill[player_num] != NULL && ((diff = time_diff(last_kill[player_num])) >= 60)) {
 			if (diff >= 3600)
@@ -2898,7 +2910,7 @@ void show_HUD_names()
 		show_enemy_name = Show_reticle_name && Netgame.ShowEnemyNames && !(Players[pnum].flags & PLAYER_FLAGS_CLOAKED);
 		show_name = ((is_friend && show_friend_name) || (!is_friend && show_enemy_name)) || ((Game_mode & GM_OBSERVER) && (PlayerCfg.ObsShowNames)) ;
 		show_typing = is_friend || !(Players[pnum].flags & PLAYER_FLAGS_CLOAKED);
-		show_indi = ((/*(Game_mode & ( GM_CAPTURE | GM_HOARD ) && Players[pnum].flags & PLAYER_FLAGS_FLAG) || */(Game_mode & GM_BOUNTY &&  pnum == Bounty_target)) && (is_friend || !(Players[pnum].flags & PLAYER_FLAGS_CLOAKED)));
+		show_indi = ((Game_mode & Netgame.CTF && (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY | Players[Player_num].flags & PLAYER_FLAGS_RED_KEY) || (Game_mode & GM_BOUNTY &&  pnum == Bounty_target)) && (is_friend || !(Players[pnum].flags & PLAYER_FLAGS_CLOAKED)));
 
 		if (Newdemo_state == ND_STATE_PLAYBACK) {
 			//if this is a demo, the objnum in the player struct is wrong, so we search the object list for the objnum
@@ -3014,6 +3026,9 @@ void show_HUD_names()
 
 void draw_hud()
 {
+	if(Netgame.CTF)
+		hud_show_keys();
+
 	if ((Game_mode & GM_OBSERVER) != 0) {
 		int x, y, w, h, aw;
 
@@ -3079,6 +3094,16 @@ void draw_hud()
 			gr_printf( x, y, "%s %2d%%", TXT_CRUISE, f2i(Cruise_speed) );
 		}
 	}
+
+	int	xkeys = FSPACX(1);
+	int	ykeys = grd_curcanv->cv_bitmap.bm_h;
+
+	if (Netgame.CTF && (Players[Player_num].flags & PLAYER_FLAGS_RED_KEY))
+		gr_printf(xkeys, ykeys/8, "You have the \x01\xC0\Red\x01\x99\ key");
+
+	if (Netgame.CTF && (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY))
+		gr_printf(xkeys, ykeys/6, "You have the \x01\x56\Blue\x01\x99\ key");
+
 
 	//	Show score so long as not in rearview
 	if ( !Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW && PlayerCfg.CockpitMode[1]!=CM_STATUS_BAR) {

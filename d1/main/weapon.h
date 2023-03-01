@@ -167,6 +167,7 @@ int pick_up_primary(int weapon_index);
 // Special case of above
 int pick_up_quads(); 
 
+
 // Run a delayed autoselect, if one is waiting
 void delayed_autoselect();
 

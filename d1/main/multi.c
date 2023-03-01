@@ -22,6 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <time.h>
 
 #include "game.h"
+#include "collide.h"
 #include "multi.h"
 #include "object.h"
 #include "laser.h"
@@ -59,6 +60,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "strutil.h"
 #include "u_mem.h"
 #include "state.h"
+#include "collide.h"
 #ifdef USE_UDP
 #include "net_udp.h"
 #endif
@@ -419,7 +421,7 @@ int multi_objnum_is_past(int objnum)
 // Show a score list to end of net players
 void multi_endlevel_score(void)
 {
-	int i, old_connect=0, game_wind_visible = 0;
+	int i, old_connect = 0, game_wind_visible = 0;
 
 	// If there still is a Game_wind and it's suspended (usually both shoudl be the case), bring it up again so host can still take actions of the game
 	if (Game_wind)
@@ -436,7 +438,7 @@ void multi_endlevel_score(void)
 	if (Game_mode & GM_NETWORK)
 	{
 		old_connect = Players[Player_num].connected;
-		if (Players[Player_num].connected!=CONNECT_DIED_IN_MINE)
+		if (Players[Player_num].connected != CONNECT_DIED_IN_MINE)
 			Players[Player_num].connected = CONNECT_END_MENU;
 	}
 #endif
@@ -453,6 +455,7 @@ void multi_endlevel_score(void)
 
 	if (Game_mode & GM_MULTI_COOP)
 	{
+
 		for (i = 0; i < Netgame.max_numplayers; i++)
 			// Reset keys
 			Players[i].flags &= ~(PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY);
@@ -638,7 +641,7 @@ multi_sort_kill_list(void)
 
 	for (i = 0; i < MAX_PLAYERS; i++)
 	{
-		if ((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS))
+		if ((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS || Netgame.PointCapture || Netgame.CTF))
 			kills[i] = Players[i].score;
 		else
 			kills[i] = Players[i].net_kills_total;
@@ -714,7 +717,8 @@ void multi_compute_kill(int killer, int killed)
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_multi_death(killed_pnum);
 
-	digi_play_sample( SOUND_HUD_KILL, F3_0 );
+	//was hud kill, replaced with a new sound :) - code
+	digi_play_sample( SOUND_HOSTAGE_RESCUED, F3_0 );
 
 	if (killer_type == OBJ_CNTRLCEN)
 	{
@@ -1342,6 +1346,86 @@ void multi_send_message_end()
   multi_send_msgsend_state(0);
   key_toggle_repeat(0);
 
+  //code's audio taunts 
+
+  if (!d_strnicmp(Network_message, "cheater", 69) && (Game_mode & GM_NETWORK))
+  {
+	  digi_play_sample_once(SOUND_CHEATER, F1_0);
+	  return;
+  }
+
+  if (!d_strnicmp(Network_message, "concept1", 70) && (Game_mode & GM_NETWORK))
+  {
+	  digi_play_sample_once(105, F1_0);
+	  return;
+  }
+
+  if (!d_strnicmp(Network_message, "concept2", 71) && (Game_mode & GM_NETWORK))
+  {
+	  digi_play_sample_once(106, F1_0);
+	  return;
+  }
+
+  if (!d_strnicmp(Network_message, "concept3", 72) && (Game_mode & GM_NETWORK))
+  {
+	  digi_play_sample_once(107, F1_0);
+	  return;
+  }
+
+  if (!d_strnicmp(Network_message, "concept4", 73) && (Game_mode & GM_NETWORK))
+  {
+	  digi_play_sample_once(108, F1_0);
+	  return;
+  }
+
+  if (!d_strnicmp(Network_message, "concept5", 74) && (Game_mode & GM_NETWORK))
+  {
+	  digi_play_sample_once(109, F1_0);
+	  return;
+  }
+
+
+  //code's Misc Commands.	
+
+  if (!d_strnicmp(Network_message, "DMFull", 75) && (Game_mode & GM_NETWORK))
+  {
+	  Players[Player_num].shields = i2f(2000);
+	  HUD_init_message(HM_MULTI,"\x01\xC1%s \x01\xD1has just cheated!",Players[Player_num].callsign);
+	  return;
+  }
+
+  if (!d_strnicmp(Network_message, "blehded", 76) && (Game_mode & GM_NETWORK))
+  {
+	  HUD_init_message(HM_MULTI, "\x01\xC1%s \x01\xD1 has just cheated!", Players[Player_num].callsign);
+	  Players[Player_num].shields = i2f(5);
+	  return;
+  }
+
+  if (!d_strnicmp(Network_message, "ut99", 77) && (Game_mode & GM_NETWORK))
+  {
+	  HUD_init_message(HM_MULTI, "\x01\xC1%s \x01\xD1 has just cheated!", Players[Player_num].callsign);
+	  Players[Player_num].score = 5000;
+	  return;
+  }
+
+  if (!d_strnicmp(Network_message, "delkeys", 80) && (Game_mode & GM_NETWORK))
+  {
+	  HUD_init_message(HM_MULTI, "\x01\xC1%s \x01\xD1 has just cheated!", Players[Player_num].callsign);
+	  Players[Player_num].flags &= ~PLAYER_FLAGS_BLUE_KEY;
+	  Players[Player_num].flags &= ~PLAYER_FLAGS_RED_KEY;
+	  Players[Player_num].flags &= ~PLAYER_FLAGS_GOLD_KEY;
+	  return;
+  }
+
+  extern int drop_powerup(int type, int id, int num, vms_vector * init_vel, vms_vector * pos, int segnum);
+  if (!d_strnicmp(Network_message, "spawnkeys", 81) && (Game_mode & GM_NETWORK))
+  {
+	  HUD_init_message(HM_MULTI, "\x01\xC1%s \x01\xD1 has just cheated!", Players[Player_num].callsign);
+	  drop_powerup(OBJ_POWERUP, POW_KEY_RED, 1, &vmd_zero_vector, &red_key_pos, red_key_seg);
+	  drop_powerup(OBJ_POWERUP, POW_KEY_BLUE, 1, &vmd_zero_vector, &blue_key_pos, blue_key_seg);
+	  return;
+  }
+
 	if (!d_strnicmp (Network_message,"/Handicap: ",11))
 	{
 		mytempbuf=&Network_message[11];
@@ -1619,10 +1703,11 @@ void
 multi_do_death(int objnum)
 {
 	// Do any miscellaneous stuff for a new network player after death
+	// possibly expolsion bug? - code
 
 	objnum = objnum;
 
-	if (!(Game_mode & GM_MULTI_COOP))
+	if (!(Game_mode & GM_MULTI_COOP | Netgame.CTF))
 	{
 		Players[Player_num].flags |= (PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_GOLD_KEY);
 	}
@@ -1790,12 +1875,12 @@ multi_do_reappear(const ubyte *buf)
 }
 
 void
-multi_do_player_explode(const ubyte *buf)
+multi_do_player_explode(const ubyte* buf)
 {
 	// Only call this for players, not robots.  pnum is player number, not
 	// Object number.
 
-	object *objp;
+	object* objp;
 	int count;
 	int pnum;
 	int i;
@@ -1826,25 +1911,22 @@ multi_do_player_explode(const ubyte *buf)
 	Players[pnum].secondary_weapon_flags = buf[count];				count++;
 	Players[pnum].laser_level = buf[count];                                                 count++;
 	Players[pnum].secondary_ammo[HOMING_INDEX] = buf[count];                count++;
-	Players[pnum].secondary_ammo[CONCUSSION_INDEX] = buf[count];count++;
+	Players[pnum].secondary_ammo[CONCUSSION_INDEX] = buf[count]; count++;
 	Players[pnum].secondary_ammo[SMART_INDEX] = buf[count];         count++;
 	Players[pnum].secondary_ammo[MEGA_INDEX] = buf[count];          count++;
 	Players[pnum].secondary_ammo[PROXIMITY_INDEX] = buf[count]; count++;
 	Players[pnum].primary_ammo[VULCAN_INDEX] = GET_INTEL_SHORT(buf + count); count += 2;
 	Players[pnum].flags = GET_INTEL_INT(buf + count);               count += 4;
 
-	multi_powcap_adjust_remote_cap (pnum);
+	multi_powcap_adjust_remote_cap(pnum);
 
-	objp = Objects+Players[pnum].objnum;
+	objp = Objects + Players[pnum].objnum;
 
 	//      objp->phys_info.velocity = *(vms_vector *)(buf+16); // 12 bytes
 	//      objp->pos = *(vms_vector *)(buf+28);                // 12 bytes
 
 	remote_created = buf[count++]; // How many did the other guy create?
-
 	Net_create_loc = 0;
-
-	drop_player_eggs_remote(objp, 1);
 
 	// Create mapping from remote to local numbering system
 
@@ -1858,7 +1940,7 @@ multi_do_player_explode(const ubyte *buf)
 
 		s = GET_INTEL_SHORT(buf + count);
 		if ((i < Net_create_loc) && (s > 0) &&
-		    (Net_create_objnums[i] > 0))
+			(Net_create_objnums[i] > 0))
 			map_objnum_local_to_remote((short)Net_create_objnums[i], s, pnum);
 		count += 2;
 	}
@@ -1893,8 +1975,8 @@ multi_do_player_explode(const ubyte *buf)
 /*
  * Process can compute a kill. If I am a Client this might be my own one (see multi_send_kill()) but with more specific data so I can compute my kill correctly.
  */
-void
-multi_do_kill(const ubyte *buf)
+
+void multi_do_kill(const ubyte *buf)
 {
 	int killer, killed;
 	int count = 1;
@@ -2124,8 +2206,8 @@ void multi_disconnect_player(int pnum)
 
 	if (Players[pnum].connected == CONNECT_PLAYING)
 	{
-		digi_play_sample( SOUND_HUD_MESSAGE, F1_0 );
-		HUD_init_message(HM_MULTI,  "%s %s", Players[pnum].callsign, TXT_HAS_LEFT_THE_GAME);
+		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
+		HUD_init_message(HM_MULTI, "%s %s", Players[pnum].callsign, TXT_HAS_LEFT_THE_GAME);
 
 		multi_sending_message[pnum] = 0;
 
@@ -2139,19 +2221,19 @@ void multi_disconnect_player(int pnum)
 			newdemo_record_multi_disconnect(pnum);
 
 		// Bounty target left - select a new one
-		if( Game_mode & GM_BOUNTY && pnum == Bounty_target && multi_i_am_master() )
+		if (Game_mode & GM_BOUNTY && pnum == Bounty_target && multi_i_am_master())
 		{
 			/* Select a random number */
 			int new = d_rand() % MAX_PLAYERS;
-			
+
 			/* Make sure they're valid: Don't check against kill flags,
 				* just in case everyone's dead! */
-			while( !Players[new].connected )
+			while (!Players[new].connected)
 				new = d_rand() % MAX_PLAYERS;
-			
+
 			/* Select new target */
-			multi_new_bounty_target( new );
-			
+			multi_new_bounty_target(new);
+
 			/* Send this new data */
 			multi_send_bounty();
 		}
@@ -2167,28 +2249,47 @@ void multi_disconnect_player(int pnum)
 	switch (multi_protocol)
 	{
 #ifdef USE_UDP
-		case MULTI_PROTO_UDP:
-			net_udp_disconnect_player(pnum);
-			break;
+	case MULTI_PROTO_UDP:
+		net_udp_disconnect_player(pnum);
+		break;
 #endif
-		default:
-			Error("Protocol handling missing in multi_disconnect_player\n");
-			break;
+	default:
+		Error("Protocol handling missing in multi_disconnect_player\n");
+		break;
 	}
 
 	if (pnum == multi_who_is_master()) // Host has left - Quit game!
 	{
-		if (Network_status==NETSTAT_PLAYING)
+		if (Network_status == NETSTAT_PLAYING)
 			multi_leave_game();
-		if (Game_wind)
-			window_set_visible(Game_wind, 0);
-		nm_messagebox(NULL, 1, TXT_OK, "Host left the game!");
-		if (Game_wind)
-			window_set_visible(Game_wind, 1);
-		multi_quit_game = 1;
-		game_leave_menus();
-		multi_reset_stuff();
-		return;
+
+		
+		//same message box if the box Netgame.PointCapture is selected, just in case the host ends up winning, and the opponent is left alone.
+
+		if (Netgame.PointCapture)
+		{
+			if (Game_wind)
+				window_set_visible(Game_wind, 0);
+			nm_messagebox(NULL, 1, TXT_OK, "You did not captured the point!\n Maybe Next time, %s", Players[Player_num].callsign);
+			if (Game_wind)
+				window_set_visible(Game_wind, 1);
+				multi_quit_game = 1;
+				game_leave_menus();
+				multi_reset_stuff();
+			return;
+		}
+		else
+		{
+			if (Game_wind)
+				window_set_visible(Game_wind, 0);
+			nm_messagebox(NULL, 1, TXT_OK, "Host left the game!");
+			if (Game_wind)
+				window_set_visible(Game_wind, 1);
+			multi_quit_game = 1;
+			game_leave_menus();
+			multi_reset_stuff();
+			return;
+		}
 	}
 
 	for (i = 0; i < N_players; i++)
@@ -3348,7 +3449,7 @@ multi_send_score(void)
 	// synced.
 	int count = 0;
 
-	if ((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS)) {
+	if ((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS || Netgame.PointCapture || Netgame.CTF)) {
 		multi_sort_kill_list();
 		multibuf[count] = MULTI_SCORE;                  count += 1;
 		multibuf[count] = Player_num;                           count += 1;
@@ -3564,8 +3665,8 @@ multi_prep_level(void)
 				}
 
 			}
-
-			if (!(Game_mode & GM_MULTI_COOP))
+			//where the code changes special keys and stuff to shields
+			if (!(Game_mode & GM_MULTI_COOP || Netgame.CTF))
 				if ((Objects[i].id >= POW_KEY_BLUE) && (Objects[i].id <= POW_KEY_GOLD))
 				{
 					Objects[i].id = POW_SHIELD_BOOST;
@@ -4030,6 +4131,7 @@ void multi_add_lifetime_killed ()
 	}
 }
 
+
 void multi_send_ranking ()
 {
 	multibuf[0]=(char)MULTI_RANK;
@@ -4365,29 +4467,27 @@ void multi_initiate_save_game()
 
 	memset(&filename, '\0', PATH_MAX);
 	memset(&desc, '\0', 24);
-	slot = state_get_save_file(filename, desc, 0 );
+	slot = state_get_save_file(filename, desc, 0);
 	if (!slot)
 		return;
 	slot--;
 
 	// Make a unique game id
 	game_id = ((fix)timer_query());
-	game_id ^= N_players<<4;
-	for (i = 0; i < N_players; i++ )
+	game_id ^= N_players << 4;
+	for (i = 0; i < N_players; i++)
 	{
 		fix call2i;
 		memcpy(&call2i, Players[i].callsign, sizeof(fix));
 		game_id ^= call2i;
 	}
-	if ( game_id == 0 )
+	if (game_id == 0)
 		game_id = 1; // 0 is invalid
 
-	multi_send_save_game( slot, game_id, desc );
+	multi_send_save_game(slot, game_id, desc);
 	multi_do_frame();
-	multi_save_game( slot,game_id, desc );
+	multi_save_game(slot, game_id, desc);
 }
-
-extern int state_get_game_id(char *);
 
 void multi_initiate_restore_game()
 {
@@ -4475,7 +4575,8 @@ void multi_restore_game(ubyte slot, uint id)
 	}
   
 	state_restore_all_sub( filename );
-	multi_send_score(); // send my restored scores. I sent 0 when I loaded the level anyways...
+	
+	// send my restored scores. I sent 0 when I loaded the level anyways...
 }
 
 void multi_do_msgsend_state(const ubyte *buf)

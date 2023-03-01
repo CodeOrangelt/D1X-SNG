@@ -33,12 +33,17 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fireball.h"
 #include "robot.h"
 #include "byteswap.h"
+#include "powerup.h"
 
+#include "multi.h"
 #include "wall.h"
 #include "sounds.h"
 #include "morph.h"
 #include "3d.h"
+#include "gamefont.h"
+#include "text.h"
 #include "bm.h"
+#include "timer.h"
 #include "polyobj.h"
 #include "ai.h"
 #include "gamemine.h"
@@ -55,6 +60,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 fix Fuelcen_refill_speed = i2f(1);
 fix Fuelcen_give_amount = i2f(25);
+fix Fuelcen_give_amountut99 = f2i(1);
+int Fuelcen_refill_speedut99 = 1;
 fix Fuelcen_max_amount = i2f(100);
 
 // Every time a robot is created in the morphing code, it decreases capacity of the morpher
@@ -532,7 +539,7 @@ void fuelcen_update_all()
 	int i;
 	fix AmountToreplenish;
 	
-	AmountToreplenish = fixmul(FrameTime,Fuelcen_refill_speed);
+		AmountToreplenish = fixmul(FrameTime,Fuelcen_refill_speed);
 
 	for (i=0; i<Num_fuelcenters; i++ )	{
 		if ( Station[i].Type == SEGMENT_IS_ROBOTMAKER )	{
@@ -554,66 +561,238 @@ void fuelcen_update_all()
 }
 
 //-------------------------------------------------------------
-fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
+fix fuelcen_give_fuel(segment* segp, fix MaxAmountCanTake)
 {
 	static fix64 last_play_time = 0;
-        #define REFUEL_SOUND_DELAY (F1_0/3)
+#define REFUEL_SOUND_DELAY (F1_0/3)
 
-	Assert( segp != NULL );
+	Assert(segp != NULL);
 
 	PlayerSegment = segp;
 
-	if ( (segp) && (segp->special==SEGMENT_IS_FUELCEN) )	{
+	extern int drop_powerup(int type, int id, int num, vms_vector * init_vel, vms_vector * pos, int segnum);
+
+	if (Netgame.CTF)
+	{
+		if (Players[Player_num].flags & PLAYER_FLAGS_RED_KEY && blue_key_seg == ConsoleObject->segnum)
+		{
+			HUD_init_message(HM_MULTI, "You scored!");
+			drop_powerup(OBJ_POWERUP, POW_KEY_RED, 1, &vmd_zero_vector, &red_key_pos, red_key_seg);
+			Players[Player_num].flags &= ~PLAYER_FLAGS_RED_KEY;
+			digi_play_sample_once(SOUND_HOSTAGE_RESCUED, F1_0);
+			add_points_to_score(5);
+		}
+		if (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY && red_key_seg == ConsoleObject->segnum)
+		{
+			HUD_init_message(HM_MULTI, "You scored!");
+			drop_powerup(OBJ_POWERUP, POW_KEY_BLUE, 1, &vmd_zero_vector, &blue_key_pos, blue_key_seg);
+			Players[Player_num].flags &= ~PLAYER_FLAGS_BLUE_KEY;
+			digi_play_sample_once(SOUND_HOSTAGE_RESCUED, F1_0);
+			add_points_to_score(5);
+
+		}
+	}
+
+	if ((segp) && (segp->special == SEGMENT_IS_FUELCEN))
+	{
 		fix amount;
 
-//		if (Station[segp->value].MaxCapacity<=0)	{
-//			HUD_init_message(HM_DEFAULT, "Fuelcenter %d is destroyed.", segp->value );
-//			return 0;
-//		}
+		//		if (Station[segp->value].MaxCapacity<=0)	{
+		//			HUD_init_message(HM_DEFAULT, "Fuelcenter %d is destroyed.", segp->value );
+		//			return 0;
+		//		}
 
-//		if (Station[segp->value].Capacity<=0)	{
-//			HUD_init_message(HM_DEFAULT, "Fuelcenter %d is empty.", segp->value );
-//			return 0;
-//		}
+		//		if (Station[segp->value].Capacity<=0)	{
+		//			HUD_init_message(HM_DEFAULT, "Fuelcenter %d is empty.", segp->value );
+		//			return 0;
+		//		}
 
-		if (MaxAmountCanTake <= 0 )	{
-//			//gauge_message( "Fueled up!");
+		if (!Netgame.PointCapture & MaxAmountCanTake <= 0) {
+			//			//gauge_message( "Fueled up!");
 			return 0;
 		}
 
-		amount = fixmul(FrameTime,Fuelcen_give_amount);
+		amount = fixmul(FrameTime, Fuelcen_give_amount);
 
-		if (amount > MaxAmountCanTake )
+		if (amount > MaxAmountCanTake)
 			amount = MaxAmountCanTake;
+		else if (!Netgame.PointCapture & amount > MaxAmountCanTake) //forbid the energy capacity for unlimited point draw on Point Capture, regular energy still works as normal - code.
+			return;
 
-//		if (!(Game_mode & GM_MULTI))
-//			if ( Station[segp->value].Capacity < amount  )	{
-//				amount = Station[segp->value].Capacity;
-//				Station[segp->value].Capacity = 0;
-//			} else {
-//				Station[segp->value].Capacity -= amount;
-//			}
 
+		if (Netgame.PointCapture)
+			add_points_to_score(1);
+
+		if (Netgame.PointCapture && Game_wind && Netgame.ScoreGoal == 1 && Players[Player_num].score >= 1000)
+		{
+
+			HUD_init_message(HM_MULTI, "\x01\xB0\%s \x01\x99\ has won!", Players[Player_num].callsign);
+			if (Game_wind && Netgame.PointCapture)
+				window_set_visible(Game_wind, 0);
+			nm_messagebox(NULL, 1, TXT_OK, "You captured the point!\n Nice, %s", Players[Player_num].callsign);
+			if (Game_wind && Netgame.PointCapture)
+				window_set_visible(Game_wind, 1);
+			multi_quit_game = 1;
+			game_leave_menus();
+			multi_reset_stuff();
+		}
+		if (Netgame.PointCapture && Game_wind && Netgame.ScoreGoal == 2 && Players[Player_num].score >= 2000)
+		{
+			HUD_init_message(HM_MULTI, "\x01\xB0\%s \x01\x99\ has won!", Players[Player_num].callsign);
+			if (Game_wind && Netgame.PointCapture)
+				window_set_visible(Game_wind, 0);
+			nm_messagebox(NULL, 1, TXT_OK, "You captured the point!\n Nice, %s", Players[Player_num].callsign);
+			if (Game_wind && Netgame.PointCapture)
+				window_set_visible(Game_wind, 1);
+			multi_quit_game = 1;
+			game_leave_menus();
+			multi_reset_stuff();
+		}
+
+		if (Netgame.PointCapture && Game_wind && Netgame.ScoreGoal == 3 && Players[Player_num].score >= 3000)
+		{
+			HUD_init_message(HM_MULTI, "\x01\xB0\%s \x01\x99\ has won!", Players[Player_num].callsign);
+			if (Game_wind && Netgame.PointCapture)
+				window_set_visible(Game_wind, 0);
+			nm_messagebox(NULL, 1, TXT_OK, "You captured the point!\n Nice, %s", Players[Player_num].callsign);
+			if (Game_wind && Netgame.PointCapture)
+				window_set_visible(Game_wind, 1);
+			multi_quit_game = 1;
+			game_leave_menus();
+			multi_reset_stuff();
+		}
+
+		if (Netgame.PointCapture && Game_wind && Netgame.ScoreGoal == 4 && Players[Player_num].score >= 4000)
+		{
+
+			HUD_init_message(HM_MULTI, "\x01\xB0\%s \x01\x99\ has won!", Players[Player_num].callsign);
+			if (Game_wind && Netgame.PointCapture)
+				window_set_visible(Game_wind, 0);
+			nm_messagebox(NULL, 1, TXT_OK, "You captured the point!\n Nice, %s", Players[Player_num].callsign);
+			if (Game_wind && Netgame.PointCapture)
+				window_set_visible(Game_wind, 1);
+			multi_quit_game = 1;
+			game_leave_menus();
+			multi_reset_stuff();
+		}
+		if (Netgame.PointCapture && Game_wind && Netgame.ScoreGoal == 5 && Players[Player_num].score >= 5000)
+		{
+
+			HUD_init_message(HM_MULTI, "\x01\xB0\%s \x01\x99\ has won!", Players[Player_num].callsign);
+			if (Game_wind && Netgame.PointCapture)
+				window_set_visible(Game_wind, 0);
+			nm_messagebox(NULL, 1, TXT_OK, "You captured the point!\n Nice, %s", Players[Player_num].callsign);
+			if (Game_wind && Netgame.PointCapture)
+				window_set_visible(Game_wind, 1);
+			multi_quit_game = 1;
+			game_leave_menus();
+			multi_reset_stuff();
+		}
+		if (Netgame.PointCapture && Game_wind && Netgame.ScoreGoal == 6 && Players[Player_num].score >= 6000)
+		{
+
+			HUD_init_message(HM_MULTI, "\x01\xB0\%s \x01\x99\ has won!", Players[Player_num].callsign);
+			if (Game_wind && Netgame.PointCapture)
+				window_set_visible(Game_wind, 0);
+			nm_messagebox(NULL, 1, TXT_OK, "You captured the point!\n Nice, %s", Players[Player_num].callsign);
+			if (Game_wind && Netgame.PointCapture)
+				window_set_visible(Game_wind, 1);
+			multi_quit_game = 1;
+			game_leave_menus();
+			multi_reset_stuff();
+		}
+		if (Netgame.PointCapture && Game_wind && Netgame.ScoreGoal == 7 && Players[Player_num].score >= 7000)
+		{
+
+			HUD_init_message(HM_MULTI, "\x01\xB0\%s \x01\x99\ has won!", Players[Player_num].callsign);
+			if (Game_wind && Netgame.PointCapture)
+				window_set_visible(Game_wind, 0);
+			nm_messagebox(NULL, 1, TXT_OK, "You captured the point!\n Nice, %s", Players[Player_num].callsign);
+			if (Game_wind && Netgame.PointCapture)
+				window_set_visible(Game_wind, 1);
+			multi_quit_game = 1;
+			game_leave_menus();
+			multi_reset_stuff();
+		}
+		if (Netgame.PointCapture && Game_wind && Netgame.ScoreGoal == 8 && Players[Player_num].score >= 8000)
+		{
+
+			HUD_init_message(HM_MULTI, "\x01\xB0\%s \x01\x99\ has won!", Players[Player_num].callsign);
+			if (Game_wind && Netgame.PointCapture)
+				window_set_visible(Game_wind, 0);
+			nm_messagebox(NULL, 1, TXT_OK, "You captured the point!\n Nice, %s", Players[Player_num].callsign);
+			if (Game_wind && Netgame.PointCapture)
+				window_set_visible(Game_wind, 1);
+			multi_quit_game = 1;
+			game_leave_menus();
+			multi_reset_stuff();
+		}
+		if (Netgame.PointCapture && Game_wind && Netgame.ScoreGoal == 9 && Players[Player_num].score >= 9000)
+		{
+
+			HUD_init_message(HM_MULTI, "\x01\xB0\%s \x01\x99\ has won!", Players[Player_num].callsign);
+			if (Game_wind && Netgame.PointCapture)
+				window_set_visible(Game_wind, 0);
+			nm_messagebox(NULL, 1, TXT_OK, "You captured the point!\n Nice, %s", Players[Player_num].callsign);
+			if (Game_wind && Netgame.PointCapture)
+				window_set_visible(Game_wind, 1);
+			multi_quit_game = 1;
+			game_leave_menus();
+			multi_reset_stuff();
+		}
+		if (Netgame.PointCapture && Game_wind && Netgame.ScoreGoal == 10 && Players[Player_num].score >= 10000)
+		{
+
+			HUD_init_message(HM_MULTI, "\x01\xB0\%s \x01\x99\ has won!", Players[Player_num].callsign);
+			if (Game_wind && Netgame.PointCapture)
+				window_set_visible(Game_wind, 0);
+			nm_messagebox(NULL, 1, TXT_OK, "You captured the point!\n Nice, %s", Players[Player_num].callsign);
+			if (Game_wind && Netgame.PointCapture)
+				window_set_visible(Game_wind, 1);
+			multi_quit_game = 1;
+			game_leave_menus();
+			multi_reset_stuff();
+		}
+
+
+		/*
+				if (Game_wind && Players[Player_num].score > 3000)
+					window_set_visible(Game_wind, 0);
+					nm_messagebox(NULL, 1, TXT_OK, "This game is finshed!");
+						if (Game_wind && Players[Player_num].score > 3000)
+							window_set_visible(Game_wind, 1);
+							multi_quit_game = 1;
+							game_leave_menus();
+							multi_reset_stuff();
+		*/
+
+		//		if (!(Game_mode & GM_MULTI))
+		//			if ( Station[segp->value].Capacity < amount  )	{
+		//				amount = Station[segp->value].Capacity;
+		//				Station[segp->value].Capacity = 0;
+		//			} else {
+		//				Station[segp->value].Capacity -= amount;
+		//			}
 
 		if (last_play_time + REFUEL_SOUND_DELAY < GameTime64 || last_play_time > GameTime64)
 		{
 			last_play_time = GameTime64;
-			digi_play_sample( SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2 );
+			digi_play_sample(SOUND_REFUEL_STATION_GIVING_FUEL, F1_0 / 2);
 
 #ifdef NETWORK
 			if (Game_mode & GM_MULTI)
-				multi_send_play_sound(SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2);
+				multi_send_play_sound(SOUND_REFUEL_STATION_GIVING_FUEL, F1_0 / 2);
 #endif
 		}
 
 		//HUD_init_message(HM_DEFAULT, "Fuelcen %d has %d/%d fuel", segp->value,f2i(Station[segp->value].Capacity),f2i(Station[segp->value].MaxCapacity) );
 		return amount;
 
-	} else {
+	}
+	else {
 		return 0;
 	}
 }
-
 //	--------------------------------------------------------------------------------------------
 void disable_matcens(void)
 {

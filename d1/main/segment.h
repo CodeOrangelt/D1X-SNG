@@ -116,7 +116,9 @@ typedef struct segment segment;
 #define SEGMENT_IS_REPAIRCEN    2
 #define SEGMENT_IS_CONTROLCEN   3
 #define SEGMENT_IS_ROBOTMAKER   4
-#define MAX_CENTER_TYPES        5
+#define SEGMENT_IS_KEY_BLUE    5
+#define SEGMENT_IS_KEY_RED     6
+#define MAX_CENTER_TYPES        7
 
 #ifdef COMPACT_SEGS
 extern void get_side_normal(segment *sp, int sidenum, int normal_num, vms_vector * vm );
@@ -143,8 +145,12 @@ typedef struct {
 } group;
 
 // Globals from mglobal.c
-extern vms_vector   Vertices[];
-extern segment      Segments[];
+#define Segment2s Segments
+extern vms_vector   Vertices[MAX_VERTICES];
+extern segment      Segments[MAX_SEGMENTS];
+extern int          Num_segments;
+extern int          Num_vertices;
+
 //--repair-- extern	lsegment		Lsegments[];
 extern int          Num_segments;
 extern int          Num_vertices;

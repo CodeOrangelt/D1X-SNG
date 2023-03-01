@@ -2143,7 +2143,7 @@ void do_options_menu()
 {
 	newmenu_item *m;
 
-	MALLOC(m, newmenu_item, 11);
+	MALLOC(m, newmenu_item, 12);
 	if (!m)
 		return;
 

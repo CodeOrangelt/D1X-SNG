@@ -126,6 +126,8 @@ extern int	create_special_path(void);
 extern void move_player_2_segment(segment *seg, int side);
 extern void newdemo_strip_frames(char *, int);
 extern void toggle_cockpit(void);
+extern void DropSecondaryWeapon();
+extern void DropCurrentWeapon();
 extern void dump_used_textures_all();
 
 int FinalCheats(int key);
@@ -636,6 +638,15 @@ int HandleSystemKey(int key)
 				state_save_all( 0 );
 			break;
 
+			if (!Player_is_dead)
+				switch (key)
+				{
+				KEY_MAC(case KEY_COMMAND + KEY_LALT + KEY_X:)
+				case KEY_LALT+KEY_X:
+					DropCurrentWeapon();
+					break;
+				}
+
 		KEY_MAC(case KEY_COMMAND+KEY_S:)
 		case KEY_ALTED+KEY_F1:
 			if (!Player_is_dead)
@@ -705,6 +716,7 @@ int HandleGameKey(int key)
 			}
 			break;
 
+
 #ifdef NETWORK
 		KEY_MAC(case KEY_COMMAND+KEY_6:)
 		case KEY_F6:
@@ -741,6 +753,7 @@ int HandleGameKey(int key)
 		case KEY_CTRLED + KEY_5:
 		case KEY_CTRLED + KEY_6:
 		case KEY_CTRLED + KEY_7:
+
 			if (Game_mode & GM_OBSERVER)
 				set_obs(key - KEY_CTRLED - KEY_1);
 			break;
@@ -797,6 +810,7 @@ int HandleGameKey(int key)
 			break;
 
 	}	 //switch (key)
+
 
 	return 1;
 }
@@ -862,6 +876,7 @@ int HandleTestKey(int key)
 		case KEY_SHIFTED+KEY_ALTED+KEY_BACKSP:
 		case KEY_CTRLED+KEY_ALTED+KEY_BACKSP:
 		case KEY_SHIFTED+KEY_CTRLED+KEY_BACKSP:
+
 		case KEY_SHIFTED+KEY_CTRLED+KEY_ALTED+KEY_BACKSP:
 
 			Int3(); break;
@@ -933,6 +948,7 @@ int HandleTestKey(int key)
 		case KEY_DEBUGGED + KEY_F11: play_test_sound(); break;
 		case KEY_DEBUGGED + KEY_SHIFTED+KEY_F11: advance_sound(); play_test_sound(); break;
 #endif
+
 
 		case KEY_DEBUGGED + KEY_M:
 			Debug_spew = !Debug_spew;
@@ -1012,6 +1028,7 @@ int HandleTestKey(int key)
 			break;
 	}
 
+
 	return 1;
 }
 #endif		//#ifndef RELEASE
@@ -1054,13 +1071,13 @@ int FinalCheats(int key)
 		return 0;
 
 	for (i = 1; i < CHEAT_MAX_LEN; i++)
-		cheat_buffer[i-1] = cheat_buffer[i];
-	cheat_buffer[CHEAT_MAX_LEN-1] = key_ascii();
+		cheat_buffer[i - 1] = cheat_buffer[i];
+	cheat_buffer[CHEAT_MAX_LEN - 1] = key_ascii();
 	for (i = 0; i < NUM_CHEATS; i++)
 	{
 		int cheatlen = strlen(cheat_codes[i].string);
 		Assert(cheatlen <= CHEAT_MAX_LEN);
-		if (d_strnicmp(cheat_codes[i].string, cheat_buffer+CHEAT_MAX_LEN-cheatlen, cheatlen)==0)
+		if (d_strnicmp(cheat_codes[i].string, cheat_buffer + CHEAT_MAX_LEN - cheatlen, cheatlen) == 0)
 		{
 			if (!cheats.enabled && *cheat_codes[i].stateptr != cheats.enabled)
 				break;
@@ -1068,13 +1085,13 @@ int FinalCheats(int key)
 				HUD_init_message(HM_DEFAULT, TXT_CHEATS_ENABLED);
 			*cheat_codes[i].stateptr = !*cheat_codes[i].stateptr;
 			cheats.enabled = 1;
-			digi_play_sample( SOUND_CHEATER, F1_0);
+			digi_play_sample(SOUND_CHEATER, F1_0);
 			Players[Player_num].score = 0;
 			gotcha = i;
 			break;
 		}
 	}
-	
+
 	if (!gotcha)
 		return 0;
 
@@ -1085,9 +1102,9 @@ int FinalCheats(int key)
 		Players[Player_num].primary_weapon_flags |= 0xff ^ (HAS_PLASMA_FLAG | HAS_FUSION_FLAG);
 		Players[Player_num].secondary_weapon_flags |= 0xff ^ (HAS_SMART_FLAG | HAS_MEGA_FLAG);
 
-		for (i=0; i<3; i++)
+		for (i = 0; i < 3; i++)
 			Players[Player_num].primary_ammo[i] = Primary_ammo_max[i];
-		for (i=0; i<3; i++)
+		for (i = 0; i < 3; i++)
 			Players[Player_num].secondary_ammo[i] = Secondary_ammo_max[i];
 
 		if (Newdemo_state == ND_STATE_RECORDING)
@@ -1101,14 +1118,14 @@ int FinalCheats(int key)
 
 	if (cheat_codes[gotcha].stateptr == &cheats.wowie2)
 	{
-		HUD_init_message(HM_DEFAULT, "SUPER %s",TXT_WOWIE_ZOWIE);
+		HUD_init_message(HM_DEFAULT, "SUPER %s", TXT_WOWIE_ZOWIE);
 
 		Players[Player_num].primary_weapon_flags = 0xff;
 		Players[Player_num].secondary_weapon_flags = 0xff;
 
-		for (i=0; i<MAX_PRIMARY_WEAPONS; i++)
+		for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 			Players[Player_num].primary_ammo[i] = Primary_ammo_max[i];
-		for (i=0; i<MAX_SECONDARY_WEAPONS; i++)
+		for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
 			Players[Player_num].secondary_ammo[i] = Secondary_ammo_max[i];
 
 		if (Newdemo_state == ND_STATE_RECORDING)
@@ -1129,20 +1146,21 @@ int FinalCheats(int key)
 	if (cheat_codes[gotcha].stateptr == &cheats.invul)
 	{
 		Players[Player_num].flags ^= PLAYER_FLAGS_INVULNERABLE;
-		HUD_init_message(HM_DEFAULT, "%s %s!", TXT_INVULNERABILITY, (Players[Player_num].flags&PLAYER_FLAGS_INVULNERABLE)?TXT_ON:TXT_OFF);
-		Players[Player_num].invulnerable_time = GameTime64+i2f(1000);
+		HUD_init_message(HM_DEFAULT, "%s %s!", TXT_INVULNERABILITY, (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE) ? TXT_ON : TXT_OFF);
+		Players[Player_num].invulnerable_time = GameTime64 + i2f(1000);
 	}
 
 	if (cheat_codes[gotcha].stateptr == &cheats.cloak)
 	{
 		Players[Player_num].flags ^= PLAYER_FLAGS_CLOAKED;
-		HUD_init_message(HM_DEFAULT, "%s %s!", TXT_CLOAK, (Players[Player_num].flags&PLAYER_FLAGS_CLOAKED)?TXT_ON:TXT_OFF);
+		HUD_init_message(HM_DEFAULT, "%s %s!", TXT_CLOAK, (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) ? TXT_ON : TXT_OFF);
 		if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)
 		{
 			ai_do_cloak_stuff();
 			Players[Player_num].cloak_time = GameTime64;
 		}
 	}
+
 
 	if (cheat_codes[gotcha].stateptr == &cheats.shields)
 	{

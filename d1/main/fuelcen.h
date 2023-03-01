@@ -70,6 +70,9 @@ extern object *create_morph_robot(segment *segp, vms_vector *object_pos, int obj
 // Can be from 0 to 100.
 fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake );
 
+void key_goal_segment(segment* segp);
+void init_keys();
+
 // Call once per frame.
 void fuelcen_update_all();
 

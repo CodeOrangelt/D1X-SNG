@@ -1253,6 +1253,10 @@ void drop_player_eggs_remote(object *playerobj, ubyte remote)
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_SHIELD_BOOST);
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_ENERGY);
 		}
+		if (Game_mode & Netgame.CTF && PLAYER_FLAGS_BLUE_KEY) {
+			Players[Player_num].flags &= ~PLAYER_FLAGS_BLUE_KEY;
+			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_KEY_BLUE);
+		}
 	}
 }
 
@@ -1277,17 +1281,17 @@ void do_shield_warnings() {
 		int warning_increment = 10; 
 		
 		if(PlayerCfg.ShieldWarnings) {
-			
+			//codes shield indicator message, thanks devs
 			if(pre_shields >= warning_increment*1 && post_shields < warning_increment*1) {
-				HUD_init_message_literal(HM_MULTI, "Shield critical!"); 
+				HUD_init_message_literal(HM_MULTI, "You have \x01\xC1 10 \x01\x9A shields left"); 
 				digi_play_sample(SOUND_BAD_SELECTION, F1_0);
 				reset_shield_warning_damage();
 			} else if(pre_shields >= warning_increment*2 && post_shields < warning_increment*2) {
-				HUD_init_message_literal(HM_MULTI, "Shields low."); 
+				HUD_init_message_literal(HM_MULTI, "You have \x01\xC1 20 \x01\x9A shields left"); 
 				digi_play_sample(SOUND_BAD_SELECTION, F1_0);
 				reset_shield_warning_damage();
 			} else if(pre_shields >= warning_increment*4 && post_shields < warning_increment*4) {
-				HUD_init_message_literal(HM_MULTI, "Shield warning."); 
+				HUD_init_message_literal(HM_MULTI, "You have \x01\xC1 40 \x01\x9A shields left"); 
 				digi_play_sample(SOUND_BAD_SELECTION, F1_0);
 				reset_shield_warning_damage();
 			}		

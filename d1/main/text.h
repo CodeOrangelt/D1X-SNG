@@ -680,7 +680,7 @@ static inline char *dxx_gettext(unsigned idx, const char *text)
 	((u) == PROXIMITY_INDEX) ? TXT_W_P_BOMB_S :	\
 	((u) == SMART_INDEX) ? TXT_W_S_MISSILE_S :	\
 	((u) == MEGA_INDEX) ? TXT_W_M_MISSILE_S :	\
-	(dxx_text_ensure_simple_expr(&(u), TXT_W_C_MISSILE_S))	\
+	(dxx_text_ensure_simple_expr(&(u), "Concussion Missile"))	\
 	)
 
 #define NET_DUMP_STRINGS(u)	(	\

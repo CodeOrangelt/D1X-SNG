@@ -253,10 +253,10 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 
 			if (Fusion_charge <= 0)
 				obj->ctype.laser_info.multiplier = F1_0;
-			else if (Fusion_charge <= F1_0*fusion_scale)
-				obj->ctype.laser_info.multiplier = F1_0 + Fusion_charge/2;
+			else if (Fusion_charge <= F1_0 * fusion_scale)
+				obj->ctype.laser_info.multiplier = F1_0 + Fusion_charge / 2;
 			else
-				obj->ctype.laser_info.multiplier = F1_0*fusion_scale;
+				obj->ctype.laser_info.multiplier = F1_0 * fusion_scale;
 
 			//	Fusion damage was boosted by mk on 3/27 (for reg 1.1 release), but we only want it to apply to single player games.
 			if (Game_mode & GM_MULTI)
@@ -894,6 +894,10 @@ void Flare_create(object *obj)
 		#endif
 	}
 
+	if (Netgame.DarkSmartBlobs)
+	{
+		Weapon_info[FLARE_ID].strength == 100;
+	}
 }
 
 #define	HOMING_MISSILE_SCALE	8

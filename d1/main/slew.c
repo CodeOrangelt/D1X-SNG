@@ -39,7 +39,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 object *slew_obj=NULL;	//what object is slewing, or NULL if none
 
 #define JOY_NULL 15
-#define ROT_SPEED 2		//rate of rotation while key held down
+#define ROT_SPEED 2	//rate of rotation while key held down
 #define SLIDE_SPEED 			(700)
 #define ZOOM_SPEED_FACTOR		(1000)	//(1500)
 
@@ -116,8 +116,9 @@ int do_slew_movement(object *obj, int check_keys )
 			obj->mtype.phys_info.velocity.y = SLIDE_SPEED * Controls.vertical_thrust_time;
 			obj->mtype.phys_info.velocity.z = ZOOM_SPEED_FACTOR * Controls.forward_thrust_time;
 
-			rotang.p = Controls.pitch_time/ROT_SPEED ;
-			rotang.b  = Controls.bank_time/ROT_SPEED;
+			rotang.p = Controls.pitch_time/ROT_SPEED;
+			//faster banking -> code :: original, was not *20
+			rotang.b = Controls.bank_time / ROT_SPEED;//*20
 			rotang.h  = Controls.heading_time/ROT_SPEED;
 		}
 	}

@@ -1487,7 +1487,7 @@ void bm_read_weapon(int skip, int unused_flag)
 	Weapon_info[n].drag = 0;
 	Weapon_info[n].persistent = 0;
 
-	Weapon_info[n].energy_usage = 0;					//	How much fuel is consumed to fire this weapon.
+	Weapon_info[n].energy_usage = 20;					//	How much fuel is consumed to fire this weapon.
 	Weapon_info[n].ammo_usage = 0;					//	How many units of ammunition it uses.
 	Weapon_info[n].fire_wait = F1_0/4;				//	Time until this weapon can be fired again.
 	Weapon_info[n].fire_count = 1;					//	Number of bursts fired from EACH GUN per firing.  For weapons which fire from both sides, 3*fire_count shots will be fired.

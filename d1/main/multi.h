@@ -64,8 +64,8 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Can be reset to 0 each time the version of the game changes
-#define MULTI_PROTO_VERSION 29462 // Retromod 1.4.6-ar2
-
+#define MULTI_PROTO_VERSION 31305// Retromod 1.4.6-ar2
+//protocol dumbass! -> code
 // PROTOCOL VARIABLES AND DEFINES - END
 
 
@@ -242,6 +242,7 @@ void multi_send_damage(fix damage, fix shields, ubyte killer_type, ubyte killer_
 void multi_do_damage( const ubyte *buf );
 void multi_send_repair(fix repair, fix shields, ubyte sourcetype);
 void multi_do_repair( const ubyte *buf );
+
 
 void multi_send_bounty( void );
 void multi_endlevel_score(void);
@@ -420,6 +421,7 @@ typedef struct netgame_info
 #endif
 	} protocol;	
 #endif
+	//this is also what you're looking for dumbass -> code
 	struct netplayer_info 				players[MAX_PLAYERS+4];
 	struct netplayer_info               observers[MAX_OBSERVERS]; 
 	char    					game_name[NETGAME_NAME_LEN+1];
@@ -451,6 +453,7 @@ typedef struct netgame_info
 	short						team_kills[2];
 	short						killed[MAX_PLAYERS];
 	short						player_kills[MAX_PLAYERS];
+	int						ScoreGoal;
 	int						KillGoal;
 	fix						PlayTimeAllowed;
 	fix						level_time;
@@ -468,6 +471,13 @@ typedef struct netgame_info
 	ubyte						RetroProtocol;
 	ubyte						RespawnConcs; 
 	ubyte						AllowColoredLighting;
+	ubyte						Deathmatch;
+	ubyte						PurpleFlash;
+	ubyte   					CTF;
+	ubyte						QuietFan;
+	ubyte						FusionShake;
+	ubyte						FastDoor;
+	ubyte						PointCapture;
 	ubyte						FairColors;	
 	ubyte						BlackAndWhitePyros;
 	ubyte						PrimaryDupFactor;

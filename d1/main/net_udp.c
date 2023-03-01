@@ -2892,6 +2892,7 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid, ubyte
 			PUT_INTEL_SHORT(buf + len, Netgame.player_kills[i]);			len += 2;
 		}
 		PUT_INTEL_INT(buf + len, Netgame.KillGoal);					len += 4;
+		PUT_INTEL_INT(buf + len, Netgame.ScoreGoal);					len += 4;
 		PUT_INTEL_INT(buf + len, Netgame.PlayTimeAllowed);				len += 4;
 		PUT_INTEL_INT(buf + len, Netgame.level_time);					len += 4;
 		PUT_INTEL_INT(buf + len, Netgame.control_invul_time);				len += 4;
@@ -2911,13 +2912,24 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid, ubyte
 		buf[len] = Netgame.RetroProtocol;						len++;
 		buf[len] = Netgame.RespawnConcs;						len++;
 		buf[len] = Netgame.AllowColoredLighting; 				len++; 
-		buf[len] = Netgame.FairColors;			 				len++; 		
+		buf[len] = Netgame.FairColors;			 				len++; 
+
+
+		//sng toggles
+		buf[len] = Netgame.Deathmatch;			 				len++;
+		buf[len] = Netgame.CTF;			 				len++;
+		buf[len] = Netgame.QuietFan;			 				len++;
+		buf[len] = Netgame.FastDoor;			 				len++;
+		buf[len] = Netgame.PointCapture;			 				len++;
+		buf[len] = Netgame.FusionShake;			 				len++;
+		buf[len] = Netgame.DarkSmartBlobs;					len++;
+		buf[len] = Netgame.PurpleFlash;			 				len++;
+		//sng toggles end
 		buf[len] = Netgame.BlackAndWhitePyros; 				len++; 
 		buf[len] = Netgame.SpawnStyle;		                len++; 
 		buf[len] = Netgame.PrimaryDupFactor;                len++; 
 		buf[len] = Netgame.SecondaryDupFactor;                len++; 
 		buf[len] = Netgame.SecondaryCapFactor;                len++; 
-		buf[len] = Netgame.DarkSmartBlobs;					len++; 
 		buf[len] = Netgame.LowVulcan;					len++;
 		buf[len] = Netgame.AllowPreferredColors;        len++; 
 		buf[len] = Netgame.HomingUpdateRate;            len++;
@@ -3113,6 +3125,7 @@ int net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_a
 			Netgame.player_kills[i] = GET_INTEL_SHORT(&(data[len]));		len += 2;
 		}
 		Netgame.KillGoal = GET_INTEL_INT(&(data[len]));					len += 4;
+		Netgame.ScoreGoal = GET_INTEL_INT(&(data[len]));					len += 4;
 		Netgame.PlayTimeAllowed = GET_INTEL_INT(&(data[len]));				len += 4;
 		Netgame.level_time = GET_INTEL_INT(&(data[len]));				len += 4;
 		Netgame.control_invul_time = GET_INTEL_INT(&(data[len]));			len += 4;
@@ -3132,16 +3145,27 @@ int net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_a
 		Netgame.RetroProtocol = data[len];						len++; 
 		Netgame.RespawnConcs  = data[len];						len++; 
 		Netgame.AllowColoredLighting = data[len];				len++; 
-		Netgame.FairColors = data[len];							len++; 
+		Netgame.FairColors = data[len];							len++;
+		//sng toggles end
+		Netgame.Deathmatch = data[len];							len++;
+		Netgame.CTF = data[len];							len++;
+		Netgame.QuietFan = data[len];							len++;
+		Netgame.FastDoor = data[len];							len++;
+		Netgame.PointCapture = data[len];							len++;
+		Netgame.FusionShake = data[len];							len++;
+		Netgame.DarkSmartBlobs = data[len];                    len++;
+		Netgame.PurpleFlash = data[len];							len++;
+		//sng toggles end
 		Netgame.BlackAndWhitePyros = data[len];				len++; 
 		Netgame.SpawnStyle = data[len];				len++; 
 		Netgame.PrimaryDupFactor = data[len];                len++; 
 		Netgame.SecondaryDupFactor = data[len];                len++; 
 		Netgame.SecondaryCapFactor = data[len];                len++; 
-		Netgame.DarkSmartBlobs = data[len];                    len++; 
 		Netgame.LowVulcan = data[len];                    len++; 
 		Netgame.AllowPreferredColors = data[len];         len++; 
 		Netgame.HomingUpdateRate = data[len];             len++;
+
+		con_printf(CON_NORMAL, "xxx len: %d\n", len);
 
 
 		if(is_sync && ! multi_i_am_master()) {
@@ -3622,13 +3646,22 @@ int net_udp_start_poll( newmenu *menu, d_event *event, void *userdata )
 	return 0;
 }
 
+// this is what you are looking for dumbass -> code
 static int opt_cinvul, opt_show_on_map;
 static int opt_show_on_map, opt_difficulty, opt_setpower, opt_playtime, opt_killgoal, opt_port, opt_packets, opt_shortpack, opt_show_names, opt_bright, opt_ffire, opt_retroproto, opt_respawnconcs, opt_allowcolor, opt_faircolors, opt_blackwhite;
 static int opt_primary_dup, opt_secondary_dup, opt_secondary_cap; 
 static int opt_spawn_no_invul, opt_spawn_short_invul, opt_spawn_long_invul, opt_spawn_preview; 
-//static int opt_dark_smarts;
+static int opt_scoregoal;
+static int opt_deathmatch;
+static int opt_pointcapture;
+static int opt_fasterdoor;
+static int opt_quietfan;
+static int opt_fusionshake;
+static int opt_purpleflash;
+static int opt_dark_smarts;
 static int opt_allowprefcolor; 
 static int opt_low_vulcan;
+static int opt_ctf;
 static int opt_homing_update_rate;
 #ifdef USE_TRACKER
 static int opt_tracker;
@@ -3658,15 +3691,19 @@ void net_udp_more_game_options ()
 {
 	int opt=0,i=0;
 	char PlayText[80],KillText[80],srinvul[50],packstring[5];
+
+	char ScoreText[80];
 	char PrimDupText[80],SecDupText[80],SecCapText[80]; 
 	char HomingUpdateRateText[80];
 #ifdef USE_TRACKER
-	newmenu_item m[34];
+	newmenu_item m[48];
 #else
- 	newmenu_item m[33];
+ 	newmenu_item m[47];
 #endif
 
 	snprintf(packstring,sizeof(char)*4,"%d",Netgame.PacketsPerSec);
+
+	//advanced menu sliders - code
 	
 	opt_difficulty = opt;
 	m[opt].type = NM_TYPE_SLIDER; m[opt].value=Netgame.difficulty; m[opt].text=TXT_DIFFICULTY; m[opt].min_value=0; m[opt].max_value=(NDL-1); opt++;
@@ -3682,6 +3719,13 @@ void net_udp_more_game_options ()
 	opt_killgoal=opt;
 	sprintf( KillText, "Kill Goal: %d kills", Netgame.KillGoal*10);
 	m[opt].type = NM_TYPE_SLIDER; m[opt].value=Netgame.KillGoal; m[opt].text= KillText; m[opt].min_value=0; m[opt].max_value=10; opt++;
+
+	opt_scoregoal = opt;
+	sprintf(ScoreText, "Score Goal: %d", Netgame.ScoreGoal*1000);
+						//The 1000 represents the intervals of numbers in between, so with a Max of 10, and a multiplication of 1000, that makes 10K.
+	m[opt].type = NM_TYPE_SLIDER; m[opt].value = Netgame.ScoreGoal; m[opt].text = ScoreText; m[opt].min_value = 0; m[opt].max_value = 10; opt++;
+	if (Netgame.ScoreGoal == 0)
+		sprintf(ScoreText, "Score Goal: Unlimited");
 
 	opt_primary_dup=opt;
 	char xp[5];
@@ -3700,7 +3744,6 @@ void net_udp_more_game_options ()
 
 	opt_low_vulcan = opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Low Vulcan Ammo"; m[opt].value = Netgame.LowVulcan; opt++;	
-
 
 	opt_setpower = opt;
 	m[opt].type = NM_TYPE_MENU;  m[opt].text = "Set Objects allowed..."; opt++;
@@ -3724,21 +3767,51 @@ void net_udp_more_game_options ()
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Respawn Concussions"; m[opt].value = Netgame.RespawnConcs; opt++;	
 
 	opt_faircolors = opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = "All Players Blue"; m[opt].value = Netgame.FairColors; opt++;		
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "All Players Blue"; m[opt].value = Netgame.FairColors; opt++;	
 
 	opt_allowcolor = opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Allow Colored Dynamic Lighting"; m[opt].value = Netgame.AllowColoredLighting; opt++;	
 
 	opt_allowprefcolor = opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Allow Players To Choose Their Colors"; m[opt].value = Netgame.AllowPreferredColors; opt++;	
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Allow Players To Choose Their Colors"; m[opt].value = Netgame.AllowPreferredColors; opt++;		
 
-
-	//opt_dark_smarts = opt;
-	//m[opt].type = NM_TYPE_CHECK; m[opt].text = "Dark Smart Blobs"; m[opt].value = Netgame.DarkSmartBlobs; opt++;	
-
-
+	//Code's SNG Toggles & Features.
 
 	m[opt].type = NM_TYPE_TEXT; m[opt].text = ""; opt++;
+
+	m[opt].type = NM_TYPE_TEXT; m[opt].text = "Misc Game Modes"; opt++;
+
+	opt_pointcapture = opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Point Capture";  m[opt].value = Netgame.PointCapture; opt++;
+
+	opt_deathmatch = opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Death Match";  m[opt].value = Netgame.Deathmatch; opt++;
+
+	opt_ctf = opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Capture The Flag";  m[opt].value = Netgame.CTF; opt++;
+
+	m[opt].type = NM_TYPE_TEXT; m[opt].text = ""; opt++;
+
+	m[opt].type = NM_TYPE_TEXT; m[opt].text = "SNG Toggles "; opt++;
+
+	opt_purpleflash = opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "No Fusion Flash";  m[opt].value = Netgame.PurpleFlash; opt++;
+
+	opt_fusionshake = opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "No Fusion Shake";  m[opt].value = Netgame.FusionShake; opt++;
+
+	opt_fasterdoor = opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Fast Doors";  m[opt].value = Netgame.FastDoor; opt++;
+
+	opt_dark_smarts = opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Dark Smart Blobs"; m[opt].value = Netgame.DarkSmartBlobs; opt++;
+
+	opt_quietfan = opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Quiet Fan"; m[opt].value = Netgame.QuietFan; opt++;
+
+	m[opt].type = NM_TYPE_TEXT; m[opt].text = ""; opt++;
+
+	//End of SNG Toggles & Features.
 
 	m[opt].type = NM_TYPE_TEXT; m[opt].text = "Packets per second (2 - 40)"; opt++;
 	opt_packets=opt;
@@ -3831,8 +3904,15 @@ menu:
 	Netgame.RespawnConcs  = m[opt_respawnconcs].value;
 	Netgame.AllowColoredLighting  = m[opt_allowcolor].value;
 	Netgame.FairColors  = m[opt_faircolors].value;
+	Netgame.Deathmatch = m[opt_deathmatch].value;
+	Netgame.CTF = m[opt_ctf].value;
+	Netgame.PointCapture = m[opt_pointcapture].value;
+	Netgame.QuietFan = m[opt_quietfan].value;
+	Netgame.FusionShake = m[opt_fusionshake].value;
+	Netgame.FastDoor = m[opt_fasterdoor].value;
+	Netgame.PurpleFlash = m[opt_purpleflash].value;
 	Netgame.BlackAndWhitePyros  = m[opt_blackwhite].value;
-	//Netgame.DarkSmartBlobs = m[opt_dark_smarts].value;
+	Netgame.DarkSmartBlobs = m[opt_dark_smarts].value;
 	Netgame.LowVulcan = m[opt_low_vulcan].value;
 	Netgame.AllowPreferredColors = m[opt_allowprefcolor].value;
 	Netgame.HomingUpdateRate = m[opt_homing_update_rate].value + 15;
@@ -3872,6 +3952,20 @@ int net_udp_more_options_handler( newmenu *menu, d_event *event, void *userdata 
 				
 				Netgame.KillGoal=menus[opt_killgoal].value;
 				sprintf( menus[opt_killgoal].text, "Kill Goal: %d kills", Netgame.KillGoal*10);
+			}
+			else if (citem == opt_scoregoal)
+			{
+				if (Game_mode & GM_MULTI_COOP)
+				{
+					nm_messagebox("Sorry", 1, TXT_OK, "This is only for Point Control!");
+					menus[opt_killgoal].value = 0;
+					return 0;
+				}
+
+				Netgame.ScoreGoal = menus[opt_scoregoal].value;
+				sprintf(menus[opt_scoregoal].text, "Score Goal: %d", Netgame.ScoreGoal * 1000);
+				if(Netgame.ScoreGoal == 0)
+					sprintf(menus[opt_scoregoal].text, "Score Goal: Unlimited");
 			}
 			else if (citem == opt_primary_dup)
 			{
@@ -4100,7 +4194,8 @@ int net_udp_setup_game()
 	int i;
 	int optnum;
 	param_opt opt;
-	newmenu_item m[23];
+	//the other other thing you are looking for dumbass stop forgetting -> code
+	newmenu_item m[30];
 	char slevel[5];
 	char level_text[32];
 	char srmaxnet[50];
@@ -4119,6 +4214,7 @@ int net_udp_setup_game()
 			Players[i].callsign[0]=0;
 
 	Netgame.max_numplayers = MAX_PLAYERS;
+	Netgame.ScoreGoal = 0;
 	Netgame.KillGoal=0;
 	Netgame.PlayTimeAllowed=0;
 	Netgame.RefusePlayers=0;
@@ -4138,6 +4234,13 @@ int net_udp_setup_game()
 	Netgame.NoFriendlyFire = 0;
 	Netgame.RetroProtocol = 1;
 	Netgame.BlackAndWhitePyros = 1;
+	Netgame.Deathmatch = 0;
+	Netgame.CTF = 0;
+	Netgame.FusionShake = 0;
+	Netgame.QuietFan = 0;
+	Netgame.PurpleFlash = 0;
+	Netgame.PointCapture = 0;
+	Netgame.FastDoor = 0;
 	Netgame.DarkSmartBlobs = 0;
 	Netgame.LowVulcan = 0;
 	Netgame.AllowPreferredColors = 1; 

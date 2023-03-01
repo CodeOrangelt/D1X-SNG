@@ -92,7 +92,7 @@ void show_framerate()
 			y -= LINE_SPACING * 4;
 	} else if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) {
 		if ((Game_mode & GM_MULTI) || (Newdemo_state == ND_STATE_PLAYBACK && Newdemo_game_mode & GM_MULTI))
-			y -= LINE_SPACING * 6;
+			y -= LINE_SPACING * 1;
 		else
 			y -= LINE_SPACING * 1;
 	} else {
@@ -109,7 +109,7 @@ void show_framerate()
 		fps_count = 0;
 		fps_time = timer_query();
 	}
-	gr_printf(SWIDTH-(GameArg.SysMaxFPS>999?FSPACX(43):FSPACX(37)),y,"FPS: %i",fps_rate);
+	gr_printf(SWIDTH-(GameArg.SysMaxFPS>999?FSPACX(30):FSPACX(37)),y, "\x01\xB0\FPS: %i",fps_rate);
 }
 
 void show_observers() {
@@ -450,7 +450,7 @@ void game_draw_hud_stuff()
 		} else {
 			//extern int Newdemo_num_written;
 			//sprintf (message, "%s (%dK)", TXT_DEMO_RECORDING, (Newdemo_num_written / 1024));
-			sprintf (message, "%s", TXT_DEMO_RECORDING);
+			sprintf (message, "\x01\xB0 \n %s", TXT_DEMO_RECORDING);
 		}
 
 		gr_set_curfont( GAME_FONT );
@@ -481,7 +481,7 @@ void game_draw_hud_stuff()
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		Game_mode = GM_NORMAL | (Game_mode & GM_OBSERVER);
 
-	if ( Player_is_dead )
+	if ( Player_is_dead & !Netgame.PointCapture )
 		player_dead_message();
 }
 

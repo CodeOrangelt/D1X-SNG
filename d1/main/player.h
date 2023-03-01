@@ -36,6 +36,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // Initial player stat values
 #define INITIAL_ENERGY  i2f(100)    // 100% energy to start
 #define INITIAL_SHIELDS i2f(100)    // 100% shields to start
+#define DM_SHIELDS		i2f(2000)
+
+// defines for teams CTF (keys)
+#define TEAM_BLUE   0
+#define TEAM_RED    1
 
 #define MAX_ENERGY      i2f(200)    // go up to 200
 #define MAX_SHIELDS     i2f(200)

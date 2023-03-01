@@ -1174,23 +1174,26 @@ void GameProcessFrame(void)
 			else if (GameTime64 + FrameTime/2 >= Auto_fire_fusion_cannon_time) {
 				Auto_fire_fusion_cannon_time = 0;
 				Global_laser_firing_count = 1;
-			} else if (d_tick_step) {
+				//toggleable fusion shake - code
+			} else if (!Netgame.FusionShake & d_tick_step) {
 				vms_vector	rand_vec;
 				fix			bump_amount;
 
 				Global_laser_firing_count = 0;
+				
 
 				ConsoleObject->mtype.phys_info.rotvel.x += (d_rand() - 16384)/8;
 				ConsoleObject->mtype.phys_info.rotvel.z += (d_rand() - 16384)/8;
 
 				make_random_vector(&rand_vec);
-
+				
 				bump_amount = F1_0*4;
-
+				
 				if (Fusion_charge > F1_0*2)
 					bump_amount = Fusion_charge*4;
 
 				bump_one_object(ConsoleObject, &rand_vec, bump_amount);
+				
 			}
 			else
 			{
@@ -1248,21 +1251,29 @@ void FireLaser()
 			static fix64 Fusion_next_sound_time = 0;
 
 			if (Fusion_charge == 0)
-				Players[Player_num].energy -= F1_0*2;
+				Players[Player_num].energy -= F1_0 * 2;
 
 			Fusion_charge += FrameTime;
 			Players[Player_num].energy -= FrameTime;
 
+
 			if (Players[Player_num].energy <= 0) {
 				Players[Player_num].energy = 0;
-				Auto_fire_fusion_cannon_time = GameTime64 -1;	//	Fire now!
-			} else
-				Auto_fire_fusion_cannon_time = GameTime64 + FrameTime/2 + 1;		//	Fire the fusion cannon at this time in the future.
-
-			if (Fusion_charge < F1_0*2)
-				PALETTE_FLASH_ADD(Fusion_charge >> 11, 0, Fusion_charge >> 11);
+				Auto_fire_fusion_cannon_time = GameTime64 - 1;	//	Fire now!
+			}
 			else
+				Auto_fire_fusion_cannon_time = GameTime64 + FrameTime / 2 + 1;		//	Fire the fusion cannon at this time in the future.
+
+			if (!Netgame.PurpleFlash & Fusion_charge < F1_0 * 2)
+				PALETTE_FLASH_ADD(Fusion_charge >> 11, 0, Fusion_charge >> 11);
+			else if (!Netgame.PurpleFlash)
 				PALETTE_FLASH_ADD(Fusion_charge >> 11, Fusion_charge >> 11, 0);
+			else if (Netgame.PurpleFlash)
+				palette_save();
+			
+		
+
+				
 
 			if (Fusion_next_sound_time > GameTime64 + F1_0/8 + D_RAND_MAX/4) // GameTime64 is smaller than max delay - player in new level?
 				Fusion_next_sound_time = GameTime64 - 1;
@@ -1273,11 +1284,13 @@ void FireLaser()
 
 					fix damage = d_rand() * 4; 
 #ifdef NETWORK
-					if(Game_mode & GM_MULTI) {
+					if (Game_mode & GM_MULTI) {
 						multi_send_play_sound(11, F1_0);
-						con_printf(CON_NORMAL, "You took %0.1f damage from overcharging fusion!\n", (double)(damage)/(double)(F1_0)); 
+						con_printf(CON_NORMAL, "You took %0.1f damage from overcharging fusion!\n", (double)(damage) / (double)(F1_0));
 
 						multi_send_damage(damage, Players[Player_num].shields, OBJ_PLAYER, Player_num, DAMAGE_OVERCHARGE, NULL);
+						//int OVDMG = DAMAGE_OVERCHARGE;	
+						//HUD_init_message(HM_MULTI, "-%0.1f", OVDMG);
 					}
 #endif
 					

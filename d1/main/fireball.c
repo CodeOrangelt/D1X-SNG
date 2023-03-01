@@ -705,9 +705,11 @@ void maybe_drop_net_powerup(int powerup_type)
 		Objects[objnum].pos = new_pos;
 		vm_vec_zero(&Objects[objnum].mtype.phys_info.velocity);
 		obj_relink(objnum, segnum);
-
-		object_create_explosion(segnum, &new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE );
-
+		
+		if (Netgame.CTF)
+			return;
+		else
+			object_create_explosion(segnum, &new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE);
 	}
 }
 

@@ -14,7 +14,7 @@
 #include "u_mem.h"
 #include "custom.h"
 
-//#define D2TMAP_CONV // used for testing
+ //#define D2TMAP_CONV // used for testing
 
 extern hashtable AllBitmapsNames;
 extern hashtable AllDigiSndNames;
@@ -22,10 +22,11 @@ extern hashtable AllDigiSndNames;
 struct snd_info
 {
 	unsigned int length;
-	ubyte *data;
+	ubyte* data;
 };
 
-typedef struct DiskBitmapHeader2 
+#pragma pack(push, 1)
+typedef struct DiskBitmapHeader2
 {
 	char name[8];
 	ubyte dflags;
@@ -56,6 +57,8 @@ typedef struct DiskSoundHeader
 	int offset;
 } __pack__ DiskSoundHeader;
 
+#pragma pack(pop)
+
 struct custom_info
 {
 	int offset;
@@ -67,9 +70,9 @@ struct custom_info
 grs_bitmap BitmapOriginal[MAX_BITMAP_FILES];
 struct snd_info SoundOriginal[MAX_SOUND_FILES];
 
-static void change_ext(char *filename, const char *newext, int filename_size)
+static void change_ext(char* filename, const char* newext, int filename_size)
 {
-	char *p;
+	char* p;
 	int len, extlen;
 	len = strlen(filename);
 	extlen = strlen(newext);
@@ -87,11 +90,11 @@ static void change_ext(char *filename, const char *newext, int filename_size)
 	}
 }
 
-int load_pig1(PHYSFS_file *f, int num_bitmaps, int num_sounds, int *num_custom, struct custom_info **ci)
+int load_pig1(PHYSFS_file* f, int num_bitmaps, int num_sounds, int* num_custom, struct custom_info** ci)
 {
 	int data_ofs;
 	int i;
-	struct custom_info *cip;
+	struct custom_info* cip;
 	DiskBitmapHeader bmh;
 	DiskSoundHeader sndh;
 	char name[15];
@@ -130,7 +133,7 @@ int load_pig1(PHYSFS_file *f, int num_bitmaps, int num_sounds, int *num_custom, 
 			return -1;
 		}
 
-		memcpy( name, bmh.name, 8 );
+		memcpy(name, bmh.name, 8);
 		name[8] = 0;
 
 		if (bmh.dflags & DBM_FLAG_ABM)
@@ -167,19 +170,19 @@ int load_pig1(PHYSFS_file *f, int num_bitmaps, int num_sounds, int *num_custom, 
 	return 0;
 }
 
-int load_pog(PHYSFS_file *f, int pog_sig, int pog_ver, int *num_custom, struct custom_info **ci)
+int load_pog(PHYSFS_file* f, int pog_sig, int pog_ver, int* num_custom, struct custom_info** ci)
 {
 	int data_ofs;
 	int num_bitmaps;
 	int no_repl = 0;
 	int i;
-	struct custom_info *cip;
+	struct custom_info* cip;
 	DiskBitmapHeader2 bmh;
 
 #ifdef D2TMAP_CONV
 	int x, j, N_d2tmap;
-	int *d2tmap = NULL;
-	PHYSFS_file *f2 = NULL;
+	int* d2tmap = NULL;
+	PHYSFS_file* f2 = NULL;
 	if ((f2 = PHYSFSX_openReadBuffered("d2tmap.bin")))
 	{
 		N_d2tmap = PHYSFSX_readInt(f2);
@@ -190,7 +193,7 @@ int load_pog(PHYSFS_file *f, int pog_sig, int pog_ver, int *num_custom, struct c
 	}
 #endif
 
-	*num_custom = 0;
+	* num_custom = 0;
 
 	if (pog_sig == 0x47495050 && pog_ver == 2) /* PPIG */
 		no_repl = 1;
@@ -255,18 +258,18 @@ int load_pog(PHYSFS_file *f, int pog_sig, int pog_ver, int *num_custom, struct c
 
 // load custom textures/sounds from pog/pig file
 // returns 0 if ok, <0 on error
-int load_pigpog(char *pogname)
+int load_pigpog(char* pogname)
 {
 	int num_custom;
-	grs_bitmap *bmp;
-	digi_sound *snd;
-	ubyte *p;
-	PHYSFS_file *f;
-	struct custom_info *custom_info, *cip;
+	grs_bitmap* bmp;
+	digi_sound* snd;
+	ubyte* p;
+	PHYSFS_file* f;
+	struct custom_info* custom_info, * cip;
 	int i, j, rc = -1;
 	unsigned int x = 0;
 
-	if (!(f = PHYSFSX_openReadBuffered((char *)pogname)))
+	if (!(f = PHYSFSX_openReadBuffered((char*)pogname)))
 		return -1; // pog file doesn't exist
 
 	i = PHYSFSX_readInt(f);
@@ -288,9 +291,9 @@ int load_pigpog(char *pogname)
 		x = cip->repl_idx;
 		if (cip->repl_idx >= 0)
 		{
-			PHYSFSX_fseek( f, cip->offset, SEEK_SET );
+			PHYSFSX_fseek(f, cip->offset, SEEK_SET);
 
-			if ( cip->flags & BM_FLAG_RLE )
+			if (cip->flags & BM_FLAG_RLE)
 				j = PHYSFSX_readInt(f);
 			else
 				j = cip->width * cip->height;
@@ -315,19 +318,19 @@ int load_pigpog(char *pogname)
 				if (GameBitmapOffset[x]) // from pig?
 				{
 					BitmapOriginal[x].bm_flags |= BM_FLAG_PAGED_OUT;
-					BitmapOriginal[x].bm_data = (ubyte *)(size_t)GameBitmapOffset[x];
+					BitmapOriginal[x].bm_data = (ubyte*)(size_t)GameBitmapOffset[x];
 				}
 			}
 
 			GameBitmapOffset[x] = 0; // not in pig
 			memset(bmp, 0, sizeof(*bmp));
-			gr_init_bitmap (bmp, 0, 0, 0, cip->width, cip->height, cip->width, p);
+			gr_init_bitmap(bmp, 0, 0, 0, cip->width, cip->height, cip->width, p);
 			gr_set_bitmap_flags(bmp, cip->flags & 255);
 			bmp->avg_color = cip->flags >> 8;
 
-			if ( cip->flags & BM_FLAG_RLE )
+			if (cip->flags & BM_FLAG_RLE)
 			{
-				int *ip = (int *)p;
+				int* ip = (int*)p;
 				*ip = j;
 				p += 4;
 				j -= 4;
@@ -344,7 +347,7 @@ int load_pigpog(char *pogname)
 		}
 		else if ((cip->repl_idx + 1) < 0)
 		{
-			PHYSFSX_fseek( f, cip->offset, SEEK_SET );
+			PHYSFSX_fseek(f, cip->offset, SEEK_SET);
 			snd = &GameSounds[x & 0x7fffffff];
 
 			if (!(p = d_malloc(j = cip->width)))
@@ -368,9 +371,9 @@ int load_pigpog(char *pogname)
 			}
 
 #ifdef ALLEGRO
-				snd->loop_end = snd->len = j;
+			snd->loop_end = snd->len = j;
 #else
-				snd->length = j;
+			snd->length = j;
 #endif
 			snd->data = p;
 
@@ -394,7 +397,7 @@ int load_pigpog(char *pogname)
 	return rc;
 }
 
-int read_d2_robot_info(PHYSFS_file *fp, robot_info *ri)
+int read_d2_robot_info(PHYSFS_file* fp, robot_info* ri)
 {
 	int j, k;
 
@@ -410,7 +413,7 @@ int read_d2_robot_info(PHYSFS_file *fp, robot_info *ri)
 	ri->exp2_sound_num = PHYSFSX_readShort(fp);
 	ri->weapon_type = PHYSFSX_readByte(fp);
 	if (ri->weapon_type >= N_weapon_types)
-	    ri->weapon_type = 0;
+		ri->weapon_type = 0;
 	/*ri->weapon_type2 =*/ PHYSFSX_readByte(fp);
 	ri->n_guns = PHYSFSX_readByte(fp);
 	ri->contains_id = PHYSFSX_readByte(fp);
@@ -483,14 +486,14 @@ int read_d2_robot_info(PHYSFS_file *fp, robot_info *ri)
 	return 1;
 }
 
-void load_hxm(char *hxmname)
+void load_hxm(char* hxmname)
 {
 	unsigned int repl_num;
 	int i;
-	PHYSFS_file *f;
+	PHYSFS_file* f;
 	int n_items;
 
-	if (!(f = PHYSFSX_openReadBuffered((char *)hxmname)))
+	if (!(f = PHYSFSX_openReadBuffered((char*)hxmname)))
 		return; // hxm file doesn't exist
 
 	if (PHYSFSX_readInt(f) != 0x21584d48) /* HMX! */
@@ -552,7 +555,7 @@ void load_hxm(char *hxmname)
 	{
 		for (i = 0; i < n_items; i++)
 		{
-			polymodel *pm;
+			polymodel* pm;
 
 			repl_num = PHYSFSX_readInt(f);
 			if (repl_num >= MAX_POLYGON_MODELS)
@@ -612,8 +615,8 @@ void load_hxm(char *hxmname)
 void custom_remove()
 {
 	int i;
-	grs_bitmap *bmo = BitmapOriginal;
-	grs_bitmap *bmp = GameBitmaps;
+	grs_bitmap* bmo = BitmapOriginal;
+	grs_bitmap* bmp = GameBitmaps;
 
 	for (i = 0; i < MAX_BITMAP_FILES; bmo++, bmp++, i++)
 		if (bmo->bm_flags & 0x80)
@@ -647,7 +650,7 @@ void custom_remove()
 		}
 }
 
-void load_custom_data(char *level_name)
+void load_custom_data(char* level_name)
 {
 	char custom_file[64];
 
