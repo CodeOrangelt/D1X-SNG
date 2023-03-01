@@ -1141,8 +1141,7 @@ multi_drop_robot_powerups(int objnum)
 			if (!multi_powerup_is_allowed(del_obj->contains_id))
 				del_obj->contains_id=POW_SHIELD_BOOST;
 
-			// No key drops in non-coop games!
-			if (!(Game_mode & GM_MULTI_COOP)) {
+			else if (!(Game_mode & GM_MULTI_COOP)) {
 				if ((del_obj->contains_id >= POW_KEY_BLUE) && (del_obj->contains_id <= POW_KEY_GOLD))
 					del_obj->contains_count = 0;
 			}

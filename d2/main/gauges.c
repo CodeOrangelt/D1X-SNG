@@ -2467,6 +2467,11 @@ void fontcolor_good() {
 	gr_set_fontcolor(BM_XRGB(0, 18, 0), -1);
 }
 
+void fontcolor_ehh() {
+	gr_set_fontcolor(BM_XRGB(255, 165, 0), -1);
+}
+
+
 
 #ifdef NETWORK
 void hud_show_kill_list()
@@ -2604,6 +2609,7 @@ void hud_show_kill_list()
 			strcpy(name, Netgame.team_name[i]);
 		else if (Game_mode & GM_BOUNTY && player_num == Bounty_target && GameTime64&0x10000)
 			strcpy(name,"[TARGET]");
+
 		else
 			strcpy(name,Players[player_num].callsign);	// Note link to above if!!
 		gr_get_string_size(name,&sw,&sh,&aw);

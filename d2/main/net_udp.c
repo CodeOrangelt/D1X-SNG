@@ -2882,7 +2882,9 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		buf[len] = Netgame.RetroProtocol;						len++;
 		buf[len] = Netgame.RespawnConcs;						len++;
 		buf[len] = Netgame.AllowColoredLighting; 				len++; 
-		buf[len] = Netgame.FairColors;			 				len++; 		
+		buf[len] = Netgame.FairColors;			 				len++; 	
+		buf[len] = Netgame.Deathmatch;			 				len++;
+		buf[len] = Netgame.CTF;			 				len++;
 		buf[len] = Netgame.BlackAndWhitePyros; 				len++; 
 		buf[len] = Netgame.SpawnStyle;		                len++;
 		buf[len] = Netgame.PrimaryDupFactor;                len++; 
@@ -3118,6 +3120,8 @@ int net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_a
 		Netgame.RespawnConcs  = data[len];						len++; 
 		Netgame.AllowColoredLighting = data[len];				len++; 
 		Netgame.FairColors = data[len];							len++; 
+		Netgame.Deathmatch = data[len];							len++;
+		Netgame.CTF = data[len];							len++;
 		Netgame.BlackAndWhitePyros = data[len];				len++; 
 		Netgame.SpawnStyle = data[len];				len++; 
 		Netgame.PrimaryDupFactor = data[len];                len++; 
@@ -3563,6 +3567,7 @@ static int opt_cinvul, opt_show_on_map;
 static int opt_setpower,opt_playtime,opt_killgoal,opt_port,opt_marker_view,opt_light;
 static int opt_difficulty,opt_packets,opt_shortpack,opt_bright, opt_show_names, opt_ffire, opt_retroproto, opt_respawnconcs, opt_allowcolor, opt_faircolors, opt_blackwhite;
 static int opt_primary_dup, opt_secondary_dup, opt_secondary_cap; 
+static int opt_death_match;
 static int opt_spawn_no_invul, opt_spawn_short_invul, opt_spawn_long_invul, opt_spawn_preview; 
 static int opt_burner_spawn; 
 static int opt_allowprefcolor, opt_ow;
@@ -3601,9 +3606,9 @@ void net_udp_more_game_options ()
 	char PrimDupText[80],SecDupText[80],SecCapText[80]; 
 	
 #ifdef USE_TRACKER
-	newmenu_item m[38];
+	newmenu_item m[41];
 #else
- 	newmenu_item m[37];
+ 	newmenu_item m[40];
 #endif
 
 	snprintf(packstring,sizeof(char)*4,"%d",Netgame.PacketsPerSec);
@@ -3685,6 +3690,12 @@ void net_udp_more_game_options ()
 	opt_respawnconcs = opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Respawn Concussions"; m[opt].value = Netgame.RespawnConcs; opt++;	
 
+	opt_deathmatch = opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Death Match"; m[opt].value = Netgame.Deathmatch; opt++; 
+
+	opt_ctf = opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Capture the Flag"; m[opt].value = Netgame.CTF; opt++;
+
 	opt_faircolors = opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "All Players Blue"; m[opt].value = Netgame.FairColors; opt++;		
 
@@ -3694,10 +3705,8 @@ void net_udp_more_game_options ()
 	opt_allowprefcolor = opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Allow Players To Choose Their Colors"; m[opt].value = Netgame.AllowPreferredColors; opt++;	
 
-
-
-	//opt_dark_smarts = opt;
-	//m[opt].type = NM_TYPE_CHECK; m[opt].text = "Dark Smart Blobs"; m[opt].value = Netgame.DarkSmartBlobs; opt++;	
+	opt_dark_smarts = opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Dark Smart Blobs"; m[opt].value = Netgame.DarkSmartBlobs; opt++;	
 
 	opt_marker_view = opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Allow Marker camera views"; m[opt].value=Netgame.Allow_marker_view; opt++;
@@ -3805,8 +3814,10 @@ menu:
 	Netgame.RespawnConcs  = m[opt_respawnconcs].value;
 	Netgame.AllowColoredLighting  = m[opt_allowcolor].value;
 	Netgame.FairColors  = m[opt_faircolors].value;
+	Netgame.Deathmatch = m[opt_deathmatch].value;
+	Netgame.CTF = m[opt_ctf].value;
 	Netgame.BlackAndWhitePyros  = m[opt_blackwhite].value;	
-	//Netgame.DarkSmartBlobs = m[opt_dark_smarts].value;
+	Netgame.DarkSmartBlobs = m[opt_dark_smarts].value;
 	Netgame.LowVulcan = m[opt_low_vulcan].value;
 	Netgame.AllowPreferredColors = m[opt_allowprefcolor].value;
 	Netgame.OriginalD1Weapons = m[opt_ow].value;
@@ -4117,9 +4128,10 @@ int net_udp_setup_game()
 	opt.mode = optnum;
 	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_ANARCHY; m[optnum].value=(Netgame.gamemode == NETGAME_ANARCHY); m[optnum].group=0; opt.anarchy=optnum; optnum++;
 	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_TEAM_ANARCHY; m[optnum].value=(Netgame.gamemode == NETGAME_TEAM_ANARCHY); m[optnum].group=0; opt.team_anarchy=optnum; optnum++;
-	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_ANARCHY_W_ROBOTS; m[optnum].value=(Netgame.gamemode == NETGAME_ROBOT_ANARCHY); m[optnum].group=0; opt.robot_anarchy=optnum; optnum++;
+	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "Death Match"; m[optnum].value = (Netgame.gamemode == NETGAME_ROBOT_ANARCHY); m[optnum].group = 0; opt.robot_anarchy = optnum; optnum++;
 	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_COOPERATIVE; m[optnum].value=(Netgame.gamemode == NETGAME_COOPERATIVE); m[optnum].group=0; opt.coop=optnum; optnum++;
 	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "Capture the flag"; m[optnum].value=(Netgame.gamemode == NETGAME_CAPTURE_FLAG); m[optnum].group=0; opt.capture=optnum; optnum++;
+	//m[opt].type = NM_TYPE_RADIO; m[optnum].text = "Death Match"; m[optnum].value = (Netgame.gamemode == NETGAME_DEATHMATCH); m[optnum].group = 0; opt.mode_deathmatch= opt.deathmatch = optnum; optnum++;
 
 	if (HoardEquipped())
 	{
@@ -4200,6 +4212,7 @@ net_udp_set_game_mode(int gamemode)
 		 Game_mode = GM_NETWORK | GM_TEAM | GM_CAPTURE;
 		 Show_kill_list=3;
 		}
+
 
 	else if (HoardEquipped() && gamemode == NETGAME_HOARD)
 		 Game_mode = GM_NETWORK | GM_HOARD;

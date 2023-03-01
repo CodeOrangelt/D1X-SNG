@@ -794,6 +794,7 @@ void multi_compute_kill(int killer, int killed)
 			multi_add_lifetime_kills();
 			if ((Game_mode & GM_MULTI_COOP) && (Players[Player_num].score >= 1000))
 				add_points_to_score(-1000);
+
 		}
 		else if (killed_pnum == Player_num)
 		{
@@ -1751,6 +1752,8 @@ multi_do_player_explode(const ubyte *buf)
 	Players[pnum].secondary_ammo[SMART_INDEX] = buf[count];         count++;
 	Players[pnum].secondary_ammo[MEGA_INDEX] = buf[count];          count++;
 	Players[pnum].secondary_ammo[PROXIMITY_INDEX] = buf[count]; count++;
+	Players[pnum].flags[PLAYER_FLAGS_BLUE_KEY] = buf[count]; count++;
+	Players[pnum].flags[PLAYER_FLAGS_RED_KEY] = buf[count]; count++;
 
 	Players[pnum].secondary_ammo[SMISSILE1_INDEX] = buf[count]; count++;
 	Players[pnum].secondary_ammo[GUIDED_INDEX]    = buf[count]; count++;
@@ -5303,6 +5306,16 @@ void multi_do_bounty( const ubyte *buf )
 	
 	multi_new_bounty_target( buf[1] );
 }
+
+void Do_DM_Shields()
+{
+	if (Netgame.Deathmatch)
+	{
+		Players[Player_num].shields = i2f(2000);
+			return;
+	}
+}
+
 
 void multi_new_bounty_target( int pnum )
 {

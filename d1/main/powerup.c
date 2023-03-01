@@ -292,16 +292,20 @@ int do_powerup(object *obj)
 		case POW_KEY_BLUE:
 			blue_key_pos = obj->pos;
 			blue_key_seg = obj->segnum;
-			if (Netgame.CTF && !(Players[Player_num].flags & PLAYER_FLAGS_RED_KEY))
+			if (Netgame.CTF && !(Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY))
 			{
-				PALETTE_FLASH_ADD(0, 0, 15);
-				HUD_init_message(HM_MULTI, "%s has picked up the \x01\x56\ blue \x01\x99\ Flag!", Players[Player_num].callsign);
-			}
-			if (Netgame.CTF)
 				if (get_team(Player_num) == 0)
 				{
 					used = 0;
 				}
+				else
+				{
+					PALETTE_FLASH_ADD(0, 0, 15);
+					HUD_init_message(HM_MULTI, "%s has picked up the \x01\x56\ blue \x01\x99\ Flag!", Players[Player_num].callsign);
+				}
+
+			}
+
 			break;
 			if (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY)
 				break;
@@ -320,16 +324,19 @@ int do_powerup(object *obj)
 		case POW_KEY_RED:
 			red_key_pos = obj->pos;
 			red_key_seg = obj->segnum;
-			if (Netgame.CTF && !(Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY))
+			if (Netgame.CTF && !(Players[Player_num].flags & PLAYER_FLAGS_RED_KEY))
 			{
-				PALETTE_FLASH_ADD(15, 0, 0);
-				HUD_init_message(HM_MULTI, "%s has picked up the \x01\xC0\ red \x01\x99\ Flag!", Players[Player_num].callsign);
-			}
-			if (Netgame.CTF)
 				if (get_team(Player_num) == 1)
 				{
 					used = 0;
 				}
+				else
+				{
+					PALETTE_FLASH_ADD(15, 0, 0);
+					HUD_init_message(HM_MULTI, "%s has picked up the \x01\xC0\ red \x01\x99\ Flag!", Players[Player_num].callsign);
+				}
+
+			}
 			if (Players[Player_num].flags & PLAYER_FLAGS_RED_KEY)
 				break;
 

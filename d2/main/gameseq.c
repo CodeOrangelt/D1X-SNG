@@ -289,12 +289,14 @@ void init_player_stats_game(ubyte pnum)
 		First_secret_visit = 1;
 }
 
+
 void init_ammo_and_energy(void)
 {
 	if (Players[Player_num].energy < INITIAL_ENERGY)
 		Players[Player_num].energy = INITIAL_ENERGY;
 	if (Players[Player_num].shields < StartingShields)
 		Players[Player_num].shields = StartingShields;
+
 
 //	for (i=0; i<MAX_PRIMARY_WEAPONS; i++)
 //		if (Players[Player_num].primary_ammo[i] < Default_primary_ammo_level[i])
@@ -351,7 +353,7 @@ void init_player_stats_level(int secret_flag)
 		Players[Player_num].cloak_time = 0;
 		Players[Player_num].invulnerable_time = 0;
 
-		if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
+		if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP | Netgame.CTF))
 			Players[Player_num].flags |= (KEY_BLUE | KEY_RED | KEY_GOLD);
 	}
 
@@ -378,6 +380,8 @@ extern	void init_ai_for_ship(void);
 void init_player_stats_new_ship(ubyte pnum)
 {
 	int i;
+	
+	
 
 	if (pnum == Player_num)
 	{
@@ -416,6 +420,8 @@ void init_player_stats_new_ship(ubyte pnum)
 		init_ai_for_ship();
 	}
 
+		
+
 	Players[pnum].energy = INITIAL_ENERGY;
 	Players[pnum].shields = StartingShields;
 	Players[pnum].laser_level = 0;
@@ -435,6 +441,9 @@ void init_player_stats_new_ship(ubyte pnum)
 	RespawningConcussions[pnum] = 0; 	
 	VulcanAmmoBoxesOnBoard[pnum] = 0; 		
 	VulcanBoxAmmo[pnum] = 0; 
+
+	if (Netgame.CTF)
+		Players[pnum].flags &= ~(PLAYER_FLAGS_RED_KEY, PLAYER_FLAGS_BLUE_KEY, PLAYER_FLAGS_GOLD_KEY)
 
 #ifdef NETWORK
 	if(Game_mode & GM_MULTI && Netgame.BornWithBurner) {
@@ -1851,8 +1860,8 @@ void StartLevel(int random_flag)
 	{
 		if (Game_mode & GM_MULTI_COOP)
 			multi_send_score();
-	 	multi_send_reappear();
-		multi_do_protocol_frame(1, 1);
+	 		multi_send_reappear();
+			multi_do_protocol_frame(1, 1);
 	}
 	else // in Singleplayer, after we died ...
 	{

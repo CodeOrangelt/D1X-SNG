@@ -1761,6 +1761,10 @@ void collide_player_and_player( object * player1, object * player2, vms_vector *
 	if (check_collision_delayfunc_exec())
 		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, player1->segnum, 0, collision_point, 0, F1_0 );
 
+	if (Netgame.CTF)
+		Players[Player_num].flags &= ~PLAYER_FLAGS_RED_KEY;
+		Players[Player_num].flags &= ~PLAYER_FLAGS_BLUE_KEY;
+
 	// Multi is special - as always. Clients do the bump damage locally but the remote players do their collision result (change velocity) on their own. So after our initial collision, ignore further collision damage till remote players (hopefully) react.
 	if (Game_mode & GM_MULTI)
 	{
@@ -1834,7 +1838,9 @@ void drop_missile_1_or_4(object *playerobj,int missile_index, ubyte force)
 
 
 void drop_player_eggs_remote(object *playerobj, ubyte remote);
-void drop_player_eggs(object *playerobj) {
+
+void drop_player_eggs(object *playerobj) 
+{
 	drop_player_eggs_remote(playerobj, 0); 
 }
 
@@ -1909,13 +1915,16 @@ void drop_player_eggs_remote(object *playerobj, ubyte remote)
 		if (Players[pnum].flags & PLAYER_FLAGS_MAP_ALL)
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_FULL_MAP);
 
-		if (Players[pnum].flags & PLAYER_FLAGS_AFTERBURNER) {
+
+		if (Players[pnum].flags & PLAYER_FLAGS_AFTERBURNER)
+		{
 #ifdef NETWORK
-			if(Game_mode & GM_MULTI && Netgame.BornWithBurner) {
+			if(Game_mode & GM_MULTI && Netgame.BornWithBurner)
+			{
 				// Drop nothing
 			} else 
 #endif			
-				call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_AFTERBURNER);
+			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_AFTERBURNER);
 		}
 
 		if (Players[pnum].flags & PLAYER_FLAGS_AMMO_RACK)
@@ -1927,33 +1936,7 @@ void drop_player_eggs_remote(object *playerobj, ubyte remote)
 		if (Players[pnum].flags & PLAYER_FLAGS_HEADLIGHT)
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_HEADLIGHT);
 
-		// drop the other enemies flag if you have it
-
-#ifdef NETWORK
-		if ((Game_mode & GM_CAPTURE) && (Players[pnum].flags & PLAYER_FLAGS_FLAG))
-		{
-		 if ((get_team (pnum)==TEAM_RED))
-			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_FLAG_BLUE);
-		 else
-			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_FLAG_RED);
-		}
-
-
-		if (Game_mode & GM_HOARD)
-		{
-			// Drop hoard orbs
-
-			int max_count,i;
-
-			max_count = min(Players[pnum].secondary_ammo[PROXIMITY_INDEX], 12);
-			for (i=0; i<max_count; i++)
-				call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_HOARD_ORB);
-		}
-#endif
-
-		
-
-
+			
 		//Drop the vulcan, gauss, and ammo
 		vulcan_ammo = Players[pnum].primary_ammo[VULCAN_INDEX];
 		int min_vulcan_ammo = VULCAN_WEAPON_AMMO_AMOUNT;
@@ -2065,35 +2048,61 @@ void drop_player_eggs_remote(object *playerobj, ubyte remote)
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_ENERGY);
 		}
 
-//--		//	Drop all the keys.
-//--		if (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY) {
-//--			playerobj->contains_count = 1;
-//--			playerobj->contains_type = OBJ_POWERUP;
-//--			playerobj->contains_id = POW_KEY_BLUE;
-//--			object_create_egg(playerobj);
-//--		}
-//--		if (Players[Player_num].flags & PLAYER_FLAGS_RED_KEY) {
-//--			playerobj->contains_count = 1;
-//--			playerobj->contains_type = OBJ_POWERUP;
-//--			playerobj->contains_id = POW_KEY_RED;
-//--			object_create_egg(playerobj);
-//--		}
-//--		if (Players[Player_num].flags & PLAYER_FLAGS_GOLD_KEY) {
-//--			playerobj->contains_count = 1;
-//--			playerobj->contains_type = OBJ_POWERUP;
-//--			playerobj->contains_id = POW_KEY_GOLD;
-//--			object_create_egg(playerobj);
-//--		}
+		
+		if (Players[Player_num].flags & PLAYER_FLAGS_GOLD_KEY)
+		{
+			playerobj->contains_count = 1;
+			playerobj->contains_type = OBJ_POWERUP;
+			playerobj->contains_id = POW_KEY_GOLD;
+			object_create_egg(playerobj);
+		}
+		if (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY)
+		{
+			playerobj->contains_count = 1;
+			playerobj->contains_type = OBJ_POWERUP;
+			playerobj->contains_id = POW_KEY_BLUE;
+			object_create_egg(playerobj);
+		}
+		if (Players[Player_num].flags & PLAYER_FLAGS_RED_KEY)
+		{
+			playerobj->contains_count = 1;
+			playerobj->contains_type = OBJ_POWERUP;
+			playerobj->contains_id = POW_KEY_RED;
+			object_create_egg(playerobj);
+		}
+		
 
-// -- 		if (Items_destroyed) {
-// -- 			if (Items_destroyed == 1)
-// -- 				HUD_init_message(HM_DEFAULT, "%i item was destroyed.", Items_destroyed);
-// -- 			else
-// -- 				HUD_init_message(HM_DEFAULT, "%i items were destroyed.", Items_destroyed);
-// -- 			Items_destroyed = 0;
-// -- 		}
+		if (Items_destroyed) 
+		{
+			if (Items_destroyed == 1)
+			HUD_init_message(HM_DEFAULT, "%i item was destroyed.", Items_destroyed);
+			else
+ 				HUD_init_message(HM_DEFAULT, "%i items were destroyed.", Items_destroyed);
+ 			Items_destroyed = 0;
+ 		}
+		
 	}
 
+}
+
+void drop_all_keys(object* playerobj)
+{
+	Players[Player_num].flags &= ~PLAYER_FLAGS_RED_KEY;
+	Players[Player_num].flags &= ~PLAYER_FLAGS_BLUE_KEY;
+
+	//	Drop all the keys.
+	if (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY) {
+		playerobj->contains_count = 1;
+		playerobj->contains_type = OBJ_POWERUP;
+		playerobj->contains_id = POW_KEY_BLUE;
+		object_create_egg(playerobj);
+	}
+	if (Players[Player_num].flags & PLAYER_FLAGS_RED_KEY) {
+		playerobj->contains_count = 1;
+		playerobj->contains_type = OBJ_POWERUP;
+		playerobj->contains_id = POW_KEY_RED;
+		object_create_egg(playerobj);
+	}
 }
 
 // -- removed, 09/06/95, MK -- void destroy_primary_weapon(int weapon_index)

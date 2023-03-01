@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // Initial player stat values
 #define INITIAL_ENERGY  i2f(100)    // 100% energy to start
 #define INITIAL_SHIELDS i2f(100)    // 100% shields to start
+#define DEATHMATCH_SHIELDS i2f(2000) // 2000 Shields to Start - Code
 
 #define MAX_ENERGY      i2f(200)    // go up to 200
 #define MAX_SHIELDS     i2f(200)

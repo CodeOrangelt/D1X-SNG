@@ -1212,7 +1212,7 @@ int spit_powerup(object *spitter, int id,int seed)
 
 	obj->rtype.vclip_info.vclip_num = Powerup_info[obj->id].vclip_num;
 	obj->rtype.vclip_info.frametime = Vclip[obj->rtype.vclip_info.vclip_num].frame_time;
-	obj->rtype.vclip_info.framenum = 0;
+	obj->rtype.vclip_info.framenum = 0;	
 
 	if (spitter == ConsoleObject)
 		obj->ctype.powerup_info.flags |= PF_SPAT_BY_PLAYER;

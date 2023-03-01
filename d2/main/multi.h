@@ -151,7 +151,7 @@ for_each_multiplayer_command(enum {, define_multiplayer_command, });
 #define NETGAME_CAPTURE_FLAG    4
 #define NETGAME_HOARD           5
 #define NETGAME_TEAM_HOARD      6
-#define NETGAME_BOUNTY		7
+#define NETGAME_DEATHMATCH		7
 
 #define NETSTAT_MENU                0
 #define NETSTAT_PLAYING             1

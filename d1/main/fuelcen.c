@@ -579,12 +579,14 @@ fix fuelcen_give_fuel(segment* segp, fix MaxAmountCanTake)
 			HUD_init_message(HM_MULTI, "You scored!");
 			drop_powerup(OBJ_POWERUP, POW_KEY_RED, 1, &vmd_zero_vector, &red_key_pos, red_key_seg);
 			Players[Player_num].flags &= ~PLAYER_FLAGS_RED_KEY;
+			PALETTE_FLASH_ADD(0, 15, 0);
 			digi_play_sample_once(SOUND_HOSTAGE_RESCUED, F1_0);
 			add_points_to_score(5);
 		}
 		if (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY && red_key_seg == ConsoleObject->segnum)
 		{
 			HUD_init_message(HM_MULTI, "You scored!");
+			PALETTE_FLASH_ADD(0, 15, 0);
 			drop_powerup(OBJ_POWERUP, POW_KEY_BLUE, 1, &vmd_zero_vector, &blue_key_pos, blue_key_seg);
 			Players[Player_num].flags &= ~PLAYER_FLAGS_BLUE_KEY;
 			digi_play_sample_once(SOUND_HOSTAGE_RESCUED, F1_0);
