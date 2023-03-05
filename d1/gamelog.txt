@@ -1,0 +1,44 @@
+15:19:31 D1X SNG 1.6 - The Leaps & Bounds Update.  Mar  1 2023 12:12:36
+15:19:31 This is a MODIFIED version of Descent, based on Fork by Code.
+15:19:31 Copyright (C) 1994, 1995 Parallax Software Corporation
+DESCENT is a trademark of Interplay Productions, Inc.
+15:19:31 Copyright (C) 2005-2011 Christian Beckhaeuser
+
+15:19:31 Using SDL_mixer library
+15:19:31 sdl-joystick: found 0 joysticks
+15:19:34 Dropped UPID_GAME_INFO_LITE_REQ: received by non-game master
+15:19:34 Dropped pid UPID_GAME_INFO_LITE_REQ: failed security checks.
+15:19:40 Homing update rate: 25
+15:19:43 Fusion Cannon!
+15:19:44 Plasma Cannon!
+15:19:47 Homing Missile!
+15:19:48 code scored!
+15:19:50 Homing Missile!
+15:19:53 code scored!
+15:20:01 Homing Missile!
+15:20:25 code scored!
+15:20:26 You took 0.6 damage from hitting a wall!
+15:20:36 code scored!
+15:20:40 code scored!
+15:20:47 Homing Missile!
+15:20:49 code scored!
+15:20:57 You took 0.6 damage from hitting a wall!
+15:21:00 demos/code_ANARCHY_CTFO_4.dem does not exist!15:21:00 Demo saved as tmpdemo.dem
+15:21:08 Homing update rate: 25
+15:21:09 Plasma Cannon!
+15:21:10 Fusion Cannon!
+15:21:12 code has picked up the  red  Flag!
+g!
+15:21:14 code scored!
+15:21:16 Homing Missile!
+15:21:17 code has picked up the  red  Flag!
+g!
+15:21:19 code scored!
+15:21:22 code has picked up the  red  Flag!
+g!
+15:21:24 code scored!
+15:21:26 code has picked up the  red  Flag!
+g!
+15:21:27 Homing Missile!
+15:21:29 code scored!
+15:21:30 demos/code_ANARCHY_CTFO_4.dem does not exist!15:21:30 Demo saved as tmpdemo.dem

@@ -211,8 +211,10 @@ int red_key_seg;// segment flag(red) is in
 //	returns true if powerup consumed
 int do_powerup(object *obj)
 {
+
 	int used=0;
 	int vulcan_ammo_to_add_with_cannon;
+	int only_sound;
 
 
 	if ((Player_is_dead) || (ConsoleObject->type == OBJ_GHOST) || (Players[Player_num].shields < 0))
@@ -268,6 +270,11 @@ int do_powerup(object *obj)
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, TXT_MAXED_OUT,TXT_SHIELD);
 			break;
 		case POW_LASER:
+			if (Netgame.CTF)
+			{
+				only_sound = used;
+				used = 0;
+			}
 			if (Players[Player_num].laser_level >= MAX_LASER_LEVEL) {
 				Players[Player_num].laser_level = MAX_LASER_LEVEL;
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, TXT_MAXED_OUT,TXT_LASER);
@@ -296,17 +303,18 @@ int do_powerup(object *obj)
 			{
 				if (get_team(Player_num) == 0)
 				{
-					used = 0;
+					only_sound = used;
+					break;
 				}
-				else
+				else if (!get_team(Player_num) == 1)
 				{
-					PALETTE_FLASH_ADD(0, 0, 15);
+					only_sound = used;
+					used = 1;
+					PALETTE_FLASH_ADD(0, 15, 0);
 					HUD_init_message(HM_MULTI, "%s has picked up the \x01\x56\ blue \x01\x99\ Flag!", Players[Player_num].callsign);
 				}
-
 			}
 
-			break;
 			if (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY)
 				break;
 #ifdef NETWORK
@@ -321,6 +329,7 @@ int do_powerup(object *obj)
 			else
 				used=1;
 			break;
+
 		case POW_KEY_RED:
 			red_key_pos = obj->pos;
 			red_key_seg = obj->segnum;
@@ -328,14 +337,16 @@ int do_powerup(object *obj)
 			{
 				if (get_team(Player_num) == 1)
 				{
-					used = 0;
+					only_sound = used;
+					break;
 				}
-				else
+				else if (get_team(Player_num) == 0)
 				{
-					PALETTE_FLASH_ADD(0, 0, 15);
+					only_sound = used;
+					used = 1;
+					PALETTE_FLASH_ADD(0, 15, 0);
 					HUD_init_message(HM_MULTI, "%s has picked up the \x01\xC0\ red \x01\x99\ Flag!", Players[Player_num].callsign);
 				}
-
 			}
 			if (Players[Player_num].flags & PLAYER_FLAGS_RED_KEY)
 				break;
@@ -352,6 +363,7 @@ int do_powerup(object *obj)
 			else
 				used=1;
 			break;
+
 		case POW_KEY_GOLD:
 			if (Players[Player_num].flags & PLAYER_FLAGS_GOLD_KEY)
 				break;
@@ -365,7 +377,7 @@ int do_powerup(object *obj)
 				used=0;
 			else
 				used=1;
-			break;
+
 		case POW_QUAD_FIRE:
 			if (!(Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS)) {
 				Players[Player_num].flags |= PLAYER_FLAGS_QUAD_LASERS;
@@ -375,6 +387,11 @@ int do_powerup(object *obj)
 				used=1;
 			} else
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_HAVE,TXT_QUAD_LASERS);
+			if (Netgame.CTF)
+			{
+				only_sound = used;
+				used = 0;
+			}
 			if (!used && !(Game_mode & GM_MULTI) )
 				used = pick_up_energy();
 			break;
@@ -412,16 +429,31 @@ int do_powerup(object *obj)
 			break;
 		case	POW_SPREADFIRE_WEAPON:
 			used = pick_up_primary(SPREADFIRE_INDEX);
+			if (Netgame.CTF)
+			{
+				only_sound = used;
+				used = 0;
+			}
 			if (!used && !(Game_mode & GM_MULTI) )
 				used = pick_up_energy();
 			break;
 		case	POW_PLASMA_WEAPON:
 			used = pick_up_primary(PLASMA_INDEX);
+			if (Netgame.CTF)
+			{
+				only_sound = used;
+				used = 0;
+			}
 			if (!used && !(Game_mode & GM_MULTI) )
 				used = pick_up_energy();
 			break;
 		case	POW_FUSION_WEAPON:
 			used = pick_up_primary(FUSION_INDEX);
+			if (Netgame.CTF)
+			{
+				only_sound = used;
+				used = 0;
+			}
 			if (!used && !(Game_mode & GM_MULTI) )
 				used = pick_up_energy();
 			break;
@@ -484,7 +516,7 @@ int do_powerup(object *obj)
 
 		default:
 			break;
-		}
+	}
 		
 
 
@@ -493,13 +525,13 @@ int do_powerup(object *obj)
 //is solved.  Note also the break statements above that are commented out
 //!!	used=1;
 
-	if (!(PLAYER_FLAGS_RED_KEY & PLAYER_FLAGS_BLUE_KEY) && used && Powerup_info[obj->id].hit_sound  > -1 ) {
+		if ((used || only_sound) && Powerup_info[obj->id].hit_sound > -1) {
 		#ifdef NETWORK
 		if (Game_mode & GM_MULTI) // Added by Rob, take this out if it turns out to be not good for net games!
 			multi_send_play_sound(Powerup_info[obj->id].hit_sound, F1_0);
 		#endif
 		digi_play_sample( Powerup_info[obj->id].hit_sound, F1_0 );
-	}
+		}
 
 	return used;
 

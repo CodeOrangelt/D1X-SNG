@@ -4589,6 +4589,7 @@ int net_udp_send_sync(void)
 }
 
 
+//where net game teams are structured in the select menu, not netgame.
 int
 net_udp_select_teams(void)
 {
@@ -4611,7 +4612,7 @@ net_udp_select_teams(void)
 
 	// Here comes da menu
 menu:
-	m[0].type = NM_TYPE_INPUT; m[0].text = team_names[0]; m[0].text_len = CALLSIGN_LEN; 
+	m[0].type = NM_TYPE_INPUT; m[0].text = team_names[0]; m[0].text_len = CALLSIGN_LEN;
 
 	opt = 1;
 	for (i = 0; i < N_players; i++)
@@ -4633,19 +4634,19 @@ menu:
 	m[opt].type = NM_TYPE_TEXT; m[opt].text = ""; opt++;
 	m[opt].type = NM_TYPE_MENU; m[opt].text = TXT_ACCEPT; opt++;
 
-	Assert(opt <= MAX_PLAYERS+4);
-	
+	Assert(opt <= MAX_PLAYERS + 4);
+
 	choice = newmenu_do(NULL, TXT_TEAM_SELECTION, opt, m, NULL, NULL);
 
-	if (choice == opt-1)
+	if (choice == opt - 1)
 	{
 #if 0 // no need to wait for other players
-		if ((opt-2-opt_team_b < 2) || (opt_team_b == 1)) 
+		if ((opt - 2 - opt_team_b < 2) || (opt_team_b == 1))
 		{
 			nm_messagebox(NULL, 1, TXT_OK, TXT_TEAM_MUST_ONE);
-			#ifdef RELEASE
+#ifdef RELEASE
 			goto menu;
-			#endif
+#endif
 		}
 #endif
 		Netgame.team_vector = team_vector;
@@ -4657,7 +4658,7 @@ menu:
 	else if ((choice > 0) && (choice < opt_team_b)) {
 		team_vector |= (1 << pnums[choice]);
 	}
-	else if ((choice > opt_team_b) && (choice < opt-2)) {
+	else if ((choice > opt_team_b) && (choice < opt - 2)) {
 		team_vector &= ~(1 << pnums[choice]);
 	}
 	else if (choice == -1)

@@ -1413,7 +1413,7 @@ void StartLevel(int random)
 	// create_player_appearance_effect(ConsoleObject);
 	Do_appearance_effect = 1;
 
-	if (Game_mode & GM_MULTI)
+	if (Game_mode & GM_MULTI | Netgame.CTF)
 	{
 		if ((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS || Netgame.PointCapture || Netgame.CTF))
 			multi_send_score();

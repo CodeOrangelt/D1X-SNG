@@ -576,7 +576,7 @@ fix fuelcen_give_fuel(segment* segp, fix MaxAmountCanTake)
 	{
 		if (Players[Player_num].flags & PLAYER_FLAGS_RED_KEY && blue_key_seg == ConsoleObject->segnum)
 		{
-			HUD_init_message(HM_MULTI, "You scored!");
+			HUD_init_message(HM_MULTI, "%s scored!", Players[Player_num].callsign);
 			drop_powerup(OBJ_POWERUP, POW_KEY_RED, 1, &vmd_zero_vector, &red_key_pos, red_key_seg);
 			Players[Player_num].flags &= ~PLAYER_FLAGS_RED_KEY;
 			PALETTE_FLASH_ADD(0, 15, 0);
@@ -585,7 +585,7 @@ fix fuelcen_give_fuel(segment* segp, fix MaxAmountCanTake)
 		}
 		if (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY && red_key_seg == ConsoleObject->segnum)
 		{
-			HUD_init_message(HM_MULTI, "You scored!");
+			HUD_init_message(HM_MULTI, "%s scored!", Players[Player_num].callsign);
 			PALETTE_FLASH_ADD(0, 15, 0);
 			drop_powerup(OBJ_POWERUP, POW_KEY_BLUE, 1, &vmd_zero_vector, &blue_key_pos, blue_key_seg);
 			Players[Player_num].flags &= ~PLAYER_FLAGS_BLUE_KEY;

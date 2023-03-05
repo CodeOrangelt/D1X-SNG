@@ -641,7 +641,7 @@ multi_sort_kill_list(void)
 
 	for (i = 0; i < MAX_PLAYERS; i++)
 	{
-		if ((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS || Netgame.PointCapture || Netgame.CTF))
+		if ((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS || Netgame.PointCapture))
 			kills[i] = Players[i].score;
 		else
 			kills[i] = Players[i].net_kills_total;
@@ -804,6 +804,7 @@ void multi_compute_kill(int killer, int killed)
 		else
 			HUD_init_message(HM_MULTI, "%s %s", killed_name, TXT_SUICIDE);
 
+		//turkey shoot example of code. - code
 		/* Bounty mode needs some lovin' */
 		if( Game_mode & GM_BOUNTY && killed_pnum == Bounty_target && multi_i_am_master() )
 		{
@@ -1707,7 +1708,7 @@ multi_do_death(int objnum)
 
 	objnum = objnum;
 
-	if (!(Game_mode & GM_MULTI_COOP | Netgame.CTF))
+	if (!(Game_mode & GM_MULTI_COOP))
 	{
 		Players[Player_num].flags |= (PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_GOLD_KEY);
 	}
@@ -4358,6 +4359,8 @@ void multi_do_obs_update(const ubyte *buf) {
 	}
 }
 
+
+//another example of turkey shoot code - code
 void multi_new_bounty_target( int pnum )
 {
 	/* If it's already the same, don't do it */

@@ -740,7 +740,7 @@ int pick_up_primary_helper(int weapon_index, int is_quads)
    if (weapon_index!=LASER_INDEX)
 		HUD_init_message(HM_DEFAULT, "%s!",PRIMARY_WEAPON_NAMES(weapon_index));
 
-	return 1;
+		return 1;
 }
 
 /* SelectAfterFire */ 

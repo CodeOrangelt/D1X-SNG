@@ -1856,9 +1856,9 @@ void StartLevel(int random_flag)
 	// create_player_appearance_effect(ConsoleObject);
 	Do_appearance_effect = 1;
 
-	if (Game_mode & GM_MULTI)
+	if (Game_mode & GM_MULTI | Netgame.CTF)
 	{
-		if (Game_mode & GM_MULTI_COOP)
+		if (Game_mode & GM_MULTI_COOP | Netgame.CTF)
 			multi_send_score();
 	 		multi_send_reappear();
 			multi_do_protocol_frame(1, 1);

@@ -1526,7 +1526,7 @@ void add_points_to_score(int points)
 		newdemo_record_player_score(points);
 
 #ifdef NETWORK
-	if (Game_mode & GM_MULTI_COOP)
+	if (Game_mode & GM_MULTI_COOP | Netgame.CTF)
 		multi_send_score();
 
 	if (Game_mode & GM_MULTI)

@@ -23,6 +23,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vclip.h"
 #include "player.h"
 #include "fireball.h"
+#include <SDL/SDL.h>
+
+#include "maths.h"
+#include "timer.h"
+#include "config.h"
+
 
 enum powerup_type_t
 {
