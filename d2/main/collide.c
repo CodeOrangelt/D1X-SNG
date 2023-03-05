@@ -1956,20 +1956,30 @@ void drop_player_eggs_remote(object *playerobj, ubyte remote)
 				vulcan_ammo = min_vulcan_ammo;
 			}
 		}
-		if ((Players[pnum].primary_weapon_flags & HAS_FLAG(VULCAN_INDEX)) && (Players[pnum].primary_weapon_flags & HAS_FLAG(GAUSS_INDEX)))
-			vulcan_ammo /= 2;		//if both vulcan & gauss, each gets half
-		objnum = maybe_drop_primary_weapon_egg(playerobj, VULCAN_INDEX);
-		if (objnum!=-1)
-			Objects[objnum].ctype.powerup_info.count = vulcan_ammo;
-		objnum = maybe_drop_primary_weapon_egg(playerobj, GAUSS_INDEX);
-		if (objnum!=-1)
-			Objects[objnum].ctype.powerup_info.count = vulcan_ammo;
+		if (Netgame.CTF)
+			return;
+		else
+		{
+			if ((Players[pnum].primary_weapon_flags & HAS_FLAG(VULCAN_INDEX)) && (Players[pnum].primary_weapon_flags & HAS_FLAG(GAUSS_INDEX)))
+				vulcan_ammo /= 2;		//if both vulcan & gauss, each gets half
+			objnum = maybe_drop_primary_weapon_egg(playerobj, VULCAN_INDEX);
+			if (objnum != -1)
+				Objects[objnum].ctype.powerup_info.count = vulcan_ammo;
+			objnum = maybe_drop_primary_weapon_egg(playerobj, GAUSS_INDEX);
+			if (objnum != -1)
+				Objects[objnum].ctype.powerup_info.count = vulcan_ammo;
+		}
 
 
 		//	Drop the rest of the primary weapons
-		maybe_drop_primary_weapon_egg(playerobj, SPREADFIRE_INDEX);
-		maybe_drop_primary_weapon_egg(playerobj, PLASMA_INDEX);
-		maybe_drop_primary_weapon_egg(playerobj, FUSION_INDEX);
+		if (Netgame.CTF)
+			return;
+		else
+		{
+			maybe_drop_primary_weapon_egg(playerobj, SPREADFIRE_INDEX);
+			maybe_drop_primary_weapon_egg(playerobj, PLASMA_INDEX);
+			maybe_drop_primary_weapon_egg(playerobj, FUSION_INDEX);
+		}
 
 		maybe_drop_primary_weapon_egg(playerobj, HELIX_INDEX);
 		maybe_drop_primary_weapon_egg(playerobj, PHOENIX_INDEX);
