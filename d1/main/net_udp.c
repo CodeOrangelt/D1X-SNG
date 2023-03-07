@@ -4368,8 +4368,11 @@ net_udp_set_game_mode(int gamemode, ubyte join_as_obs)
 		Game_mode = GM_NETWORK | GM_MULTI_COOP | GM_MULTI_ROBOTS;
 	else if ( gamemode == NETGAME_TEAM_ANARCHY )
 	{
-		Game_mode = GM_NETWORK | GM_TEAM;
+		Game_mode = GM_NETWORK | GM_TEAM | !Netgame.CTF;
 		Show_kill_list = 3;
+
+		if (Netgame.CTF)
+			Show_kill_list = 1;
 	}
 	else if( gamemode == NETGAME_BOUNTY )
 		Game_mode = GM_NETWORK | GM_BOUNTY;

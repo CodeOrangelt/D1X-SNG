@@ -49,6 +49,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rle.h"
 #include "byteswap.h"
 #include "cntrlcen.h"
+#include "fuelcen.h"
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -806,7 +807,7 @@ void sb_show_score()
 		gr_printf(HUD_SCALE_X(SB_SCORE_LABEL_X),HUD_SCALE_Y(SB_SCORE_Y),"%s:", TXT_SCORE);
 
 	gr_set_curfont( GAME_FONT );
-	if ( (Game_mode & GM_MULTI) && !( (Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS) ) )
+	if ( (Game_mode & GM_MULTI) && !( (Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS) || !Netgame.CTF) )
 		sprintf(score_str, "%5d", Players[Player_num].net_kills_total);
 	else
 		sprintf(score_str, "%5d", Players[Player_num].score);
@@ -2212,7 +2213,7 @@ void hud_show_kill_list()
 
 	n_players = multi_get_kill_list(player_list);
 
-	if (Show_kill_list == 3)
+	if (!Netgame.CTF & Show_kill_list == 3)
 		n_players = 2;
 
 	if (n_players <= 4)
@@ -2550,11 +2551,17 @@ void observer_show_kill_list()
 			}	
 		}
 
-		if (is_teams) {
+		
+		if (is_teams)
+		{
 			sprintf(score, "%d", team_kills[i]);
-		} else if ((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS) )
+		} 
+		else if ((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS))
+		{
 			sprintf(score, "%d", Players[player_num].score);
-		else {
+		}
+		else 
+		{
 			sprintf(score, "%d", Players[player_num].net_kills_total);
 		}
 		
@@ -3104,6 +3111,8 @@ void draw_hud()
 	if (Netgame.CTF && (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY))
 		gr_printf(xkeys, ykeys/6, "You have the \x01\x56\Blue\x01\x99\ key");
 
+	if (Netgame.CTF)
+		display_score_ctf();
 
 	//	Show score so long as not in rearview
 	if ( !Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW && PlayerCfg.CockpitMode[1]!=CM_STATUS_BAR) {

@@ -1529,7 +1529,7 @@ void add_points_to_score(int points)
 	if (Game_mode & GM_MULTI_COOP | Netgame.CTF)
 		multi_send_score();
 
-	if (Game_mode & GM_MULTI)
+	if ((Game_mode & GM_MULTI)
 		return;
 #endif
 

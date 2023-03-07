@@ -212,6 +212,7 @@ void reset_network_objects();
 int multi_objnum_is_past(int objnum);
 void multi_do_ping_frame();
 
+void multi_do_kill(const ubyte* buf);
 void multi_init_objects(void);
 void multi_show_player_list(void);
 void multi_do_protocol_frame(int force, int listen);

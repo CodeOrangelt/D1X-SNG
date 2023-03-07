@@ -4677,7 +4677,7 @@ void multi_do_sound_function (const ubyte *buf)
 
 void multi_send_capture_bonus (char pnum)
 {
-	Assert (Game_mode & GM_CAPTURE);
+	Assert (Game_mode & Netgame.CTF);
 
 	multibuf[0]=MULTI_CAPTURE_BONUS;
 	multibuf[1]=pnum;
@@ -4703,20 +4703,6 @@ void multi_do_capture_bonus(const ubyte *buf)
 
 	char pnum=buf[1];
 	int TheGoal;
-
-	if (pnum==Player_num)
-		HUD_init_message_literal(HM_MULTI, "You have Scored!");
-	else
-		HUD_init_message(HM_MULTI, "%s has Scored!",Players[(int)pnum].callsign);
-
-	if (pnum==Player_num)
-		digi_play_sample (SOUND_HUD_YOU_GOT_GOAL,F1_0*2);
-	else if (get_team(pnum)==TEAM_RED)
-		digi_play_sample (SOUND_HUD_RED_GOT_GOAL,F1_0*2);
-	else
-		digi_play_sample (SOUND_HUD_BLUE_GOT_GOAL,F1_0*2);
-
-	Players[(int)pnum].flags &= ~(PLAYER_FLAGS_FLAG);  // Clear capture flag
 
 	team_kills[get_team(pnum)] += 5;
 	Players[(int)pnum].net_kills_total += 5;

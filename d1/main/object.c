@@ -1528,14 +1528,10 @@ void dead_player_frame(void)
 					if (Netgame.CTF && Players[Player_num].flags & PLAYER_FLAGS_RED_KEY)
 					{
 						Players[Player_num].flags &= ~PLAYER_FLAGS_RED_KEY;
-						drop_powerup(OBJ_POWERUP, POW_KEY_RED, 1, &vmd_zero_vector, &red_key_pos, red_key_seg);
-
 					}
 					if (Netgame.CTF && Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY)
 					{
 						Players[Player_num].flags &= ~PLAYER_FLAGS_BLUE_KEY;
-						drop_powerup(OBJ_POWERUP, POW_KEY_BLUE, 1, &vmd_zero_vector, &blue_key_pos, blue_key_seg);
-
 					}
 				Players[Player_num].hostages_on_board = 0;
 

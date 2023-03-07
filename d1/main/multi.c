@@ -641,7 +641,7 @@ multi_sort_kill_list(void)
 
 	for (i = 0; i < MAX_PLAYERS; i++)
 	{
-		if ((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS || Netgame.PointCapture))
+		if ((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS || Netgame.PointCapture || Netgame.CTF))
 			kills[i] = Players[i].score;
 		else
 			kills[i] = Players[i].net_kills_total;
@@ -1708,7 +1708,7 @@ multi_do_death(int objnum)
 
 	objnum = objnum;
 
-	if (!(Game_mode & GM_MULTI_COOP))
+	if (!(Game_mode & GM_MULTI_COOP | Netgame.CTF ))
 	{
 		Players[Player_num].flags |= (PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_GOLD_KEY);
 	}
