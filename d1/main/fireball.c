@@ -561,22 +561,21 @@ int choose_drop_segment()
 	int	cur_drop_depth;
 	int	count;
 	int	player_seg;
-	vms_vector tempv,*player_pos;
+
+	vms_vector tempv, * player_pos;
 
 	d_srand((fix)timer_query());
-
-	cur_drop_depth = BASE_NET_DROP_DEPTH + ((d_rand() * BASE_NET_DROP_DEPTH*2) >> 15);
 
 	player_pos = &Objects[Players[Player_num].objnum].pos;
 	player_seg = Objects[Players[Player_num].objnum].segnum;
 
-	while ((segnum == -1) && (cur_drop_depth > BASE_NET_DROP_DEPTH/2)) {
+	while ((segnum == -1) && (cur_drop_depth > BASE_NET_DROP_DEPTH / 2)) {
 		//con_printf(CON_NORMAL, "Attempting spawn at depth %d\n", cur_drop_depth); 
 
 		pnum = (d_rand() * N_players) >> 15;
 		count = 0;
-		while ((count < N_players) && ((Players[pnum].connected == CONNECT_DISCONNECTED) || (pnum==Player_num))) {
-			pnum = (pnum+1)%N_players;
+		while ((count < N_players) && ((Players[pnum].connected == CONNECT_DISCONNECTED) || (pnum == Player_num))) {
+			pnum = (pnum + 1) % N_players;
 			count++;
 		}
 
@@ -593,10 +592,12 @@ int choose_drop_segment()
 			continue;
 		}
 		if (Segments[segnum].special == SEGMENT_IS_CONTROLCEN)
-			{segnum = -1;    }
+		{
+			segnum = -1;
+		}
 		else {	//don't drop in any children of control centers
 			int i;
-			for (i=0;i<6;i++) {
+			for (i = 0; i < 6; i++) {
 				int ch = Segments[segnum].children[i];
 				if (IS_CHILD(ch) && Segments[ch].special == SEGMENT_IS_CONTROLCEN) {
 					segnum = -1;
@@ -609,22 +610,23 @@ int choose_drop_segment()
 		//bail if not far enough from original position
 		if (segnum != -1) {
 			compute_segment_center(&tempv, &Segments[segnum]);
-			if (find_connected_distance(player_pos,player_seg,&tempv,segnum,-1,WID_FLY_FLAG) < i2f(20)*cur_drop_depth) {
+			if (find_connected_distance(player_pos, player_seg, &tempv, segnum, -1, WID_FLY_FLAG) < i2f(20) * cur_drop_depth) {
 				segnum = -1;
 				//con_printf(CON_NORMAL, "   Unacceptable: too close\n");
 			}
 		}
 
-		if(! segment_is_really_connected(&Objects[Players[pnum].objnum], segnum)) {
-			segnum = -1; 
+		if (!segment_is_really_connected(&Objects[Players[pnum].objnum], segnum)) {
+			segnum = -1;
 		}
 
 		cur_drop_depth--;
 	}
 
-	int my_segment = Objects[Players[Player_num].objnum].segnum; 
+	int my_segment = Objects[Players[Player_num].objnum].segnum;
 
 	if (segnum == -1) {
+
 		//con_printf(CON_NORMAL, "Attempting to spawn under reduced constraints.\n");
 
 		cur_drop_depth = BASE_NET_DROP_DEPTH * 2; // CED -- more chances
@@ -636,9 +638,10 @@ int choose_drop_segment()
 				segnum = -1;
 
 				//con_printf(CON_NORMAL, "   Unacceptable: Rector segment\n", segnum);
-			} else {	//don't drop in any children of control centers
+			}
+			else {	//don't drop in any children of control centers
 				int i;
-				for (i=0;i<6;i++) {
+				for (i = 0; i < 6; i++) {
 					int ch = Segments[segnum].children[i];
 					if (IS_CHILD(ch) && Segments[ch].special == SEGMENT_IS_CONTROLCEN) {
 						segnum = -1;
@@ -648,16 +651,16 @@ int choose_drop_segment()
 				}
 			}
 
-			if(! segment_is_really_connected(&Objects[Players[Player_num].objnum], segnum)) {
-				segnum = -1; 
+			if (!segment_is_really_connected(&Objects[Players[Player_num].objnum], segnum)) {
+				segnum = -1;
 			}
 		}
 		// If we get this desperate, just give it to me
-		int final_choice = ((segnum == -1) ? my_segment : segnum); 
+		int final_choice = ((segnum == -1) ? my_segment : segnum);
 		return final_choice; //((segnum == -1)?((d_rand() * Highest_segment_index) >> 15):segnum); // basically it should be impossible segnum == -1 now... but oh well...
-	} else
+	}
+	else
 		return segnum;
-
 }
 
 extern char PowerupsInMine[],MaxPowerupsAllowed[];
@@ -665,53 +668,53 @@ extern char PowerupsInMine[],MaxPowerupsAllowed[];
 //	Drop cloak powerup if in a network game.
 void maybe_drop_net_powerup(int powerup_type)
 {
-	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) ) {
-		int	segnum, objnum;
-		vms_vector	new_pos;
+		if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) ) {
+			int	segnum, objnum;
+			vms_vector	new_pos;
 
-		//if (Game_mode & GM_NETWORK)
-		//{
-		//	if(Netgame.PrimaryDupFactor < 2 && Netgame.SecondaryDupFactor < 2 ) {
-		//		if (PowerupsInMine[powerup_type]>=MaxPowerupsAllowed[powerup_type]) 
-		//			return;
-		//	}
-		//}
+			//if (Game_mode & GM_NETWORK)
+			//{
+			//	if(Netgame.PrimaryDupFactor < 2 && Netgame.SecondaryDupFactor < 2 ) {
+			//		if (PowerupsInMine[powerup_type]>=MaxPowerupsAllowed[powerup_type]) 
+			//			return;
+			//	}
+			//}
 
-		if (Control_center_destroyed || Endlevel_sequence)
-			return;
+			if (Control_center_destroyed || Endlevel_sequence)
+				return;
 
-		segnum = choose_drop_segment();
-//--old-- 		segnum = (d_rand() * Highest_segment_index) >> 15;
-//--old-- 		Assert((segnum >= 0) && (segnum <= Highest_segment_index));
-//--old-- 		if (segnum < 0)
-//--old-- 			segnum = -segnum;
-//--old-- 		while (segnum > Highest_segment_index)
-//--old-- 			segnum /= 2;
+			segnum = choose_drop_segment();
+	//--old-- 		segnum = (d_rand() * Highest_segment_index) >> 15;
+	//--old-- 		Assert((segnum >= 0) && (segnum <= Highest_segment_index));
+	//--old-- 		if (segnum < 0)
+	//--old-- 			segnum = -segnum;
+	//--old-- 		while (segnum > Highest_segment_index)
+	//--old-- 			segnum /= 2;
 
-		Net_create_loc = 0;
-		objnum = call_object_create_egg(&Objects[Players[Player_num].objnum], 1, OBJ_POWERUP, powerup_type);
+			Net_create_loc = 0;
+			objnum = call_object_create_egg(&Objects[Players[Player_num].objnum], 1, OBJ_POWERUP, powerup_type);
 
-		if (objnum < 0)
-			return;
+			if (objnum < 0)
+				return;
 
-#ifndef SHAREWARE
-		pick_random_point_in_seg(&new_pos, segnum);
-#else
-		compute_segment_center(&new_pos, &Segments[segnum]);
-#endif
+	#ifndef SHAREWARE
+			pick_random_point_in_seg(&new_pos, segnum);
+	#else
+			compute_segment_center(&new_pos, &Segments[segnum]);
+	#endif
 
-		multi_send_create_powerup(powerup_type, segnum, objnum, &new_pos);
+			multi_send_create_powerup(powerup_type, segnum, objnum, &new_pos);
 
-		Objects[objnum].pos = new_pos;
-		vm_vec_zero(&Objects[objnum].mtype.phys_info.velocity);
-		obj_relink(objnum, segnum);
+			Objects[objnum].pos = new_pos;
+			vm_vec_zero(&Objects[objnum].mtype.phys_info.velocity);
+			obj_relink(objnum, segnum);
 		
-		if (Netgame.CTF)
-			return;
-		else
-			object_create_explosion(segnum, &new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE);
+			if (Netgame.CTF)
+				return;
+			else
+				object_create_explosion(segnum, &new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE);
+		}
 	}
-}
 
 //	------------------------------------------------------------------------------------------------------
 //	Return true if current segment contains some object.

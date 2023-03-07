@@ -23,6 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 #include "object.h"
 #include "switch.h"
+#include "fireball.h"
 
 //------------------------------------------------------------
 // A refueling center is one segment... to identify it in the

@@ -34,7 +34,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "robot.h"
 #include "byteswap.h"
 #include "powerup.h"
-
+#include "fireball.h"
 #include "multi.h"
 #include "wall.h"
 #include "sounds.h"
@@ -574,27 +574,40 @@ fix fuelcen_give_fuel(segment* segp, fix MaxAmountCanTake)
 
 	if (Netgame.CTF)
 	{
-		if (Players[Player_num].flags & PLAYER_FLAGS_RED_KEY && blue_key_seg == ConsoleObject->segnum)
+		if (blue_key_seg == ConsoleObject->segnum)
 		{
-			HUD_init_message(HM_MULTI, "%s scored!", Players[Player_num].callsign);
-			drop_powerup(OBJ_POWERUP, POW_KEY_RED, 1, &vmd_zero_vector, &red_key_pos, red_key_seg);
-			Players[Player_num].flags &= ~PLAYER_FLAGS_RED_KEY;
-			PALETTE_FLASH_ADD(0, 15, 0);
-			digi_play_sample_once(SOUND_HOSTAGE_RESCUED, F1_0);
-			add_points_to_score(5);
+				if (Netgame.CTF & Players[Player_num].flags == PLAYER_FLAGS_RED_KEY)
+				{
+					HUD_init_message(HM_MULTI, "You scored!");
+					drop_powerup(OBJ_POWERUP, POW_KEY_RED, 1, &vmd_zero_vector, &red_key_pos, red_key_seg);
+#ifdef NETWORK
+					multi_send_create_powerup(POW_KEY_RED, red_key_seg, 7, &red_key_pos);
+#endif
+					Players[Player_num].flags &= ~PLAYER_FLAGS_RED_KEY;
+					digi_play_sample_once(SOUND_HOSTAGE_RESCUED, F1_0);
+					add_points_to_score(5);
+				}
+
 		}
-		if (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY && red_key_seg == ConsoleObject->segnum)
+
+
+		if (red_key_seg == ConsoleObject->segnum)
 		{
-			HUD_init_message(HM_MULTI, "%s scored!", Players[Player_num].callsign);
-			PALETTE_FLASH_ADD(0, 15, 0);
-			drop_powerup(OBJ_POWERUP, POW_KEY_BLUE, 1, &vmd_zero_vector, &blue_key_pos, blue_key_seg);
-			Players[Player_num].flags &= ~PLAYER_FLAGS_BLUE_KEY;
-			digi_play_sample_once(SOUND_HOSTAGE_RESCUED, F1_0);
-			add_points_to_score(5);
+				if (Netgame.CTF & Players[Player_num].flags == PLAYER_FLAGS_BLUE_KEY)
+				{
+					drop_powerup(OBJ_POWERUP, POW_KEY_BLUE, 1, &vmd_zero_vector, &blue_key_pos, blue_key_seg);
+
+#ifdef NETWORK
+					multi_send_create_powerup(POW_KEY_BLUE, blue_key_seg, 7, &blue_key_pos);
+#endif
+					HUD_init_message(HM_MULTI, "You scored!");
+					Players[Player_num].flags &= ~PLAYER_FLAGS_BLUE_KEY;
+					digi_play_sample_once(SOUND_HOSTAGE_RESCUED, F1_0);
+					add_points_to_score(5);
+				}
 
 		}
 	}
-
 	if ((segp) && (segp->special == SEGMENT_IS_FUELCEN))
 	{
 		fix amount;
