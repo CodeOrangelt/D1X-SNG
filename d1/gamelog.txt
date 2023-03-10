@@ -1,52 +1,30 @@
-12:26:04 D1X SNG 1.6 - The Leaps & Bounds Update.  Mar  1 2023 12:12:36
-12:26:04 This is a MODIFIED version of Descent, based on Fork by Code.
-12:26:04 Copyright (C) 1994, 1995 Parallax Software Corporation
+21:01:03 D1X SNG 1.6 - The Leaps & Bounds Update.  Mar  1 2023 12:12:36
+21:01:03 This is a MODIFIED version of Descent, based on Fork by Code.
+21:01:03 Copyright (C) 1994, 1995 Parallax Software Corporation
 DESCENT is a trademark of Interplay Productions, Inc.
-12:26:04 Copyright (C) 2005-2011 Christian Beckhaeuser
+21:01:03 Copyright (C) 2005-2011 Christian Beckhaeuser
 
-12:26:04 Using SDL_mixer library
-12:26:04 sdl-joystick: found 0 joysticks
-12:26:30 udp_open_socket: bind name to socket failed (port 42424)
-12:26:35 udp_open_socket: bind name to socket failed (port 42424)
-12:26:36 udp_open_socket: bind name to socket failed (port 42424)
-12:26:37 xxx len: 558
-12:26:38 xxx len: 558
-12:26:40 xxx len: 558
-12:26:46 xxx len: 750
-12:26:46 Homing update rate: 25
-12:27:03 You took 11.0 damage from code's plasma!
-12:27:03 You took 11.0 damage from code's plasma!
-12:27:03 You took 11.0 damage from code's plasma!
-12:27:04 You took 11.0 damage from code's plasma!
-12:27:04 You took 11.0 damage from code's plasma!
-12:27:04 You took 25.2 damage from code's concussion blast!
-12:27:04 You have  20  shields left
-ft
-12:27:04 You took 11.0 damage from code's plasma!
-12:27:04 You took 11.0 damage from code's plasma!
-12:27:04 code (BLUE) killed You!
-12:27:06 Ship destroyed!
-12:27:21 Shield boosted to 106
-12:27:22 Plasma Cannon!
-12:27:25 You scored!
-12:27:31 You scored!
-12:27:33 Energy boosted to 104
-12:27:34 You killed code (BLUE)!
-12:27:42 You scored!
-12:27:48 You scored!
-12:27:59 code has left the game!
-12:27:59 xxx len: 558
-12:28:05 demos/code_code_1_1_CTFO.dem does not exist!11.0 damage from code's plasma!
-12:27:33 You took 11.0 damage from code's plasma!
-12:27:33 You took 11.0 damage from code's plasma!
-12:27:33 You took 11.0 damage from code's plasma!
-12:27:34 You have  40  shields left
-ft
-12:27:34 You took 11.0 damage from code's plasma!
-12:27:34 You have  20  shields left
-ft
-12:27:34 You took 11.0 damage from code's plasma!
-12:27:34 You took 11.0 damage from code's plasma!
-12:27:34 code (RED) killed You!
-12:27:36 Ship destroyed!
-12:27:59 demos/code_code_1_1_CTFO.dem does not exist!12:27:59 Demo saved as tmpdemo.dem
+21:01:03 Using SDL_mixer library
+21:01:03 sdl-joystick: found 0 joysticks
+21:01:06 Dropped UPID_GAME_INFO_LITE_REQ: received by non-game master
+21:01:06 Dropped pid UPID_GAME_INFO_LITE_REQ: failed security checks.
+21:01:10 Homing update rate: 25
+21:09:49 Plasma Cannon!
+21:09:49 No secondary weapons available!
+21:09:52 Homing Missile!
+21:09:52 You took 0.4 damage from hitting a wall!
+21:09:53 You scored!
+21:09:56 Plasma Cannon selected!
+
+21:09:59 No secondary weapons available!
+21:10:01 Fusion Cannon!
+21:10:01 You scored!
+21:39:57 You scored!
+21:40:01 You scored!
+21:40:02 You took 0.4 damage from hitting a wall!
+21:40:05 You scored!
+21:40:10 You scored!
+21:40:14 Homing Missile!
+21:40:14 No secondary weapons available!
+21:40:15 You took 0.4 damage from hitting a wall!
+21:42:53 demos/code_ANARCHY_CTFO_4.dem does not exist!21:42:53 Demo saved as tmpdemo.dem
