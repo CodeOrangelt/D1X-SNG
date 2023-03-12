@@ -646,13 +646,11 @@ fix fuelcen_give_fuel(segment* segp, fix MaxAmountCanTake)
 
 	if (blue_key_seg == ConsoleObject->segnum)
 	{
-			if (Netgame.CTF & Players[Player_num].flags == PLAYER_FLAGS_RED_KEY)
+			if (Netgame.CTF && (Players[Player_num].flags & PLAYER_FLAGS_RED_KEY))
 			{
 				HUD_init_message(HM_MULTI, "You scored!");
 				drop_powerup(OBJ_POWERUP, POW_KEY_RED, 1, &vmd_zero_vector, &red_key_pos, red_key_seg);
-#ifdef NETWORK
 				multi_send_create_powerup(POW_KEY_RED, red_key_seg, 7, &red_key_pos);
-#endif
 				Players[Player_num].flags &= ~PLAYER_FLAGS_RED_KEY;
 				digi_play_sample_once(SOUND_HOSTAGE_RESCUED, F1_0);
 				add_points_to_score(5);
@@ -661,13 +659,10 @@ fix fuelcen_give_fuel(segment* segp, fix MaxAmountCanTake)
 
 	if (red_key_seg == ConsoleObject->segnum)
 	{
-			if (Netgame.CTF & Players[Player_num].flags == PLAYER_FLAGS_BLUE_KEY)
+			if (Netgame.CTF && (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY))
 			{
 				drop_powerup(OBJ_POWERUP, POW_KEY_BLUE, 1, &vmd_zero_vector, &blue_key_pos, blue_key_seg);
-
-#ifdef NETWORK
 				multi_send_create_powerup(POW_KEY_BLUE, blue_key_seg, 7, &blue_key_pos);
-#endif
 				HUD_init_message(HM_MULTI, "You scored!");
 				Players[Player_num].flags &= ~PLAYER_FLAGS_BLUE_KEY;
 				digi_play_sample_once(SOUND_HOSTAGE_RESCUED, F1_0);
@@ -872,7 +867,8 @@ fix fuelcen_give_fuel(segment* segp, fix MaxAmountCanTake)
 		return amount;
 
 	}
-	else {
+	else 
+	{
 		return 0;
 	}
 }
