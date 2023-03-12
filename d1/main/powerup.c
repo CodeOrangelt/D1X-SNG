@@ -312,7 +312,8 @@ int do_powerup(object *obj)
 					only_sound = used;
 					used = 1;
 					PALETTE_FLASH_ADD(0, 15, 0);
-					HUD_init_message(HM_MULTI, "%s has picked up the \x01\x56\ blue \x01\x99\ Flag!", Players[Player_num].callsign);
+					sprintf(Network_message, "has picked up the \x01\x56\ blue \x01\x99\ Flag!");
+					Network_message_reciever = 100;
 					digi_play_sample(SOUND_CONTROL_CENTER_WARNING_SIREN, F1_0);
 					multi_send_play_sound(SOUND_CONTROL_CENTER_WARNING_SIREN, F1_0);
 				}
@@ -350,7 +351,8 @@ int do_powerup(object *obj)
 					only_sound = used;
 					used = 1;
 					PALETTE_FLASH_ADD(0, 15, 0);
-					HUD_init_message(HM_MULTI, "%s has picked up the \x01\xC0\ red \x01\x99\ Flag!", Players[Player_num].callsign);
+					sprintf(Network_message, "has picked up the \x01\xC0\ red \x01\x99\ Flag!");
+					Network_message_reciever = 100;
 					digi_play_sample(SOUND_CONTROL_CENTER_WARNING_SIREN, F1_0);
 					multi_send_play_sound(SOUND_CONTROL_CENTER_WARNING_SIREN, F1_0);
 				}

@@ -648,7 +648,8 @@ fix fuelcen_give_fuel(segment* segp, fix MaxAmountCanTake)
 	{
 			if (Netgame.CTF && (Players[Player_num].flags & PLAYER_FLAGS_RED_KEY))
 			{
-				HUD_init_message(HM_MULTI, "You scored!");
+				sprintf(Network_message, "has scored!");
+				Network_message_reciever = 100;
 				int objnum = drop_powerup(OBJ_POWERUP, POW_KEY_RED, 1, &vmd_zero_vector, &red_key_pos, red_key_seg);
 				multi_send_create_powerup(POW_KEY_RED, red_key_seg, objnum, &red_key_pos);
 				Players[Player_num].flags &= ~PLAYER_FLAGS_RED_KEY;
@@ -665,7 +666,8 @@ fix fuelcen_give_fuel(segment* segp, fix MaxAmountCanTake)
 			{
 				int objnum = drop_powerup(OBJ_POWERUP, POW_KEY_BLUE, 1, &vmd_zero_vector, &blue_key_pos, blue_key_seg);
 				multi_send_create_powerup(POW_KEY_BLUE, blue_key_seg, objnum, &blue_key_pos);
-				HUD_init_message(HM_MULTI, "You scored!");
+				sprintf(Network_message, "has scored!");
+				Network_message_reciever = 100;
 				Players[Player_num].flags &= ~PLAYER_FLAGS_BLUE_KEY;
 				PALETTE_FLASH_ADD(0, 15, 0);
 				multi_send_flags();
