@@ -1525,14 +1525,6 @@ void dead_player_frame(void)
 					HUD_init_message_literal(HM_DEFAULT, TXT_SHIP_DESTROYED_1);
 				else
 					HUD_init_message_literal(HM_DEFAULT, TXT_SHIP_DESTROYED_0);
-					if (Netgame.CTF && Players[Player_num].flags & PLAYER_FLAGS_RED_KEY)
-					{
-						Players[Player_num].flags &= ~PLAYER_FLAGS_RED_KEY;
-					}
-					if (Netgame.CTF && Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY)
-					{
-						Players[Player_num].flags &= ~PLAYER_FLAGS_BLUE_KEY;
-					}
 				Players[Player_num].hostages_on_board = 0;
 
 				Player_exploded = 1;

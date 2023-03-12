@@ -270,11 +270,6 @@ int do_powerup(object *obj)
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, TXT_MAXED_OUT,TXT_SHIELD);
 			break;
 		case POW_LASER:
-			if (Netgame.CTF)
-			{
-				only_sound = used;
-				used = 0;
-			}
 			if (Players[Player_num].laser_level >= MAX_LASER_LEVEL) {
 				Players[Player_num].laser_level = MAX_LASER_LEVEL;
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, TXT_MAXED_OUT,TXT_LASER);
@@ -286,6 +281,11 @@ int do_powerup(object *obj)
 				update_laser_weapon_info();
 				pick_up_primary (LASER_INDEX);
 				used=1;
+			}
+			if (Netgame.CTF)
+			{
+				only_sound = used;
+				used = 0;
 			}
 			if (!used && !(Game_mode & GM_MULTI) )
 				used = pick_up_energy();
@@ -400,7 +400,8 @@ int do_powerup(object *obj)
 				used = pick_up_energy();
 			break;
 		case	POW_VULCAN_WEAPON:
-			if ((used = pick_up_primary(VULCAN_INDEX)) != 0) {
+			if ((used = pick_up_primary(VULCAN_INDEX)) != 0) 
+			{
 				vulcan_ammo_to_add_with_cannon = obj->ctype.powerup_info.count;
 				if (vulcan_ammo_to_add_with_cannon < VULCAN_WEAPON_AMMO_AMOUNT) vulcan_ammo_to_add_with_cannon = VULCAN_WEAPON_AMMO_AMOUNT;
 				if ( (Game_mode & GM_MULTI) &&
@@ -412,7 +413,11 @@ int do_powerup(object *obj)
 				}
 				pick_up_ammo(CLASS_PRIMARY, VULCAN_INDEX, vulcan_ammo_to_add_with_cannon);
 			}
-
+			if (Netgame.CTF)
+			{
+				only_sound = used;
+				used = 0;
+			}
 //added/edited 8/3/98 by Victor Rachels to fix vulcan multi bug
 //check if multi, if so, pick up ammo w/o using, set ammo left. else, normal
 

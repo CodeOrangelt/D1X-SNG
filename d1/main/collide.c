@@ -1279,15 +1279,19 @@ void drop_player_eggs_remote(object *playerobj, ubyte remote)
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_SHIELD_BOOST);
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_ENERGY);
 		}
+
+		extern int drop_powerup(int type, int id, int num, vms_vector * init_vel, vms_vector * pos, int segnum);
 		if (Netgame.CTF && (Players[playerobj->id].flags & PLAYER_FLAGS_BLUE_KEY))
 		{
 			Players[playerobj->id].flags &= ~PLAYER_FLAGS_BLUE_KEY;
-			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_KEY_BLUE);
+			int objnum = drop_powerup(OBJ_POWERUP, POW_KEY_BLUE, 1, &vmd_zero_vector, &blue_key_pos, blue_key_seg);
+			multi_send_create_powerup(POW_KEY_BLUE, blue_key_seg, objnum, &blue_key_pos);
 		}
 		if (Netgame.CTF && (Players[playerobj->id].flags & PLAYER_FLAGS_RED_KEY))
 		{
 			Players[playerobj->id].flags &= ~PLAYER_FLAGS_RED_KEY;
-			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_KEY_RED);
+			int objnum = drop_powerup(OBJ_POWERUP, POW_KEY_RED, 1, &vmd_zero_vector, &red_key_pos, red_key_seg);
+			multi_send_create_powerup(POW_KEY_RED, red_key_seg, objnum, &red_key_pos);
 		}
 	}
 }
