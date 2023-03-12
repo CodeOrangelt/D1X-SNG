@@ -2365,6 +2365,8 @@ void hud_show_kill_list()
 		else if (Show_kill_list == 3) {
 			if (Netgame.PlayTimeAllowed || Netgame.KillGoal)
 				gr_printf(x1,y,"%3d(%d)",team_kills[i],Netgame.TeamKillGoalCount[i]);
+			else if (Netgame.CTF)
+				gr_printf(x1, y, "K:%3d", team_kills[i]);
 			else
 				gr_printf(x1,y,"%3d",team_kills[i]);
 
@@ -3109,10 +3111,10 @@ void draw_hud()
 	int	ykeys = grd_curcanv->cv_bitmap.bm_h;
 
 	if (Netgame.CTF && (Players[Player_num].flags & PLAYER_FLAGS_RED_KEY))
-		gr_printf(xkeys, ykeys/8, "You have the \x01\xC0\Red\x01\x99\ key");
+		gr_printf(xkeys, ykeys/8, "You have the \x01\xC0\Red\x01\x99\ flag");
 
 	if (Netgame.CTF && (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY))
-		gr_printf(xkeys, ykeys/6, "You have the \x01\x56\Blue\x01\x99\ key");
+		gr_printf(xkeys, ykeys/6, "You have the \x01\x56\Blue\x01\x99\ flag");
 
 	if (Netgame.CTF)
 		display_score_ctf();
