@@ -646,7 +646,7 @@ fix fuelcen_give_fuel(segment* segp, fix MaxAmountCanTake)
 
 	if (blue_key_seg == ConsoleObject->segnum)
 	{
-			if (Netgame.CTF & Players[Player_num].flags == PLAYER_FLAGS_RED_KEY)
+			if (Netgame.CTF && (Players[Player_num].flags & PLAYER_FLAGS_RED_KEY))
 			{
 				HUD_init_message(HM_MULTI, "You scored!");
 				drop_powerup(OBJ_POWERUP, POW_KEY_RED, 1, &vmd_zero_vector, &red_key_pos, red_key_seg);
@@ -661,7 +661,7 @@ fix fuelcen_give_fuel(segment* segp, fix MaxAmountCanTake)
 
 	if (red_key_seg == ConsoleObject->segnum)
 	{
-			if (Netgame.CTF & Players[Player_num].flags == PLAYER_FLAGS_BLUE_KEY)
+			if (Netgame.CTF && (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY))
 			{
 				drop_powerup(OBJ_POWERUP, POW_KEY_BLUE, 1, &vmd_zero_vector, &blue_key_pos, blue_key_seg);
 
