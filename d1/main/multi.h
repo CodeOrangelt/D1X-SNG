@@ -120,6 +120,7 @@ extern int multi_protocol; // set and determinate used protocol
 	VALUE(MULTI_OBS_UPDATE           , 4 + 8*MAX_OBSERVERS)	\
 	VALUE(MULTI_DAMAGE               , 15)  \
 	VALUE(MULTI_REPAIR               , 11)  \
+	VALUE(MULTI_FLAGS				 , 6)   \
 	AFTER
 for_each_multiplayer_command(enum {, define_multiplayer_command, });
 
@@ -244,7 +245,8 @@ void multi_do_damage( const ubyte *buf );
 void multi_send_repair(fix repair, fix shields, ubyte sourcetype);
 void multi_do_repair( const ubyte *buf );
 
-
+void multi_send_flags(void);
+void multi_do_flags(const ubyte* buf);
 void multi_send_bounty( void );
 void multi_endlevel_score(void);
 void multi_consistency_error(int reset);

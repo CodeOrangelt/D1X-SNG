@@ -1,19 +1,24 @@
-11:29:47 D1X SNG 1.6 - The Leaps & Bounds Update.  Mar  1 2023 12:12:36
-11:29:47 This is a MODIFIED version of Descent, based on Fork by Code.
-11:29:47 Copyright (C) 1994, 1995 Parallax Software Corporation
+12:02:22 D1X SNG 1.6 - The Leaps & Bounds Update.  Mar  1 2023 12:12:36
+12:02:22 This is a MODIFIED version of Descent, based on Fork by Code.
+12:02:22 Copyright (C) 1994, 1995 Parallax Software Corporation
 DESCENT is a trademark of Interplay Productions, Inc.
-11:29:47 Copyright (C) 2005-2011 Christian Beckhaeuser
+12:02:22 Copyright (C) 2005-2011 Christian Beckhaeuser
 
-11:29:47 Using SDL_mixer library
-11:29:48 sdl-joystick: found 0 joysticks
-11:29:50 Dropped UPID_GAME_INFO_LITE_REQ: received by non-game master
-11:29:50 Dropped pid UPID_GAME_INFO_LITE_REQ: failed security checks.
-11:29:53 Homing update rate: 25
-11:29:56 Plasma Cannon!
-11:29:59 You scored!
-11:30:03 You scored!
-11:30:05 You took 0.4 damage from hitting a wall!
-11:30:06 Homing Missile!
-11:30:09 You scored!
-11:30:14 You scored!
-11:30:16 demos/code_ANARCHY_CTFO_4.dem does not exist!11:30:17 Demo saved as tmpdemo.dem
+12:02:22 Using SDL_mixer library
+12:02:22 sdl-joystick: found 0 joysticks
+12:02:25 Dropped UPID_GAME_INFO_LITE_REQ: received by non-game master
+12:02:25 Dropped pid UPID_GAME_INFO_LITE_REQ: failed security checks.
+12:02:28 Homing update rate: 25
+12:02:30 Fusion Cannon!
+12:02:31 Vulcan Cannon!
+12:02:31 Spreadfire Cannon!
+12:02:35 4 Proximity Bombs!
+12:02:35 You took 0.4 damage from hitting a wall!
+12:02:38 You scored!
+12:03:09 You took 0.4 damage from hitting a wall!
+12:03:12 You scored!
+12:03:14 You took 0.4 damage from hitting a wall!
+12:03:14 You took 0.4 damage from hitting a wall!
+12:03:17 You took 0.5 damage from hitting a wall!
+12:03:20 You took 0.5 damage from hitting a wall!
+12:04:20 demos/code_ANARCHY_PyroFact.dem does not exist!12:04:20 Demo saved as tmpdemo.dem

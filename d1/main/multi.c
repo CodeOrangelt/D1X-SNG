@@ -4298,6 +4298,21 @@ void multi_do_repair( const ubyte *buf )
 	}
 }
 
+void multi_send_flags(void)
+{
+	// Setup flags packet.
+	multibuf[0] = MULTI_FLAGS;
+	multibuf[1] = Player_num;
+	PUT_INTEL_INT(multibuf + 2, Players[Player_num].flags);
+
+	multi_send_data(multibuf, 6, 0);
+}
+
+void multi_do_flags(const ubyte* buf)
+{
+	Players[buf[1]].flags = GET_INTEL_INT(buf + 2);
+}
+
 /* Bounty packer sender and handler */
 void multi_send_bounty( void )
 {
@@ -4742,6 +4757,8 @@ multi_process_data(const ubyte *buf, int len)
 			multi_do_damage(buf); break;
 		case MULTI_REPAIR:
 			multi_do_repair(buf); break;
+		case MULTI_FLAGS:
+			multi_do_flags(buf); break;
 		default:
 			Int3();
 	}

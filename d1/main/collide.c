@@ -1180,55 +1180,81 @@ void drop_player_eggs_remote(object *playerobj, ubyte remote)
 	if ((playerobj->type == OBJ_PLAYER) || (playerobj->type == OBJ_GHOST)) {
 		int	pnum = playerobj->id;
 		int	objnum;
-		int	vulcan_ammo=0;
+		int	vulcan_ammo = 0;
 
 		// Seed the random number generator so in net play the eggs will always
 		// drop the same way
-		#ifdef NETWORK
+#ifdef NETWORK
 		if (Game_mode & GM_MULTI)
 		{
 			Net_create_loc = 0;
 			d_srand(5483L);
 		}
-		#endif
+#endif
 
 		//	If the player dies and he has powerful lasers, create the powerups here.
+		if (Netgame.CTF)
+		{
+			//drop nothing in ctf for static powerups
+		}
+		else
+		{
+			if (Players[pnum].laser_level >= 1)
+				call_object_create_egg(playerobj, Players[pnum].laser_level, OBJ_POWERUP, POW_LASER);	// Note: laser_level = 0 for laser level 1.
+		}
 
-		if (Players[pnum].laser_level >= 1)
-			call_object_create_egg(playerobj, Players[pnum].laser_level, OBJ_POWERUP, POW_LASER);	// Note: laser_level = 0 for laser level 1.
-
-		//	Drop quad laser if appropos
-		if (Players[pnum].flags & PLAYER_FLAGS_QUAD_LASERS)
-			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_QUAD_FIRE);
-
+		if (Netgame.CTF)
+		{
+			//drop nothing in ctf for static powerups
+		}
+		else
+		{
+			//	Drop quad laser if appropos
+			if (Players[pnum].flags & PLAYER_FLAGS_QUAD_LASERS)
+				call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_QUAD_FIRE);
+		}
 		if (Players[pnum].flags & PLAYER_FLAGS_CLOAKED)
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_CLOAK);
 
-		//Drop the vulcan, gauss, and ammo
-		vulcan_ammo = Players[pnum].primary_ammo[VULCAN_INDEX];
-		int min_vulcan_ammo = VULCAN_WEAPON_AMMO_AMOUNT;
-		if ( (Game_mode & GM_MULTI) &&
-			 (!(Game_mode & GM_MULTI_COOP)) &&
-			 Netgame.LowVulcan )
+		if (Netgame.CTF)
 		{
-			min_vulcan_ammo = VULCAN_WEAPON_AMMO_AMOUNT /2;
+			//drop nothing in ctf for static powerups
 		}
-		if (vulcan_ammo < min_vulcan_ammo)
-			vulcan_ammo = min_vulcan_ammo;	//make sure gun has at least as much as a powerup
-		objnum = maybe_drop_primary_weapon_egg(playerobj, VULCAN_INDEX);
-		if (objnum!=-1)
-			Objects[objnum].ctype.powerup_info.count = vulcan_ammo;
+		else
+		{
+			//Drop the vulcan, gauss, and ammo
+			vulcan_ammo = Players[pnum].primary_ammo[VULCAN_INDEX];
+			int min_vulcan_ammo = VULCAN_WEAPON_AMMO_AMOUNT;
+			if ((Game_mode & GM_MULTI) &&
+				(!(Game_mode & GM_MULTI_COOP)) &&
+				Netgame.LowVulcan)
+			{
+				min_vulcan_ammo = VULCAN_WEAPON_AMMO_AMOUNT / 2;
+			}
+			if (vulcan_ammo < min_vulcan_ammo)
+				vulcan_ammo = min_vulcan_ammo;	//make sure gun has at least as much as a powerup
+			objnum = maybe_drop_primary_weapon_egg(playerobj, VULCAN_INDEX);
+			if (objnum != -1)
+				Objects[objnum].ctype.powerup_info.count = vulcan_ammo;
+		}
 
-		//	Drop the rest of the primary weapons
-		maybe_drop_primary_weapon_egg(playerobj, SPREADFIRE_INDEX);
-		maybe_drop_primary_weapon_egg(playerobj, PLASMA_INDEX);
-		maybe_drop_primary_weapon_egg(playerobj, FUSION_INDEX);
+		if (Netgame.CTF)
+		{
+			//drop nothing in ctf for static powerups
+		}
+		else
+		{
+			//	Drop the rest of the primary weapons
+			maybe_drop_primary_weapon_egg(playerobj, SPREADFIRE_INDEX);
+			maybe_drop_primary_weapon_egg(playerobj, PLASMA_INDEX);
+			maybe_drop_primary_weapon_egg(playerobj, FUSION_INDEX);
 
 		//	Drop the secondary weapons
 		//	Note, proximity weapon only comes in packets of 4.  So drop n/2, but a max of 3 (handled inside maybe_drop..)  Make sense?
 
-			maybe_drop_secondary_weapon_egg(playerobj, PROXIMITY_INDEX, (Players[playerobj->id].secondary_ammo[PROXIMITY_INDEX])/4);
-
+			maybe_drop_secondary_weapon_egg(playerobj, PROXIMITY_INDEX, (Players[playerobj->id].secondary_ammo[PROXIMITY_INDEX]) / 4);
+			//yes even the proxies!
+		}
 		maybe_drop_secondary_weapon_egg(playerobj, SMART_INDEX, Players[playerobj->id].secondary_ammo[SMART_INDEX]);
 		maybe_drop_secondary_weapon_egg(playerobj, MEGA_INDEX, Players[playerobj->id].secondary_ammo[MEGA_INDEX]);
 
@@ -1253,9 +1279,15 @@ void drop_player_eggs_remote(object *playerobj, ubyte remote)
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_SHIELD_BOOST);
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_ENERGY);
 		}
-		if (Game_mode & Netgame.CTF && PLAYER_FLAGS_BLUE_KEY) {
-			Players[Player_num].flags &= ~PLAYER_FLAGS_BLUE_KEY;
+		if (Netgame.CTF && (Players[playerobj->id].flags & PLAYER_FLAGS_BLUE_KEY))
+		{
+			Players[playerobj->id].flags &= ~PLAYER_FLAGS_BLUE_KEY;
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_KEY_BLUE);
+		}
+		if (Netgame.CTF && (Players[playerobj->id].flags & PLAYER_FLAGS_RED_KEY))
+		{
+			Players[playerobj->id].flags &= ~PLAYER_FLAGS_RED_KEY;
+			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_KEY_RED);
 		}
 	}
 }
