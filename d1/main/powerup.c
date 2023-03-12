@@ -322,6 +322,8 @@ int do_powerup(object *obj)
 #endif
 			digi_play_sample( Powerup_info[obj->id].hit_sound, F1_0 );
 			Players[Player_num].flags |= PLAYER_FLAGS_BLUE_KEY;
+			if ((Game_mode & GM_MULTI) && Netgame.CTF)
+				multi_send_flags();
 			if (!Netgame.CTF)
 				powerup_basic(0, 0, 15, KEY_SCORE, "%s %s",TXT_BLUE,TXT_ACCESS_GRANTED);
 			else if ((Game_mode & GM_MULTI) & !Netgame.CTF)
@@ -356,6 +358,8 @@ int do_powerup(object *obj)
 #endif
 			digi_play_sample( Powerup_info[obj->id].hit_sound, F1_0 );
 			Players[Player_num].flags |= PLAYER_FLAGS_RED_KEY;
+			if ((Game_mode & GM_MULTI) && Netgame.CTF)
+				multi_send_flags();
 			if(!Netgame.CTF)
 				powerup_basic(15, 0, 0, KEY_SCORE, "%s %s",TXT_RED,TXT_ACCESS_GRANTED);
 			else if ((Game_mode & GM_MULTI) & !Netgame.CTF)

@@ -654,6 +654,7 @@ fix fuelcen_give_fuel(segment* segp, fix MaxAmountCanTake)
 				multi_send_create_powerup(POW_KEY_RED, red_key_seg, 7, &red_key_pos);
 #endif
 				Players[Player_num].flags &= ~PLAYER_FLAGS_RED_KEY;
+				multi_send_flags();
 				digi_play_sample_once(SOUND_HOSTAGE_RESCUED, F1_0);
 				add_points_to_score(5);
 			}
@@ -670,6 +671,7 @@ fix fuelcen_give_fuel(segment* segp, fix MaxAmountCanTake)
 #endif
 				HUD_init_message(HM_MULTI, "You scored!");
 				Players[Player_num].flags &= ~PLAYER_FLAGS_BLUE_KEY;
+				multi_send_flags();
 				digi_play_sample_once(SOUND_HOSTAGE_RESCUED, F1_0);
 				add_points_to_score(5);
 
