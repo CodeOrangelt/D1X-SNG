@@ -1286,7 +1286,8 @@ void drop_player_eggs_remote(object *playerobj, ubyte remote)
 			Players[playerobj->id].flags &= ~PLAYER_FLAGS_BLUE_KEY;
 			int objnum = drop_powerup(OBJ_POWERUP, POW_KEY_BLUE, 1, &vmd_zero_vector, &blue_key_pos, blue_key_seg);
 			multi_send_create_powerup(POW_KEY_BLUE, blue_key_seg, objnum, &blue_key_pos);
-			HUD_init_message(HM_MULTI, "FLAG HAS BEEN RETURNED!");
+			strcpy(Network_message, "has lost the flag!");
+			Network_message_reciever = 100;
 			digi_play_sample(SOUND_INVULNERABILITY_OFF, F1_0);
 			multi_send_play_sound(SOUND_INVULNERABILITY_OFF, F1_0);
 		}
@@ -1295,7 +1296,8 @@ void drop_player_eggs_remote(object *playerobj, ubyte remote)
 			Players[playerobj->id].flags &= ~PLAYER_FLAGS_RED_KEY;
 			int objnum = drop_powerup(OBJ_POWERUP, POW_KEY_RED, 1, &vmd_zero_vector, &red_key_pos, red_key_seg);
 			multi_send_create_powerup(POW_KEY_RED, red_key_seg, objnum, &red_key_pos);
-			HUD_init_message(HM_MULTI, "FLAG HAS BEEN RETURNED!");
+			strcpy(Network_message, "has lost the flag!");
+			Network_message_reciever = 100;
 			digi_play_sample(SOUND_INVULNERABILITY_OFF, F1_0);
 			multi_send_play_sound(SOUND_INVULNERABILITY_OFF, F1_0);
 		}
