@@ -2525,7 +2525,6 @@ void observer_show_kill_list()
 			strcpy(name, Netgame.team_name[i]);
 		else if (Game_mode & GM_BOUNTY && player_num == Bounty_target && GameTime64&0x10000)
 			strcpy(name,"[TARGET]");
-
 		//generate flowing with player name - code - reminder
 		else
 			strcpy(name,Players[player_num].callsign);	// Note link to above if!!
@@ -2953,7 +2952,11 @@ void show_HUD_names()
 					memset(&s, '\0', CALLSIGN_LEN+20);
 					/* Set the text to show */
 					if( Game_mode & GM_BOUNTY && pnum == Bounty_target )
-						strncpy( s, "Target", 6 );
+						strncpy(s, "Target", 6 );
+					else if (Netgame.CTF && get_team(pnum)==0 && (Players[pnum].flags & PLAYER_FLAGS_RED_KEY))
+						strncpy(s, "\x01\xC1[FLAG]", 14);
+					else if (Netgame.CTF && get_team(pnum)==1 && (Players[pnum].flags & PLAYER_FLAGS_BLUE_KEY))
+						strncpy(s, "\x01\x56[FLAG]", 14);
 					else if (show_name)
 					{
 						if (Game_mode & GM_OBSERVER)

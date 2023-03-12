@@ -2609,7 +2609,10 @@ void hud_show_kill_list()
 			strcpy(name, Netgame.team_name[i]);
 		else if (Game_mode & GM_BOUNTY && player_num == Bounty_target && GameTime64&0x10000)
 			strcpy(name,"[TARGET]");
-
+		else if (Netgame.CTF && (Players[Player_num].flags & PLAYER_FLAGS_RED_KEY) && GameTime64 & 0x10000)
+			strcpy(name, "\x01\xC1[FLAG]");
+		else if (Netgame.CTF && (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY) && GameTime64 & 0x10000)
+			strcpy(name, "\x01\x56[FLAG]");
 		else
 			strcpy(name,Players[player_num].callsign);	// Note link to above if!!
 		gr_get_string_size(name,&sw,&sh,&aw);

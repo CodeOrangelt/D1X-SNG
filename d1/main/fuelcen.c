@@ -652,6 +652,7 @@ fix fuelcen_give_fuel(segment* segp, fix MaxAmountCanTake)
 				int objnum = drop_powerup(OBJ_POWERUP, POW_KEY_RED, 1, &vmd_zero_vector, &red_key_pos, red_key_seg);
 				multi_send_create_powerup(POW_KEY_RED, red_key_seg, objnum, &red_key_pos);
 				Players[Player_num].flags &= ~PLAYER_FLAGS_RED_KEY;
+				PALETTE_FLASH_ADD(0, 15, 0);
 				multi_send_flags();
 				digi_play_sample_once(SOUND_HOSTAGE_RESCUED, F1_0);
 				add_points_to_score(5);
@@ -666,6 +667,7 @@ fix fuelcen_give_fuel(segment* segp, fix MaxAmountCanTake)
 				multi_send_create_powerup(POW_KEY_BLUE, blue_key_seg, objnum, &blue_key_pos);
 				HUD_init_message(HM_MULTI, "You scored!");
 				Players[Player_num].flags &= ~PLAYER_FLAGS_BLUE_KEY;
+				PALETTE_FLASH_ADD(0, 15, 0);
 				multi_send_flags();
 				digi_play_sample_once(SOUND_HOSTAGE_RESCUED, F1_0);
 				add_points_to_score(5);

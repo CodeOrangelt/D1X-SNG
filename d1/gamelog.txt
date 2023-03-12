@@ -1,18 +1,47 @@
-12:50:33 D1X SNG 1.6 - The Leaps & Bounds Update.  Mar  1 2023 12:12:36
-12:50:33 This is a MODIFIED version of Descent, based on Fork by Code.
-12:50:33 Copyright (C) 1994, 1995 Parallax Software Corporation
+13:47:38 D1X SNG 1.6 - The Leaps & Bounds Update.  Mar  1 2023 12:12:36
+13:47:38 This is a MODIFIED version of Descent, based on Fork by Code.
+13:47:38 Copyright (C) 1994, 1995 Parallax Software Corporation
 DESCENT is a trademark of Interplay Productions, Inc.
-12:50:33 Copyright (C) 2005-2011 Christian Beckhaeuser
+13:47:38 Copyright (C) 2005-2011 Christian Beckhaeuser
 
-12:50:33 Using SDL_mixer library
-12:50:34 sdl-joystick: found 0 joysticks
-12:50:36 Dropped UPID_GAME_INFO_LITE_REQ: received by non-game master
-12:50:36 Dropped pid UPID_GAME_INFO_LITE_REQ: failed security checks.
-12:50:39 Homing update rate: 25
-12:50:43 Homing Missile!
-12:50:46 Laser boosted to 2
-12:50:46 Laser boosted to 3
-12:50:46 Laser boosted to 4
-12:50:46 Quad Lasers!
-12:50:46 Laser Cannon!
-12:50:50 demos/code_ANARCHY_PyroFact.dem does not exist!12:50:50 Demo saved as tmpdemo.dem
+13:47:38 Using SDL_mixer library
+13:47:38 sdl-joystick: found 0 joysticks
+13:47:42 Dropped UPID_GAME_INFO_LITE_REQ: received by non-game master
+13:47:42 Dropped pid UPID_GAME_INFO_LITE_REQ: failed security checks.
+13:48:03 Homing update rate: 25
+13:48:08 4 Proximity Bombs!
+13:48:11 code has picked up the  red  Flag!
+g!
+13:48:15 You scored!
+13:48:26 You took 1.0 damage from code's flare!
+13:48:27 You took 1.0 damage from code's flare!
+13:48:28 You took 1.0 damage from code's flare!
+13:48:40 You killed code (RED)!
+13:48:47 Homing Missile!
+13:48:54 code has picked up the  red  Flag!
+g!
+13:49:09 You took 0.3 damage from hitting a wall!
+13:49:10 Smart Missile!
+13:49:11 Fusion Cannon!
+13:49:14 You scored!
+13:49:19 code has picked up the  red  Flag!
+g!
+13:49:34 You took 13.0 damage from code's laser!
+13:49:34 You took 13.0 damage from code's laser!
+13:49:34 You took 13.0 damage from code's laser!
+13:49:34 You took 13.0 damage from code's laser!
+13:49:34 You took 24.9 damage from code's concussion blast!
+13:49:34 You took 13.0 damage from code's laser!
+13:49:34 You took 13.0 damage from code's laser!
+13:49:34 code (RED) killed You!
+13:49:36 Ship destroyed!
+13:49:39 Fusion Cannon!
+13:49:40 Laser boosted to 2
+13:49:40 Laser boosted to 3
+13:49:40 Laser boosted to 4
+13:49:40 Quad Lasers!
+13:49:40 Laser Cannon!
+13:50:21 code has left the game!
+13:50:21 You are the only person remaining in this netgame
+13:50:25 demos/code_code_1_1_PyroFact_3.dem does not exist!13:50:25 Demo saved as tmpdemo.dem
+ saved as tmpdemo.dem

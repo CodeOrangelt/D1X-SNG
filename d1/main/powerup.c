@@ -306,7 +306,7 @@ int do_powerup(object *obj)
 					only_sound = used;
 					break;
 				}
-				else if (!get_team(Player_num) == 1)
+				else 
 				{
 					only_sound = used;
 					used = 1;
@@ -342,7 +342,7 @@ int do_powerup(object *obj)
 					only_sound = used;
 					break;
 				}
-				else if (get_team(Player_num) == 0)
+				else
 				{
 					only_sound = used;
 					used = 1;
