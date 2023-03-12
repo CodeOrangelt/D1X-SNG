@@ -587,8 +587,8 @@ void display_score_ctf()
 			if (get_team(i) == 1)
 				redscore += Players[i].score;
 		}
-		gr_printf(xkeys * 100, ykeys / 1.03, "%s %d", team_names[redteam_num], redscore);
-		gr_printf(xkeys * 50, ykeys / 1.03, "%s %d", team_names[blueteam_num], bluescore);
+		gr_printf(xkeys * 0.5, ykeys / 1.50, "%s %d", team_names[redteam_num], redscore);
+		gr_printf(xkeys * 0.5, ykeys / 1.60, "%s %d", team_names[blueteam_num], bluescore);
 	}
 }
 

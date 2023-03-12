@@ -270,7 +270,8 @@ int do_powerup(object *obj)
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, TXT_MAXED_OUT,TXT_SHIELD);
 			break;
 		case POW_LASER:
-			if (Players[Player_num].laser_level >= MAX_LASER_LEVEL) {
+			if (Players[Player_num].laser_level >= MAX_LASER_LEVEL)
+			{
 				Players[Player_num].laser_level = MAX_LASER_LEVEL;
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, TXT_MAXED_OUT,TXT_LASER);
 			} else {
@@ -312,6 +313,8 @@ int do_powerup(object *obj)
 					used = 1;
 					PALETTE_FLASH_ADD(0, 15, 0);
 					HUD_init_message(HM_MULTI, "%s has picked up the \x01\x56\ blue \x01\x99\ Flag!", Players[Player_num].callsign);
+					digi_play_sample(SOUND_CONTROL_CENTER_WARNING_SIREN, F1_0);
+					multi_send_play_sound(SOUND_CONTROL_CENTER_WARNING_SIREN, F1_0);
 				}
 			}
 
@@ -348,6 +351,8 @@ int do_powerup(object *obj)
 					used = 1;
 					PALETTE_FLASH_ADD(0, 15, 0);
 					HUD_init_message(HM_MULTI, "%s has picked up the \x01\xC0\ red \x01\x99\ Flag!", Players[Player_num].callsign);
+					digi_play_sample(SOUND_CONTROL_CENTER_WARNING_SIREN, F1_0);
+					multi_send_play_sound(SOUND_CONTROL_CENTER_WARNING_SIREN, F1_0);
 				}
 			}
 			if (Players[Player_num].flags & PLAYER_FLAGS_RED_KEY)

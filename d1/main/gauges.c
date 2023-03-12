@@ -3111,10 +3111,10 @@ void draw_hud()
 	int	ykeys = grd_curcanv->cv_bitmap.bm_h;
 
 	if (Netgame.CTF && (Players[Player_num].flags & PLAYER_FLAGS_RED_KEY))
-		gr_printf(xkeys, ykeys/8, "You have the \x01\xC0\Red\x01\x99\ flag");
+		gr_printf(xkeys * 35, ykeys/13, "You have the \x01\xC0\Red\x01\x99\ flag");
 
 	if (Netgame.CTF && (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY))
-		gr_printf(xkeys, ykeys/6, "You have the \x01\x56\Blue\x01\x99\ flag");
+		gr_printf(xkeys * 15, ykeys/13, "You have the \x01\x56\Blue\x01\x99\ flag");
 
 	if (Netgame.CTF)
 		display_score_ctf();
