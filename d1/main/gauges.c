@@ -1,4 +1,4 @@
-/*
+﻿/*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
 END-USERS, AND SUBJECT TO ALL OF THE TERMS AND CONDITIONS HEREIN, GRANTS A
@@ -2953,12 +2953,10 @@ void show_HUD_names()
 					color_num = (Game_mode & GM_TEAM)?get_team(pnum):Netgame.players[pnum].color;//pnum;
 					memset(&s, '\0', CALLSIGN_LEN+20);
 					/* Set the text to show */
-					if( Game_mode & GM_BOUNTY && pnum == Bounty_target )
-						strncpy(s, "Target", 6 );
-					else if (Netgame.CTF && get_team(pnum)==0 && (Players[pnum].flags & PLAYER_FLAGS_RED_KEY))
-						strncpy(s, "\x01\xC1[FLAG]", 14);
-					else if (Netgame.CTF && get_team(pnum)==1 && (Players[pnum].flags & PLAYER_FLAGS_BLUE_KEY))
-						strncpy(s, "\x01\x56[FLAG]", 14);
+					//if playing bounty, will show "Target" instead of player name - code
+					if (Game_mode & GM_BOUNTY && pnum == Bounty_target)
+						strncpy(s, "Target", 6);
+					//else, we print their callsign - code
 					else if (show_name)
 					{
 						if (Game_mode & GM_OBSERVER)
@@ -2966,13 +2964,23 @@ void show_HUD_names()
 						else
 							snprintf( s, sizeof(s), "%s", Players[pnum].callsign );
 					}
+
+					//if their typing add "typing" - code
 					if (show_typing && multi_sending_message[pnum])
 					{
 						if (s[0])
-							strncat( s, ", typing", 8);
+							strncat(s, ", typing", 8);
 						else
-							strncpy( s, "Typing", 6 );
+							strncpy(s, "Typing", 6 );
 					}
+					//if carrying CTF flag add flag - code
+					if (Netgame.CTF && get_team(pnum) == 0 && (Players[pnum].flags & PLAYER_FLAGS_RED_KEY))
+						strncat(s, "\n\x01\xC0[FLAG]", 9);
+						//snprintf(s, sizeof(s), "\x01\x56%s\n\x01\xC0[FLAG]\n", Players[pnum].callsign);
+					else if (Netgame.CTF && get_team(pnum) == 1 && (Players[pnum].flags & PLAYER_FLAGS_BLUE_KEY))
+						 //snprintf(s, sizeof(s), "\x01\xC0%s\n\x01\x22[FLAG]\n", Players[pnum].callsign);
+						strncat(s, "\n\x01\xD7[FLAG]", 9);
+
 					if (s[0])
 					{
 						gr_get_string_size(s, &w, &h, &aw);
@@ -3114,7 +3122,7 @@ void draw_hud()
 		gr_printf(xkeys * 35, ykeys/13, "You have the \x01\xC0\Red\x01\x99\ flag");
 
 	if (Netgame.CTF && (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY))
-		gr_printf(xkeys * 15, ykeys/13, "You have the \x01\x56\Blue\x01\x99\ flag");
+		gr_printf(xkeys * 15, ykeys/13, "You have the \x01\xD7\Blue\x01\x99\ flag");
 
 	if (Netgame.CTF)
 		display_score_ctf();

@@ -312,7 +312,7 @@ int do_powerup(object *obj)
 					only_sound = used;
 					used = 1;
 					PALETTE_FLASH_ADD(0, 15, 0);
-					sprintf(Network_message, "has picked up the \x01\x56\ blue \x01\x99\ Flag!");
+					sprintf(Network_message, "has picked up the \x01\xD7\ blue \x01\x99\ Flag!");
 					Network_message_reciever = 100;
 					HUD_init_message(HM_MULTI, "\x01\xC0\The other team has been alerted!");
 					digi_play_sample(SOUND_CONTROL_CENTER_WARNING_SIREN, F1_0);
@@ -354,7 +354,7 @@ int do_powerup(object *obj)
 					PALETTE_FLASH_ADD(0, 15, 0);
 					sprintf(Network_message, "has picked up the \x01\xC0\ red \x01\x99\ Flag!");
 					Network_message_reciever = 100;
-					HUD_init_message(HM_MULTI, "\x01\x56\The other team has been alerted!");
+					HUD_init_message(HM_MULTI, "\x01\xD7\The other team has been alerted!");
 					digi_play_sample(SOUND_CONTROL_CENTER_WARNING_SIREN, F1_0);
 					multi_send_play_sound(SOUND_CONTROL_CENTER_WARNING_SIREN, F1_0);
 				}
