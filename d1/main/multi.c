@@ -256,6 +256,16 @@ void add_observatory_stat(int player_num, int event_type) {
 	}
 	#endif
 }
+//disconnects all players with a loop counting all pilots. - code
+void multi_disconnect_all_pilots()
+{
+	int allplayers;
+	for (int i = 0; i < N_players; i++)
+	{
+		i = allplayers;
+	}
+	multi_disconnect_player(allplayers);
+}
 
 int GetMyNetRanking()
 {
@@ -1347,7 +1357,7 @@ void multi_send_message_end()
   multi_send_msgsend_state(0);
   key_toggle_repeat(0);
 
-  //code's audio taunts 
+  //code's audio taunts, some commands are STRICTLY FOR DEBUGGING. Removal will occur when final release, newer network protocols are put in place to prevent cheaters.
 
   if (!d_strnicmp(Network_message, "cheater", 69) && (Game_mode & GM_NETWORK))
   {
@@ -1386,7 +1396,8 @@ void multi_send_message_end()
   }
 
 
-  //code's Misc Commands.	
+  //code's Misc Commands Some commands are STRICTLY FOR DEBUGGING. Removal will occur when final release, newer network protocols are put in place to prevent cheaters.
+
 
   if (!d_strnicmp(Network_message, "DMFull", 75) && (Game_mode & GM_NETWORK))
   {
@@ -1425,6 +1436,20 @@ void multi_send_message_end()
 	  drop_powerup(OBJ_POWERUP, POW_KEY_RED, 1, &vmd_zero_vector, &red_key_pos, red_key_seg);
 	  drop_powerup(OBJ_POWERUP, POW_KEY_BLUE, 1, &vmd_zero_vector, &blue_key_pos, blue_key_seg);
 	  return;
+  }
+
+  if (!d_strnicmp(Network_message, "giveme100", 82) && (Game_mode & GM_NETWORK))
+  {
+	  add_points_to_score(100);
+	  HUD_init_message(HM_MULTI, "\x01\xC1%s \x01\xD1has just cheated!", Players[Player_num].callsign);
+
+  }
+
+  if (!d_strnicmp(Network_message, "giveme30", 83) && (Game_mode & GM_NETWORK))
+  {
+	  add_points_to_score(30);
+	  HUD_init_message(HM_MULTI, "\x01\xC1%s \x01\xD1has just cheated!", Players[Player_num].callsign);
+
   }
 
 	if (!d_strnicmp (Network_message,"/Handicap: ",11))
