@@ -270,11 +270,33 @@ int do_powerup(object *obj)
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, TXT_MAXED_OUT,TXT_SHIELD);
 			break;
 		case POW_LASER:
-			if (Players[Player_num].laser_level >= MAX_LASER_LEVEL)
+			if (Netgame.CTF & Players[Player_num].laser_level >= MAX_LASER_LEVEL) //this is CTF + already have maxed lasers
+			{
+				Players[Player_num].laser_level = MAX_LASER_LEVEL;
+				HUD_init_message(HM_DEFAULT | HM_REDUNDANT | HM_MAYDUPL, TXT_MAXED_OUT, TXT_LASER);
+				only_sound = used;
+				used = 0;
+			}
+			else if (Netgame.CTF & !(Players[Player_num].laser_level >= MAX_LASER_LEVEL)) //this is CTF + doesn't have any/some of the lasers
+			{
+				if (Newdemo_state == ND_STATE_RECORDING)
+				{
+					newdemo_record_laser_level(Players[Player_num].laser_level, Players[Player_num].laser_level + 1);
+					Players[Player_num].laser_level++;
+					powerup_basic(10, 0, 10, LASER_SCORE, "%s %s %d", TXT_LASER, TXT_BOOSTED_TO, Players[Player_num].laser_level + 1);
+					update_laser_weapon_info();
+					pick_up_primary(LASER_INDEX);
+					only_sound = used;
+					used = 0;
+				}
+			}
+			else if (Players[Player_num].laser_level >= MAX_LASER_LEVEL) 
 			{
 				Players[Player_num].laser_level = MAX_LASER_LEVEL;
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, TXT_MAXED_OUT,TXT_LASER);
-			} else {
+			}
+			else 
+			{
 				if (Newdemo_state == ND_STATE_RECORDING)
 					newdemo_record_laser_level(Players[Player_num].laser_level, Players[Player_num].laser_level + 1);
 				Players[Player_num].laser_level++;
@@ -283,11 +305,7 @@ int do_powerup(object *obj)
 				pick_up_primary (LASER_INDEX);
 				used=1;
 			}
-			if (Netgame.CTF)
-			{
-				only_sound = used;
-				used = 0;
-			}
+
 			if (!used && !(Game_mode & GM_MULTI) )
 				used = pick_up_energy();
 			break;
@@ -392,19 +410,31 @@ int do_powerup(object *obj)
 				used=1;
 
 		case POW_QUAD_FIRE:
-			if (!(Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS)) {
+			if (Netgame.CTF & Players[Player_num].flags && PLAYER_FLAGS_QUAD_LASERS) //CTF + already has quads
+			{
+				HUD_init_message(HM_DEFAULT | HM_REDUNDANT | HM_MAYDUPL, "%s %s!", TXT_ALREADY_HAVE, TXT_QUAD_LASERS);
+				only_sound = used;
+				used = 0;
+			}
+			else if (Netgame.CTF && !(Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS))// CTF + doesn't have quads.
+			{
+				Players[Player_num].flags |= PLAYER_FLAGS_QUAD_LASERS;
+				powerup_basic(15, 15, 7, QUAD_FIRE_SCORE, "%s!", TXT_QUAD_LASERS);
+				update_laser_weapon_info();
+				pick_up_quads();
+				only_sound = used;
+				used = 0;
+			}
+			else if (!(Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS)) 
+			{
 				Players[Player_num].flags |= PLAYER_FLAGS_QUAD_LASERS;
 				powerup_basic(15, 15, 7, QUAD_FIRE_SCORE, "%s!",TXT_QUAD_LASERS);
 				update_laser_weapon_info();
 				pick_up_quads();
 				used=1;
-			} else
+			} 
+			else
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_HAVE,TXT_QUAD_LASERS);
-			if (Netgame.CTF)
-			{
-				only_sound = used;
-				used = 0;
-			}
 			if (!used && !(Game_mode & GM_MULTI) )
 				used = pick_up_energy();
 			break;
