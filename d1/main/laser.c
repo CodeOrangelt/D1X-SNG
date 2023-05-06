@@ -288,6 +288,12 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 	if (weapon_type == FLARE_ID)
 		obj->mtype.phys_info.flags |= PF_STICK;		//this obj sticks to walls
 
+	// uncomment this for some CRAZINESS. - code
+	/*
+		if (weapon_type == FLARE_ID)
+			obj->mtype.phys_info.flags |= PF_BOUNCE;		//this obj sticks to walls
+	*/
+
 	obj->shields = Weapon_info[obj->id].strength[Difficulty_level];
 
 	// Fill in laser-specific data
@@ -338,11 +344,12 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 						Global_laser_firing_count = 0;
 
 						ConsoleObject->mtype.phys_info.rotvel.x += (d_rand() - 16384) / 8;
-						ConsoleObject->mtype.phys_info.rotvel.z += (d_rand() - 16384) / 8;
+						ConsoleObject->mtype.phys_info.rotvel.y += (d_rand() - 16384) / 8;
 
 						make_random_vector(&rand_vec);
 
 						bump_one_object(ConsoleObject, &rand_vec, 10);
+						PALETTE_FLASH_ADD(1, 0, 0);
 					}
 				}
 

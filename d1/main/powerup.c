@@ -432,6 +432,11 @@ int do_powerup(object* obj)
 				used = pick_up_energy();
 			break;
 		case	POW_VULCAN_WEAPON:
+			if (Netgame.CTF | Netgame.StaticPowerups)
+			{
+				only_sound = used;
+				used = 0;
+			}
 			if ((used = pick_up_primary(VULCAN_INDEX)) != 0)
 			{
 				vulcan_ammo_to_add_with_cannon = obj->ctype.powerup_info.count;
@@ -444,11 +449,6 @@ int do_powerup(object* obj)
 					vulcan_ammo_to_add_with_cannon = VULCAN_WEAPON_AMMO_AMOUNT / 2;
 				}
 				pick_up_ammo(CLASS_PRIMARY, VULCAN_INDEX, vulcan_ammo_to_add_with_cannon);
-			}
-			if (Netgame.CTF | Netgame.StaticPowerups)
-			{
-				only_sound = used;
-				used = 0;
 			}
 			//added/edited 8/3/98 by Victor Rachels to fix vulcan multi bug
 			//check if multi, if so, pick up ammo w/o using, set ammo left. else, normal
