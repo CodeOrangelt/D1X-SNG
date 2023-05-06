@@ -1,27 +1,10 @@
-19:52:42 D1X SNG 1.6 - The Leaps & Bounds Update.  Mar  1 2023 12:12:36
-19:52:42 This is a MODIFIED version of Descent, based on Fork by Code.
-19:52:42 Copyright (C) 1994, 1995 Parallax Software Corporation
+20:24:04 D1X SNG 1.7 - New Beginnings  Mar 13 2023 20:09:02
+20:24:04 This is a MODIFIED version of Descent, based on Fork by Code.
+20:24:04 Copyright (C) 1994, 1995 Parallax Software Corporation
 DESCENT is a trademark of Interplay Productions, Inc.
-19:52:42 Copyright (C) 2005-2011 Christian Beckhaeuser
+20:24:04 Copyright (C) 2005-2011 Christian Beckhaeuser
 
-19:52:42 Using SDL_mixer library
-19:52:43 sdl-joystick: found 0 joysticks
-19:52:45 Dropped UPID_GAME_INFO_LITE_REQ: received by non-game master
-19:52:45 Dropped pid UPID_GAME_INFO_LITE_REQ: failed security checks.
-19:52:53 Homing update rate: 25
-19:52:54 Fusion Cannon!
-19:52:54 Laser boosted to 2
-19:52:54 Laser boosted to 3
-19:52:54 Laser boosted to 4
-19:52:54 Quad Lasers!
-19:52:54 Laser Cannon!
-19:52:55 Laser Cannon selected!
-
-19:52:58 The other team has been alerted!
-
-19:52:59 4 Proximity Bombs!
-19:53:06 The other team has been alerted!
-
-19:53:12 demos/code_ANARCHY_PyroFact_2.dem does not exist!19:53:13 Demo saved as tmpdemo.dem
-19:53:14 Dropped UPID_GAME_INFO_LITE_REQ: received by non-game master
-19:53:14 Dropped pid UPID_GAME_INFO_LITE_REQ: failed security checks.
+20:24:04 Using SDL_mixer library
+20:24:04 sdl-joystick: found 0 joysticks
+20:24:07 Dropped UPID_GAME_INFO_LITE_REQ: received by non-game master
+20:24:07 Dropped pid UPID_GAME_INFO_LITE_REQ: failed security checks.

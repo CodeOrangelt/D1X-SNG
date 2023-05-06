@@ -68,6 +68,7 @@ void player_ship_read(player_ship *ps, PHYSFS_file *fp)
 	ps->max_rotthrust = PHYSFSX_readFix(fp);
 	for (i = 0; i < N_PLAYER_GUNS; i++)
 		PHYSFSX_readVector(&ps->gun_points[i], fp);
+
 }
 
 void reset_obs() {

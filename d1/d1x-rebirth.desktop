@@ -2,7 +2,7 @@
 Name=Descent 1
 Version=1.0
 Comment=DXX-Rebirth source port of Descent: First Strike from 1995...
-Exec=d1x-sng-1.6
+Exec=d1x-sng-1.7
 Icon=d1x-rebirth
 Terminal=false
 Type=Application

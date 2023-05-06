@@ -599,7 +599,7 @@ void display_score_ctf() // created by code
 			gr_printf(xkeys * 0.5, ykeys / 1.50, "\x01\xC0\Red:\x01\x99 %d", redscore);
 		}
 
-		if (redscore | bluescore > 0)
+		if (redscore != bluescore) // If score is not tied | fix: Sypwn
 			gr_printf(xkeys * 0.5, ykeys / 1.80, "\x01\x99\Winning\n-----");
 
 		ctf_score_goal_killer();
@@ -627,12 +627,12 @@ void ctf_score_goal_killer() // created by ChatGPT, modified by Code... huh... w
 		}
 
 
-		int i, j, p, gameover=0;
+		int i, j, p;
 		for (i = 1; i <= 10; i++)
 		{
-			for (j = 10; j <= 100; j++)
+			for (j = 10; j <= 100; j += 10) 
 			{												  //I = 1-10			 //J = 10-100
-				if (Netgame.CTF && Game_wind && Netgame.CTFGoal == i && goalbluescore >= j )
+				if (Netgame.CTF && Game_wind && Netgame.CTFGoal == i && goalbluescore == j )
 				{
 					for (int p = 0; p < N_players; p++)
 					{
@@ -651,10 +651,10 @@ void ctf_score_goal_killer() // created by ChatGPT, modified by Code... huh... w
 			}
 		}
 
-		int ir, jr, pr, gameoverr=0;
+		int ir, jr, pr;
 		for (ir = 1; ir <= 10; ir++)
 		{
-			for (jr = 10; jr <= 100; jr++)
+			for (jr = 10; jr <= 100; jr += 10)
 			{												  //1-10				//10-100
 				if (Netgame.CTF && Game_wind && Netgame.CTFGoal == ir && goalredscore >= jr )
 				{

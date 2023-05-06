@@ -321,13 +321,31 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 			object_create_muzzle_flash( obj->segnum, &obj->pos, Weapon_info[obj->id].flash_size, Weapon_info[obj->id].flash_vclip );
 	}
 
+	extern void bump_one_object(object* obj0, vms_vector* hit_dir, fix damage);
 //	Re-enable, 09/09/94:
 	volume = F1_0;
 	if (Weapon_info[obj->id].flash_sound > -1 )	{
 		if (make_sound)	{
 			if ( parent == (Viewer-Objects) )	{
 				if (weapon_type == VULCAN_ID)	// Make your own vulcan gun  1/2 as loud.
+				{
 					volume = F1_0 / 2;
+
+					if (Netgame.VulcanShake)
+					{
+						vms_vector	rand_vec;
+
+						Global_laser_firing_count = 0;
+
+						ConsoleObject->mtype.phys_info.rotvel.x += (d_rand() - 16384) / 8;
+						ConsoleObject->mtype.phys_info.rotvel.z += (d_rand() - 16384) / 8;
+
+						make_random_vector(&rand_vec);
+
+						bump_one_object(ConsoleObject, &rand_vec, 10);
+					}
+				}
+
 				if(weapon_type == PLASMA_ID && PlayerCfg.QuietPlasma)  // Plasma's a bit loud, too
 					volume = F1_0  * 3 / 4; 
 				digi_play_sample( Weapon_info[obj->id].flash_sound, volume );
@@ -1113,7 +1131,7 @@ void do_laser_firing_player(void)
 	int		ammo_used;
 	int		weapon_index;
 	int		rval = 0;
-	int 		nfires = 1;
+	int 	nfires = 1;
 
 	if (Player_is_dead)
 		return;
@@ -1258,13 +1276,15 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 			}
 			break;
 		}
+		extern void bump_one_object(object * obj0, vms_vector * hit_dir, fix damage);
 		case VULCAN_INDEX: {
 			//	Only make sound for 1/4 of vulcan bullets.
 			int	make_sound = 1;
 			//if (d_rand() > 24576)
 			//	make_sound = 1;
 			Laser_player_fire_spread( objp, VULCAN_ID, 6, d_rand()/8 - 32767/16, d_rand()/8 - 32767/16, make_sound, 0, shot_orientation);
-			if (nfires > 1) {
+			if (nfires > 1) 
+			{
 				Laser_player_fire_spread( objp, VULCAN_ID, 6, d_rand()/8 - 32767/16, d_rand()/8 - 32767/16, 0, 0, shot_orientation);
 				if (nfires > 2) {
 					Laser_player_fire_spread( objp, VULCAN_ID, 6, d_rand()/8 - 32767/16, d_rand()/8 - 32767/16, 0, 0, shot_orientation);

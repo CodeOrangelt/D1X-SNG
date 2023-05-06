@@ -2894,6 +2894,8 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid, ubyte
 		PUT_INTEL_INT(buf + len, Netgame.KillGoal);					len += 4;
 		PUT_INTEL_INT(buf + len, Netgame.ScoreGoal);					len += 4;
 		PUT_INTEL_INT(buf + len, Netgame.CTFGoal);					len += 4;
+		PUT_INTEL_INT(buf + len, Netgame.StaticPowerups);					len += 4;
+		PUT_INTEL_INT(buf + len, Netgame.VulcanShake);					len += 4;
 		PUT_INTEL_INT(buf + len, Netgame.PlayTimeAllowed);				len += 4;
 		PUT_INTEL_INT(buf + len, Netgame.level_time);					len += 4;
 		PUT_INTEL_INT(buf + len, Netgame.control_invul_time);				len += 4;
@@ -2919,6 +2921,8 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid, ubyte
 		//sng toggles
 		buf[len] = Netgame.Deathmatch;			 				len++;
 		buf[len] = Netgame.CTF;			 				len++;
+		buf[len] = Netgame.VulcanShake;			 				len++;
+		buf[len] = Netgame.StaticPowerups;
 		buf[len] = Netgame.QuietFan;			 				len++;
 		buf[len] = Netgame.FastDoor;			 				len++;
 		buf[len] = Netgame.PointCapture;			 				len++;
@@ -3151,6 +3155,8 @@ int net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_a
 		//sng toggles end
 		Netgame.Deathmatch = data[len];							len++;
 		Netgame.CTF = data[len];							len++;
+		Netgame.StaticPowerups = data[len];							len++;
+		Netgame.VulcanShake = data[len];							len++;
 		Netgame.QuietFan = data[len];							len++;
 		Netgame.FastDoor = data[len];							len++;
 		Netgame.PointCapture = data[len];							len++;
@@ -3656,6 +3662,8 @@ static int opt_spawn_no_invul, opt_spawn_short_invul, opt_spawn_long_invul, opt_
 static int opt_scoregoal;
 static int opt_ctfgoal;
 static int opt_deathmatch;
+static int opt_staticpow;
+static int opt_vulcanshake;
 static int opt_pointcapture;
 static int opt_fasterdoor;
 static int opt_quietfan;
@@ -3700,9 +3708,9 @@ void net_udp_more_game_options ()
 	char PrimDupText[80],SecDupText[80],SecCapText[80]; 
 	char HomingUpdateRateText[80];
 #ifdef USE_TRACKER
-	newmenu_item m[49];
+	newmenu_item m[51];
 #else
- 	newmenu_item m[48];
+ 	newmenu_item m[50];
 #endif
 
 	snprintf(packstring,sizeof(char)*4,"%d",Netgame.PacketsPerSec);
@@ -3780,24 +3788,24 @@ void net_udp_more_game_options ()
 
 
 	opt_scoregoal = opt;
-	sprintf(ScoreText, "Score Goal: %d", Netgame.ScoreGoal * 1000);
+	sprintf(ScoreText, "King of the Hill: %d", Netgame.ScoreGoal * 1000);
 	//The 1000 represents the intervals of numbers in between, so with a Max of 10, and a multiplication of 1000, that makes 10K.
 	m[opt].type = NM_TYPE_SLIDER; m[opt].value = Netgame.ScoreGoal; m[opt].text = ScoreText; m[opt].min_value = 0; m[opt].max_value = 10; opt++;
 	if (Netgame.ScoreGoal == 0)
-		sprintf(ScoreText, "Score Goal: Unlimited");
+		sprintf(ScoreText, "King of the Hill Score: Unlimited");
 
 	opt_ctfgoal = opt;
-	sprintf(CTFText, "CTF Goal: %d", Netgame.CTFGoal * 10);
+	sprintf(CTFText, "CTF Score Goal: %d", Netgame.CTFGoal * 10);
 	//The 10 represents the intervals of numbers in between, so with a Max of 10, and a multiplication of 10, that makes 100.
 	m[opt].type = NM_TYPE_SLIDER; m[opt].value = Netgame.CTFGoal; m[opt].text = CTFText; m[opt].min_value = 0; m[opt].max_value = 10; opt++;
 	if (Netgame.CTFGoal == 0)
-		sprintf(CTFText, "CTF Goal: Unlimited");
+		sprintf(CTFText, "CTF Score Goal: Unlimited");
 
 	opt_pointcapture = opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Point Capture";  m[opt].value = Netgame.PointCapture; opt++;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "King of the Hill";  m[opt].value = Netgame.PointCapture; opt++;
 
 	opt_deathmatch = opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Death Match";  m[opt].value = Netgame.Deathmatch; opt++;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Last Man Standing";  m[opt].value = Netgame.Deathmatch; opt++;
 
 	opt_ctf = opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Capture The Flag";  m[opt].value = Netgame.CTF; opt++;
@@ -3805,6 +3813,12 @@ void net_udp_more_game_options ()
 	m[opt].type = NM_TYPE_TEXT; m[opt].text = ""; opt++;
 
 	m[opt].type = NM_TYPE_TEXT; m[opt].text = "SNG Toggles "; opt++;
+
+	opt_staticpow = opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Static Powerups";  m[opt].value = Netgame.StaticPowerups; opt++;
+
+	opt_vulcanshake = opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Vulcan Shake";  m[opt].value = Netgame.VulcanShake; opt++;
 
 	opt_purpleflash = opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "No Fusion Flash";  m[opt].value = Netgame.PurpleFlash; opt++;
@@ -3918,6 +3932,8 @@ menu:
 	Netgame.FairColors  = m[opt_faircolors].value;
 	Netgame.Deathmatch = m[opt_deathmatch].value;
 	Netgame.CTF = m[opt_ctf].value;
+	Netgame.StaticPowerups = m[opt_staticpow].value;
+	Netgame.VulcanShake = m[opt_vulcanshake].value;
 	Netgame.PointCapture = m[opt_pointcapture].value;
 	Netgame.QuietFan = m[opt_quietfan].value;
 	Netgame.FusionShake = m[opt_fusionshake].value;
@@ -4214,7 +4230,7 @@ int net_udp_setup_game()
 	int optnum;
 	param_opt opt;
 	//the other other thing you are looking for dumbass stop forgetting -> code
-	newmenu_item m[31];
+	newmenu_item m[32];
 	char slevel[5];
 	char level_text[32];
 	char srmaxnet[50];
@@ -4235,6 +4251,8 @@ int net_udp_setup_game()
 	Netgame.max_numplayers = MAX_PLAYERS;
 	Netgame.ScoreGoal = 0;
 	Netgame.CTFGoal = 0;
+	Netgame.StaticPowerups = 0;
+	Netgame.VulcanShake = 0;
 	Netgame.KillGoal=0;
 	Netgame.PlayTimeAllowed=0;
 	Netgame.RefusePlayers=0;
@@ -4256,6 +4274,8 @@ int net_udp_setup_game()
 	Netgame.BlackAndWhitePyros = 1;
 	Netgame.Deathmatch = 0;
 	Netgame.CTF = 0;
+	Netgame.StaticPowerups = 0;
+	Netgame.VulcanShake= 0;
 	Netgame.FusionShake = 0;
 	Netgame.QuietFan = 0;
 	Netgame.PurpleFlash = 0;
