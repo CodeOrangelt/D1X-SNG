@@ -50,7 +50,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //flags scores
 void display_score_ctf();
-void ctf_score_goal_killer();
 
 // Destroys all fuel centers, clears segment backpointer array.
 void fuelcen_reset();
