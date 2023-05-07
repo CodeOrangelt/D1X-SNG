@@ -1,0 +1,75 @@
+15:10:18 D1X SNG 1.6 - The Leaps & Bounds Update.  May  7 2023 15:09:49
+15:10:18 This is a MODIFIED version of Descent, based on Fork by Code.
+15:10:18 Copyright (C) 1994, 1995 Parallax Software Corporation
+DESCENT is a trademark of Interplay Productions, Inc.
+15:10:18 Copyright (C) 2005-2011 Christian Beckhaeuser
+
+15:10:18 Using SDL_mixer library
+15:10:19 sdl-joystick: found 4 joysticks
+15:10:19 sdl-joystick 0: Controller Adapter
+15:10:19 sdl-joystick: 6 axes
+15:10:19 sdl-joystick: 16 buttons
+15:10:19 sdl-joystick: 1 hats
+15:10:19 sdl-joystick: 6 axes (total)
+15:10:19 sdl-joystick: 20 buttons (total)
+15:10:19 sdl-joystick 1: Controller Adapter
+15:10:19 sdl-joystick: 6 axes
+15:10:19 sdl-joystick: 16 buttons
+15:10:19 sdl-joystick: 1 hats
+15:10:19 sdl-joystick: 12 axes (total)
+15:10:19 sdl-joystick: 40 buttons (total)
+15:10:19 sdl-joystick 2: Controller Adapter
+15:10:19 sdl-joystick: 6 axes
+15:10:19 sdl-joystick: 16 buttons
+15:10:19 sdl-joystick: 1 hats
+15:10:19 sdl-joystick: 18 axes (total)
+15:10:19 sdl-joystick: 60 buttons (total)
+15:10:19 sdl-joystick 3: Controller Adapter
+15:10:19 sdl-joystick: 6 axes
+15:10:19 sdl-joystick: 16 buttons
+15:10:19 sdl-joystick: 1 hats
+15:10:19 sdl-joystick: 24 axes (total)
+15:10:19 sdl-joystick: 80 buttons (total)
+15:10:26 xxx len: 562
+15:10:28 xxx len: 562
+15:10:29 xxx len: 562
+15:10:31 xxx len: 754
+15:10:31 Homing update rate: 25
+15:11:14 You killed code!
+15:11:19 demos/code_code_1_0_PyroFact.dem does not exist!15:11:20 Demo saved as tmpdemo.dem
+15:11:24 udp_open_socket: bind name to socket failed (port 42424)
+15:11:36 Homing update rate: 25
+15:11:40 Ensign 'code' is joining the game.
+
+15:11:51 You took 10.0 damage from code's laser!
+15:11:51 You took 10.0 damage from code's laser!
+15:11:51 You took 25.0 damage from code's concussion blast!
+15:11:51 You took 10.0 damage from code's laser!
+15:11:51 You took 10.0 damage from code's laser!
+15:11:51 You have  40  shields left
+ft
+15:11:51 You took 10.0 damage from code's laser!
+15:11:51 You took 10.0 damage from code's laser!
+15:11:51 You have  20  shields left
+ft
+15:11:51 You took 25.5 damage from code's concussion blast!
+15:11:51 code killed You!
+15:11:53 Ship destroyed!
+15:11:58 code has left the game!
+15:11:58 You are the only person remaining in this netgame
+15:12:02 demos/code_code_0_1_.dem does not exist!15:12:02 Demo saved as tmpdemo.dem
+1:26 demos/code_code_0_1_PyroFact_3.dem does not exist!15:11:27 Demo saved as tmpdemo.dem
+15:11:37 xxx len: 562
+15:11:38 xxx len: 562
+15:11:40 xxx len: 754
+15:11:40 xxx len: 754
+15:11:40 Homing update rate: 25
+15:11:42 You took 0.3 damage from hitting a wall!
+15:11:43 You took 0.4 damage from hitting a wall!
+15:11:43 You took 0.3 damage from hitting a wall!
+15:11:45 Energy boosted to 106
+15:11:46 You took 0.4 damage from hitting a wall!
+15:11:51 No secondary weapons available!
+15:11:51 You killed code!
+15:11:52 You cannot open this door.
+15:11:58 demos/code_code_1_0_.dem does not exist!15:11:58 Demo saved as tmpdemo.dem
