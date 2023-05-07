@@ -3794,10 +3794,10 @@ void net_udp_more_game_options ()
 		sprintf(CTFText, "CTF Goal: Unlimited");
 
 	opt_pointcapture = opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Point Capture";  m[opt].value = Netgame.PointCapture; opt++;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "King of the Hill";  m[opt].value = Netgame.PointCapture; opt++;
 
 	opt_deathmatch = opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Death Match";  m[opt].value = Netgame.Deathmatch; opt++;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Last Man Standing";  m[opt].value = Netgame.Deathmatch; opt++;
 
 	opt_ctf = opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Capture The Flag";  m[opt].value = Netgame.CTF; opt++;
