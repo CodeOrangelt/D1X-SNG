@@ -561,12 +561,14 @@ void fuelcen_update_all()
 	}
 }
 
-void display_score_ctf() // created by code
+int redscore;
+int bluescore;
+
+void display_score_ctf()
 {
 	//static const char* team_names[] = { "\x01\x53\Blue:\x01\x99", "\x01\xC0\Red:\x01\x99" };
 	//int blueteam_num = (get_team(Player_num) == 0);
 	//int redteam_num = (get_team(Player_num) == 1);
-
 	int redscore = 0;
 	int bluescore = 0;
 
@@ -591,88 +593,12 @@ void display_score_ctf() // created by code
 		if (redscore > bluescore)
 		{
 			gr_printf(xkeys * 0.5, ykeys / 1.60, "\x01\xC0\Red:\x01\x99 %d", redscore);
-			gr_printf(xkeys * 0.5, ykeys / 1.50, "\x01\xD7\Blue:\x01\x99 %d", bluescore);
+			gr_printf(xkeys * 0.5, ykeys / 1.50, "\x01\x53\Blue:\x01\x99 %d", bluescore);
 		}
 		else
 		{
-			gr_printf(xkeys * 0.5, ykeys / 1.60, "\x01\xD7\Blue:\x01\x99 %d", bluescore);
+			gr_printf(xkeys * 0.5, ykeys / 1.60, "\x01\x53\Blue:\x01\x99 %d", bluescore);
 			gr_printf(xkeys * 0.5, ykeys / 1.50, "\x01\xC0\Red:\x01\x99 %d", redscore);
-		}
-
-		if (redscore | bluescore > 0)
-			gr_printf(xkeys * 0.5, ykeys / 1.80, "\x01\x99\Winning\n-----");
-
-		ctf_score_goal_killer();
-
-	}
-}
-
-void ctf_score_goal_killer() // created by ChatGPT, modified by Code... huh... what a time to be alive.
-{
-	int goalredscore = 0;
-	int goalbluescore = 0;
-	int gameover = 0;
-
-	if (Netgame.CTF)
-	{
-		for (int i = 0; i < N_players; i++)
-		{
-			if (get_team(i) == 0)
-				goalbluescore += Players[i].score;
-		}
-		for (int i = 0; i < N_players; i++)
-		{
-			if (get_team(i) == 1)
-				goalredscore += Players[i].score;
-		}
-
-
-		int i, j, p, gameover=0;
-		for (i = 1; i <= 10; i++)
-		{
-			for (j = 10; j <= 100; j++)
-			{												  //I = 1-10			 //J = 10-100
-				if (Netgame.CTF && Game_wind && Netgame.CTFGoal == i && goalbluescore >= j )
-				{
-					for (int p = 0; p < N_players; p++)
-					{
-						if (Game_wind && Netgame.CTF)
-							window_set_visible(Game_wind, 0);
-						nm_messagebox(NULL, 1, TXT_OK, "%s has won", Netgame.team_name[0]);
-						if (Game_wind && Netgame.CTF)
-							window_set_visible(Game_wind, 1);
-							multi_quit_game = 1;
-							game_leave_menus();
-							multi_reset_stuff();
-						break;
-						break;
-					}		
-				}
-			}
-		}
-
-		int ir, jr, pr, gameoverr=0;
-		for (ir = 1; ir <= 10; ir++)
-		{
-			for (jr = 10; jr <= 100; jr++)
-			{												  //1-10				//10-100
-				if (Netgame.CTF && Game_wind && Netgame.CTFGoal == ir && goalredscore >= jr )
-				{
-					for (int pr = 0; pr < N_players; pr++)
-					{
-						if (Game_wind && Netgame.CTF)
-							window_set_visible(Game_wind, 0);
-						nm_messagebox(NULL, 1, TXT_OK, "%s has won", Netgame.team_name[1]);
-						if (Game_wind && Netgame.CTF)
-							window_set_visible(Game_wind, 1);
-							multi_quit_game = 1;
-							game_leave_menus();
-							multi_reset_stuff();
-						break;
-						break;
-					}
-				}
-			}
 		}
 	}
 }
@@ -922,10 +848,6 @@ fix fuelcen_give_fuel(segment* segp, fix MaxAmountCanTake)
 			game_leave_menus();
 			multi_reset_stuff();
 		}
-
-		//yes this is alot of code, here comes ALOT more. Good luck on the github, LOL. - code.
-
-		
 
 
 		/*

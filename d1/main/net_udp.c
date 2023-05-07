@@ -2893,7 +2893,6 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid, ubyte
 		}
 		PUT_INTEL_INT(buf + len, Netgame.KillGoal);					len += 4;
 		PUT_INTEL_INT(buf + len, Netgame.ScoreGoal);					len += 4;
-		PUT_INTEL_INT(buf + len, Netgame.CTFGoal);					len += 4;
 		PUT_INTEL_INT(buf + len, Netgame.PlayTimeAllowed);				len += 4;
 		PUT_INTEL_INT(buf + len, Netgame.level_time);					len += 4;
 		PUT_INTEL_INT(buf + len, Netgame.control_invul_time);				len += 4;
@@ -3127,7 +3126,6 @@ int net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_a
 		}
 		Netgame.KillGoal = GET_INTEL_INT(&(data[len]));					len += 4;
 		Netgame.ScoreGoal = GET_INTEL_INT(&(data[len]));					len += 4;
-		Netgame.CTFGoal = GET_INTEL_INT(&(data[len]));					len += 4;
 		Netgame.PlayTimeAllowed = GET_INTEL_INT(&(data[len]));				len += 4;
 		Netgame.level_time = GET_INTEL_INT(&(data[len]));				len += 4;
 		Netgame.control_invul_time = GET_INTEL_INT(&(data[len]));			len += 4;
@@ -3654,7 +3652,6 @@ static int opt_show_on_map, opt_difficulty, opt_setpower, opt_playtime, opt_kill
 static int opt_primary_dup, opt_secondary_dup, opt_secondary_cap; 
 static int opt_spawn_no_invul, opt_spawn_short_invul, opt_spawn_long_invul, opt_spawn_preview; 
 static int opt_scoregoal;
-static int opt_ctfgoal;
 static int opt_deathmatch;
 static int opt_pointcapture;
 static int opt_fasterdoor;
@@ -3696,13 +3693,12 @@ void net_udp_more_game_options ()
 	char PlayText[80],KillText[80],srinvul[50],packstring[5];
 
 	char ScoreText[80];
-	char CTFText[80];
 	char PrimDupText[80],SecDupText[80],SecCapText[80]; 
 	char HomingUpdateRateText[80];
 #ifdef USE_TRACKER
-	newmenu_item m[49];
+	newmenu_item m[48];
 #else
- 	newmenu_item m[48];
+ 	newmenu_item m[47];
 #endif
 
 	snprintf(packstring,sizeof(char)*4,"%d",Netgame.PacketsPerSec);
@@ -3723,6 +3719,13 @@ void net_udp_more_game_options ()
 	opt_killgoal=opt;
 	sprintf( KillText, "Kill Goal: %d kills", Netgame.KillGoal*10);
 	m[opt].type = NM_TYPE_SLIDER; m[opt].value=Netgame.KillGoal; m[opt].text= KillText; m[opt].min_value=0; m[opt].max_value=10; opt++;
+
+	opt_scoregoal = opt;
+	sprintf(ScoreText, "Score Goal: %d", Netgame.ScoreGoal*1000);
+						//The 1000 represents the intervals of numbers in between, so with a Max of 10, and a multiplication of 1000, that makes 10K.
+	m[opt].type = NM_TYPE_SLIDER; m[opt].value = Netgame.ScoreGoal; m[opt].text = ScoreText; m[opt].min_value = 0; m[opt].max_value = 10; opt++;
+	if (Netgame.ScoreGoal == 0)
+		sprintf(ScoreText, "Score Goal: Unlimited");
 
 	opt_primary_dup=opt;
 	char xp[5];
@@ -3777,21 +3780,6 @@ void net_udp_more_game_options ()
 	m[opt].type = NM_TYPE_TEXT; m[opt].text = ""; opt++;
 
 	m[opt].type = NM_TYPE_TEXT; m[opt].text = "Misc Game Modes"; opt++;
-
-
-	opt_scoregoal = opt;
-	sprintf(ScoreText, "Score Goal: %d", Netgame.ScoreGoal * 1000);
-	//The 1000 represents the intervals of numbers in between, so with a Max of 10, and a multiplication of 1000, that makes 10K.
-	m[opt].type = NM_TYPE_SLIDER; m[opt].value = Netgame.ScoreGoal; m[opt].text = ScoreText; m[opt].min_value = 0; m[opt].max_value = 10; opt++;
-	if (Netgame.ScoreGoal == 0)
-		sprintf(ScoreText, "Score Goal: Unlimited");
-
-	opt_ctfgoal = opt;
-	sprintf(CTFText, "CTF Goal: %d", Netgame.CTFGoal * 10);
-	//The 10 represents the intervals of numbers in between, so with a Max of 10, and a multiplication of 10, that makes 100.
-	m[opt].type = NM_TYPE_SLIDER; m[opt].value = Netgame.CTFGoal; m[opt].text = CTFText; m[opt].min_value = 0; m[opt].max_value = 10; opt++;
-	if (Netgame.CTFGoal == 0)
-		sprintf(CTFText, "CTF Goal: Unlimited");
 
 	opt_pointcapture = opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Point Capture";  m[opt].value = Netgame.PointCapture; opt++;
@@ -3976,15 +3964,8 @@ int net_udp_more_options_handler( newmenu *menu, d_event *event, void *userdata 
 
 				Netgame.ScoreGoal = menus[opt_scoregoal].value;
 				sprintf(menus[opt_scoregoal].text, "Score Goal: %d", Netgame.ScoreGoal * 1000);
-				if (Netgame.ScoreGoal == 0)
+				if(Netgame.ScoreGoal == 0)
 					sprintf(menus[opt_scoregoal].text, "Score Goal: Unlimited");
-			}
-			else if (citem == opt_ctfgoal)
-			{
-				Netgame.CTFGoal = menus[opt_ctfgoal].value;
-				sprintf(menus[opt_ctfgoal].text, "CTF Goal: %d", Netgame.CTFGoal * 10);
-				if (Netgame.CTFGoal == 0)
-					sprintf(menus[opt_ctfgoal].text, "CTF Goal: Unlimited");
 			}
 			else if (citem == opt_primary_dup)
 			{
@@ -4214,7 +4195,7 @@ int net_udp_setup_game()
 	int optnum;
 	param_opt opt;
 	//the other other thing you are looking for dumbass stop forgetting -> code
-	newmenu_item m[31];
+	newmenu_item m[30];
 	char slevel[5];
 	char level_text[32];
 	char srmaxnet[50];
@@ -4234,7 +4215,6 @@ int net_udp_setup_game()
 
 	Netgame.max_numplayers = MAX_PLAYERS;
 	Netgame.ScoreGoal = 0;
-	Netgame.CTFGoal = 0;
 	Netgame.KillGoal=0;
 	Netgame.PlayTimeAllowed=0;
 	Netgame.RefusePlayers=0;

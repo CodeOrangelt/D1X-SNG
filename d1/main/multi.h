@@ -64,7 +64,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Can be reset to 0 each time the version of the game changes
-#define MULTI_PROTO_VERSION 31306// Retromod 1.4.6-ar2
+#define MULTI_PROTO_VERSION 31305// Retromod 1.4.6-ar2
 //protocol dumbass! -> code
 // PROTOCOL VARIABLES AND DEFINES - END
 
@@ -282,11 +282,8 @@ void multi_object_rw_to_object(object_rw *obj_rw, object *obj);
 int get_color_for_player(int id, int missile); 
 int get_color_for_team(int team, int missile);
 void multi_send_obs_update(ubyte event, ubyte event_data);
-void multi_disconnect_all_pilots(); // code added this 3/13/2023
 
 // Exported variables
-
-extern int allplayers;
 
 extern int Network_status;
 
@@ -460,7 +457,6 @@ typedef struct netgame_info
 	short						killed[MAX_PLAYERS];
 	short						player_kills[MAX_PLAYERS];
 	int						ScoreGoal;
-	int						CTFGoal;
 	int						KillGoal;
 	fix						PlayTimeAllowed;
 	fix						level_time;
