@@ -424,7 +424,7 @@ typedef struct netgame_info
 #endif
 	} protocol;	
 #endif
-	//this is also what you're looking for dumbass -> code
+	//this is also what you're looking for dumbass (define the variable for the Netgame function) -> code
 	struct netplayer_info 				players[MAX_PLAYERS+4];
 	struct netplayer_info               observers[MAX_OBSERVERS]; 
 	char    					game_name[NETGAME_NAME_LEN+1];
@@ -479,6 +479,8 @@ typedef struct netgame_info
 	ubyte   					CTF;
 	ubyte						QuietFan;
 	ubyte						FusionShake;
+	ubyte						VulcanShake;
+	ubyte						StaticPowerups;
 	ubyte						FastDoor;
 	ubyte						PointCapture;
 	ubyte						FairColors;	

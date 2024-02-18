@@ -14,7 +14,7 @@
 
 #define BASED_VERSION "Fork by Code"
 #define VERSION DXX_VERSION_MAJOR "." DXX_VERSION_MINOR "" DXX_VERSION_MICRO
-#define DESCENT_VERSION "D1X SNG 1.7 - New Beginnings" RH_VERSION 
+#define DESCENT_VERSION "D1X SNG 1.7.1" RH_VERSION 
 
 extern const char g_descent_version[40];
 extern const char g_descent_build_datetime[21];

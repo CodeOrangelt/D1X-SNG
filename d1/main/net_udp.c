@@ -2922,6 +2922,8 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid, ubyte
 		buf[len] = Netgame.FastDoor;			 				len++;
 		buf[len] = Netgame.PointCapture;			 				len++;
 		buf[len] = Netgame.FusionShake;			 				len++;
+		buf[len] = Netgame.StaticPowerups;			 				len++;
+		buf[len] = Netgame.VulcanShake;			 				len++;
 		buf[len] = Netgame.DarkSmartBlobs;					len++;
 		buf[len] = Netgame.PurpleFlash;			 				len++;
 		//sng toggles end
@@ -3152,7 +3154,9 @@ int net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_a
 		Netgame.QuietFan = data[len];							len++;
 		Netgame.FastDoor = data[len];							len++;
 		Netgame.PointCapture = data[len];							len++;
+		Netgame.StaticPowerups = data[len];							len++;
 		Netgame.FusionShake = data[len];							len++;
+		Netgame.VulcanShake = data[len];							len++;
 		Netgame.DarkSmartBlobs = data[len];                    len++;
 		Netgame.PurpleFlash = data[len];							len++;
 		//sng toggles end
@@ -3655,6 +3659,8 @@ static int opt_scoregoal;
 static int opt_deathmatch;
 static int opt_pointcapture;
 static int opt_fasterdoor;
+static int opt_staticpowerups;
+static int opt_vulcanshake;
 static int opt_quietfan;
 static int opt_fusionshake;
 static int opt_purpleflash;
@@ -3696,9 +3702,9 @@ void net_udp_more_game_options ()
 	char PrimDupText[80],SecDupText[80],SecCapText[80]; 
 	char HomingUpdateRateText[80];
 #ifdef USE_TRACKER
-	newmenu_item m[48];
+	newmenu_item m[50];
 #else
- 	newmenu_item m[47];
+ 	newmenu_item m[49];
 #endif
 
 	snprintf(packstring,sizeof(char)*4,"%d",Netgame.PacketsPerSec);
@@ -3782,10 +3788,10 @@ void net_udp_more_game_options ()
 	m[opt].type = NM_TYPE_TEXT; m[opt].text = "Misc Game Modes"; opt++;
 
 	opt_pointcapture = opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Point Capture";  m[opt].value = Netgame.PointCapture; opt++;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "King of the Hill";  m[opt].value = Netgame.PointCapture; opt++;
 
 	opt_deathmatch = opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Death Match";  m[opt].value = Netgame.Deathmatch; opt++;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Last Man Standing.";  m[opt].value = Netgame.Deathmatch; opt++;
 
 	opt_ctf = opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Capture The Flag";  m[opt].value = Netgame.CTF; opt++;
@@ -3794,8 +3800,14 @@ void net_udp_more_game_options ()
 
 	m[opt].type = NM_TYPE_TEXT; m[opt].text = "SNG Toggles "; opt++;
 
+	opt_staticpowerups = opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Static Weapons";  m[opt].value = Netgame.StaticPowerups; opt++;
+
 	opt_purpleflash = opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "No Fusion Flash";  m[opt].value = Netgame.PurpleFlash; opt++;
+
+	opt_vulcanshake = opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Vulcan Overheat";  m[opt].value = Netgame.VulcanShake; opt++;
 
 	opt_fusionshake = opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "No Fusion Shake";  m[opt].value = Netgame.FusionShake; opt++;
@@ -3899,7 +3911,7 @@ menu:
 #ifdef USE_TRACKER
 	Netgame.Tracker = m[opt_tracker].value;
 #endif
-
+	//dumbass, this is another thing you keep forgetting. - code
 	Netgame.RetroProtocol = m[opt_retroproto].value;
 	Netgame.RespawnConcs  = m[opt_respawnconcs].value;
 	Netgame.AllowColoredLighting  = m[opt_allowcolor].value;
@@ -3908,7 +3920,9 @@ menu:
 	Netgame.CTF = m[opt_ctf].value;
 	Netgame.PointCapture = m[opt_pointcapture].value;
 	Netgame.QuietFan = m[opt_quietfan].value;
+	Netgame.StaticPowerups = m[opt_staticpowerups].value;
 	Netgame.FusionShake = m[opt_fusionshake].value;
+	Netgame.VulcanShake = m[opt_vulcanshake].value;
 	Netgame.FastDoor = m[opt_fasterdoor].value;
 	Netgame.PurpleFlash = m[opt_purpleflash].value;
 	Netgame.BlackAndWhitePyros  = m[opt_blackwhite].value;
@@ -4195,7 +4209,7 @@ int net_udp_setup_game()
 	int optnum;
 	param_opt opt;
 	//the other other thing you are looking for dumbass stop forgetting -> code
-	newmenu_item m[30];
+	newmenu_item m[34];
 	char slevel[5];
 	char level_text[32];
 	char srmaxnet[50];
@@ -4237,6 +4251,8 @@ int net_udp_setup_game()
 	Netgame.Deathmatch = 0;
 	Netgame.CTF = 0;
 	Netgame.FusionShake = 0;
+	Netgame.StaticPowerups = 0;
+	Netgame.VulcanShake = 0;
 	Netgame.QuietFan = 0;
 	Netgame.PurpleFlash = 0;
 	Netgame.PointCapture = 0;
