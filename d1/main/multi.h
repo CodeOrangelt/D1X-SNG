@@ -485,6 +485,15 @@ typedef struct netgame_info
 	ubyte						StaticPowerups;
 	ubyte						StaticFusion;
 	ubyte						StaticPlasma;
+	ubyte						FusionSpawn; 
+	ubyte						VulcanSpawn;
+	ubyte						LasersSpawn;
+	ubyte						PlasmaSpawn; 
+	ubyte						SpreadSpawn; 
+	ubyte						SmartsSpawn; 
+	ubyte						HomersSpawn; 
+	ubyte						BombsSpawn; 
+	ubyte						MegasSpawn; 
 	ubyte						StaticVulcan;
 	ubyte						StaticSpread;
 	ubyte						StaticLasers;

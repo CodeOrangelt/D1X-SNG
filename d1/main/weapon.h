@@ -103,6 +103,10 @@ typedef struct weapon_info {
 #define HAS_CONCUSSION_FLAG HAS_FLAG(CONCUSSION_INDEX)
 #define HAS_SMART_FLAG      HAS_FLAG(SMART_INDEX)
 #define HAS_MEGA_FLAG       HAS_FLAG(MEGA_INDEX)
+#define HAS_HOMER_FLAG      HAS_FLAG(HOMING_INDEX) //ADDED - code
+#define HAS_PROXY_FLAG      HAS_FLAG(PROXY_INDEX) //ADDED - code
+
+
 
 #define CLASS_PRIMARY       0
 #define CLASS_SECONDARY     1
@@ -118,6 +122,7 @@ typedef struct weapon_info {
 #define PROXIMITY_INDEX     2
 #define SMART_INDEX         3
 #define MEGA_INDEX          4
+#define PROXY_INDEX			5
 
 #define	NUM_SHAREWARE_WEAPONS	3		//in shareware, old get first 3 of each
 

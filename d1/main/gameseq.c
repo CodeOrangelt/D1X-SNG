@@ -412,7 +412,79 @@ void init_player_stats_new_ship(ubyte pnum)
 
 	if (Netgame.PointCapture)
 		Players[Player_num].lives = (100);
-	
+
+	if (Netgame.FusionSpawn)
+	{
+		Primary_weapon = FUSION_INDEX;
+		Players[pnum].primary_weapon_flags |= HAS_FUSION_FLAG;
+	}
+
+	if (Netgame.VulcanSpawn)
+	{
+
+		Players[pnum].primary_weapon_flags |= HAS_VULCAN_FLAG;
+		pick_up_ammo(CLASS_PRIMARY, VULCAN_INDEX, 12.80); // cant get 1250 exact... BUMMER.- code
+		Primary_weapon = VULCAN_INDEX;
+	}
+	if (Netgame.PlasmaSpawn)
+	{
+		Primary_weapon = PLASMA_INDEX;
+		Players[pnum].primary_weapon_flags |= HAS_PLASMA_FLAG;
+	}
+	if (Netgame.LasersSpawn)
+	{
+		Primary_weapon = LASER_INDEX;
+		Players[pnum].primary_weapon_flags |= HAS_LASER_FLAG;
+		if (Netgame.LasersSpawn == 1)
+		{
+			Players[pnum].laser_level = 1;
+			Players[pnum].flags = (PLAYER_FLAGS_QUAD_LASERS);
+		}
+		else if (Netgame.LasersSpawn == 2)
+		{
+			Players[pnum].laser_level = 2;
+			Players[pnum].flags = (PLAYER_FLAGS_QUAD_LASERS);
+		}
+		else if (Netgame.LasersSpawn == 3)
+		{
+			Players[pnum].laser_level = 3;
+			Players[pnum].flags = (PLAYER_FLAGS_QUAD_LASERS);
+		}
+		else if (Netgame.LasersSpawn == 4)
+		{
+			Players[pnum].laser_level = 4;
+			Players[pnum].flags = (PLAYER_FLAGS_QUAD_LASERS);
+		}
+	}
+	if (Netgame.SpreadSpawn)
+	{
+		Primary_weapon = SPREADFIRE_INDEX;
+		Players[pnum].primary_weapon_flags |= HAS_SPREADFIRE_FLAG;
+	}
+	if (Netgame.HomersSpawn)
+	{
+		Secondary_weapon = HOMING_INDEX;
+		Players[pnum].secondary_weapon_flags |= HAS_HOMER_FLAG;
+		Players[pnum].secondary_ammo[HOMING_INDEX] = 4;
+	}
+	if (Netgame.SmartsSpawn)
+	{
+		Secondary_weapon = SMART_INDEX;
+		Players[pnum].secondary_weapon_flags |= HAS_SMART_FLAG;
+		Players[pnum].secondary_ammo[SMART_INDEX] = 4;
+	}
+	if (Netgame.BombsSpawn)
+	{
+		Secondary_weapon = PROXIMITY_INDEX;
+		Players[pnum].secondary_weapon_flags |= HAS_PROXY_FLAG;
+		Players[pnum].secondary_ammo[PROXIMITY_INDEX] = 4;
+	}
+	if (Netgame.MegasSpawn)	
+	{
+		Secondary_weapon = MEGA_INDEX;
+		Players[pnum].secondary_weapon_flags |= HAS_MEGA_FLAG;
+		Players[pnum].secondary_ammo[MEGA_INDEX] = 4;
+	}
 }
 
 #ifdef EDITOR
