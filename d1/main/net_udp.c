@@ -2922,7 +2922,16 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid, ubyte
 		buf[len] = Netgame.FastDoor;			 				len++;
 		buf[len] = Netgame.PointCapture;			 				len++;
 		buf[len] = Netgame.FusionShake;			 				len++;
+		//start of static weapons toggles - code
 		buf[len] = Netgame.StaticPowerups;			 				len++;
+		buf[len] = Netgame.StaticFusion;			 				len++;
+		buf[len] = Netgame.StaticPlasma;			 				len++;
+		buf[len] = Netgame.StaticVulcan;			 				len++;
+		buf[len] = Netgame.StaticSpread;			 				len++;
+		buf[len] = Netgame.StaticLasers;			 				len++;
+		buf[len] = Netgame.StaticMissiles;			 				len++;
+		buf[len] = Netgame.StaticBombs;			 				len++;
+		//end of static weapons toggles - code
 		buf[len] = Netgame.VulcanShake;			 				len++;
 		buf[len] = Netgame.DarkSmartBlobs;					len++;
 		buf[len] = Netgame.PurpleFlash;			 				len++;
@@ -3148,13 +3157,22 @@ int net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_a
 		Netgame.RespawnConcs  = data[len];						len++; 
 		Netgame.AllowColoredLighting = data[len];				len++; 
 		Netgame.FairColors = data[len];							len++;
-		//sng toggles end
+		//sng toggles start
 		Netgame.Deathmatch = data[len];							len++;
 		Netgame.CTF = data[len];							len++;
 		Netgame.QuietFan = data[len];							len++;
 		Netgame.FastDoor = data[len];							len++;
 		Netgame.PointCapture = data[len];							len++;
+		//start of static weapons toggles - Code
 		Netgame.StaticPowerups = data[len];							len++;
+		Netgame.StaticFusion = data[len];							len++;
+		Netgame.StaticPlasma = data[len];							len++;
+		Netgame.StaticVulcan = data[len];							len++;
+		Netgame.StaticSpread = data[len];							len++;
+		Netgame.StaticLasers = data[len];							len++;
+		Netgame.StaticMissiles = data[len];							len++;
+		Netgame.StaticBombs = data[len];							len++;
+		//end of static weapons toggles - code 
 		Netgame.FusionShake = data[len];							len++;
 		Netgame.VulcanShake = data[len];							len++;
 		Netgame.DarkSmartBlobs = data[len];                    len++;
@@ -3655,11 +3673,11 @@ static int opt_cinvul, opt_show_on_map;
 static int opt_show_on_map, opt_difficulty, opt_setpower, opt_playtime, opt_killgoal, opt_port, opt_packets, opt_shortpack, opt_show_names, opt_bright, opt_ffire, opt_retroproto, opt_respawnconcs, opt_allowcolor, opt_faircolors, opt_blackwhite;
 static int opt_primary_dup, opt_secondary_dup, opt_secondary_cap; 
 static int opt_spawn_no_invul, opt_spawn_short_invul, opt_spawn_long_invul, opt_spawn_preview; 
+static int opt_staticfusion, opt_staticvulcan, opt_staticplasma, opt_staticlasers, opt_staticspread, opt_staticmissiles, opt_staticbombs, opt_staticpowerups;
 static int opt_scoregoal;
 static int opt_deathmatch;
 static int opt_pointcapture;
 static int opt_fasterdoor;
-static int opt_staticpowerups;
 static int opt_vulcanshake;
 static int opt_quietfan;
 static int opt_fusionshake;
@@ -3668,10 +3686,12 @@ static int opt_dark_smarts;
 static int opt_allowprefcolor; 
 static int opt_low_vulcan;
 static int opt_ctf;
+static int opt_staticpowerupsmenu;
 static int opt_homing_update_rate;
 #ifdef USE_TRACKER
 static int opt_tracker;
 #endif
+
 
 void net_udp_set_power (void)
 {
@@ -3691,7 +3711,95 @@ void net_udp_set_power (void)
 			Netgame.AllowedItems |= (1 << i);
 }
 
+int menu_sng_options_handler ( newmenu *menu, d_event *event, void *userdata )
+{ 
+	newmenu_item *menus = newmenu_get_items(menu);
+	int citem = newmenu_get_citem(menu);
+
+	return 0;
+}
+
 int net_udp_more_options_handler( newmenu *menu, d_event *event, void *userdata );
+
+void net_udp_staticpowerupsmenu()
+{
+	int opt=0, i=0;
+
+#ifdef USE_TRACKER
+	newmenu_item m[10];
+#endif
+
+	//Static Weapons Menu - code 
+
+	opt_staticpowerupsmenu = opt;
+
+	opt_staticpowerups = opt;
+	m[opt].type = NM_TYPE_CHECK;  m[opt].text = "All Weapons"; m[opt].value = Netgame.StaticPowerups; opt++;
+
+	m[opt].type = NM_TYPE_TEXT; m[opt].text = ""; opt++;	
+
+	m[opt].type = NM_TYPE_TEXT; m[opt].text = "Select Static Weapons..."; opt++;	
+
+	opt_staticfusion = opt;
+	m[opt].type = NM_TYPE_CHECK;  m[opt].text = "Fusion";  m[opt].value = Netgame.StaticFusion; opt++;
+	opt_staticspread = opt;
+	m[opt].type = NM_TYPE_CHECK;  m[opt].text = "Spreadfire"; m[opt].value = Netgame.StaticSpread; opt++;
+	opt_staticvulcan = opt;
+	m[opt].type = NM_TYPE_CHECK;  m[opt].text = "Vulcan"; m[opt].value = Netgame.StaticVulcan; opt++;
+	opt_staticplasma = opt;
+	m[opt].type = NM_TYPE_CHECK;  m[opt].text = "Plasma"; m[opt].value = Netgame.StaticPlasma; opt++;
+	opt_staticlasers = opt;
+	m[opt].type = NM_TYPE_CHECK;  m[opt].text = "Lasers"; m[opt].value = Netgame.StaticLasers; opt++;
+	opt_staticbombs = opt;
+	m[opt].type = NM_TYPE_CHECK;  m[opt].text = "Bombs"; m[opt].value = Netgame.StaticBombs; opt++;
+	opt_staticmissiles = opt;
+	m[opt].type = NM_TYPE_CHECK;  m[opt].text = "Missiles"; m[opt].value = Netgame.StaticMissiles; opt++;
+	
+menu: i = newmenu_do1( NULL, "These Weapons will not move, or drop", sizeof(m)/sizeof(*m), m, menu_sng_options_handler, NULL, i );
+
+	Netgame.StaticPowerups = m[opt_staticpowerups].value;
+	Netgame.StaticFusion = m[opt_staticfusion].value;
+	Netgame.StaticLasers = m[opt_staticlasers].value;
+	Netgame.StaticPlasma = m[opt_staticplasma].value;
+	Netgame.StaticSpread = m[opt_staticspread].value;
+	Netgame.StaticVulcan = m[opt_staticvulcan].value;
+	Netgame.StaticBombs = m[opt_staticbombs].value;
+	Netgame.StaticMissiles = m[opt_staticmissiles].value;
+}
+
+
+#define ADD_CHECK(n,txt,v)  do { m[n].type=NM_TYPE_CHECK; m[n].text=txt; m[n].value=v;} while (0)
+
+/*void net_udp_staticpowerupsmenu()
+{
+	newmenu_item m[8];
+	int i = 0;
+
+	do
+	{
+		ADD_CHECK(0, "All Weapons", Netgame.StaticPowerups);
+		ADD_CHECK(1, "Fusion", Netgame.StaticFusion);
+		ADD_CHECK(2, "Spreadfire", Netgame.StaticSpread);
+		ADD_CHECK(3, "Vulcan", Netgame.StaticVulcan);
+		ADD_CHECK(4, "Plasma", Netgame.StaticPlasma);
+		ADD_CHECK(5, "Lasers", Netgame.StaticLasers);
+		ADD_CHECK(6, "Bombs", Netgame.StaticBombs);
+		ADD_CHECK(7, "Missiles", Netgame.StaticMissiles);
+
+		i = newmenu_do1( NULL, "These Weapons will not move, or drop", sizeof(m)/sizeof(*m), m, menu_sng_options_handler, NULL, i );
+
+		Netgame.StaticPowerups = m[0].value;
+		Netgame.StaticFusion = m[1].value;
+		Netgame.StaticSpread = m[2].value;
+		Netgame.StaticVulcan = m[3].value;
+		Netgame.StaticPlasma = m[4].value;
+		Netgame.StaticLasers = m[5].value;
+		Netgame.StaticBombs = m[6].value;
+		Netgame.StaticMissiles = m[7].value;
+
+	} while( i>-1 );
+}
+*/
 
 void net_udp_more_game_options ()
 {
@@ -3702,9 +3810,9 @@ void net_udp_more_game_options ()
 	char PrimDupText[80],SecDupText[80],SecCapText[80]; 
 	char HomingUpdateRateText[80];
 #ifdef USE_TRACKER
-	newmenu_item m[50];
+	newmenu_item m[49];
 #else
- 	newmenu_item m[49];
+ 	newmenu_item m[48];
 #endif
 
 	snprintf(packstring,sizeof(char)*4,"%d",Netgame.PacketsPerSec);
@@ -3800,8 +3908,8 @@ void net_udp_more_game_options ()
 
 	m[opt].type = NM_TYPE_TEXT; m[opt].text = "SNG Toggles "; opt++;
 
-	opt_staticpowerups = opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Static Weapons";  m[opt].value = Netgame.StaticPowerups; opt++;
+	opt_staticpowerupsmenu = opt;
+	m[opt].type = NM_TYPE_MENU;  m[opt].text = "Select Static Weapons..."; opt++;
 
 	opt_purpleflash = opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "No Fusion Flash";  m[opt].value = Netgame.PurpleFlash; opt++;
@@ -3871,6 +3979,7 @@ void net_udp_more_game_options ()
 menu:
 	i = newmenu_do1( NULL, "Advanced netgame options", opt, m, net_udp_more_options_handler, NULL, 0 );
 
+
 	Netgame.control_invul_time = m[opt_cinvul].value*5*F1_0*60;
 
 	if (i==opt_setpower)
@@ -3920,7 +4029,6 @@ menu:
 	Netgame.CTF = m[opt_ctf].value;
 	Netgame.PointCapture = m[opt_pointcapture].value;
 	Netgame.QuietFan = m[opt_quietfan].value;
-	Netgame.StaticPowerups = m[opt_staticpowerups].value;
 	Netgame.FusionShake = m[opt_fusionshake].value;
 	Netgame.VulcanShake = m[opt_vulcanshake].value;
 	Netgame.FastDoor = m[opt_fasterdoor].value;
@@ -3930,8 +4038,9 @@ menu:
 	Netgame.LowVulcan = m[opt_low_vulcan].value;
 	Netgame.AllowPreferredColors = m[opt_allowprefcolor].value;
 	Netgame.HomingUpdateRate = m[opt_homing_update_rate].value + 15;
-
 }
+
+
 
 int net_udp_more_options_handler( newmenu *menu, d_event *event, void *userdata )
 {
@@ -4019,10 +4128,16 @@ int net_udp_more_options_handler( newmenu *menu, d_event *event, void *userdata 
 			} else if (citem == opt_spawn_preview) {
 				Netgame.SpawnStyle = SPAWN_STYLE_PREVIEW;
 			}
+		
+			case EVENT_NEWMENU_SELECTED:
+			  if (citem == opt_staticpowerupsmenu)
+			  {
+				net_udp_staticpowerupsmenu();
+				return 1;
+			  }
+		  break;
+		
 
-
-			break;
-			
 		default:
 			break;
 	}
@@ -4030,12 +4145,13 @@ int net_udp_more_options_handler( newmenu *menu, d_event *event, void *userdata 
 	userdata = userdata;
 	
 	return 0;
+
 }
 
 typedef struct param_opt
 {
 	int start_game, name, level, mode, mode_end, moreopts;
-	int closed, refuse, maxnet, maxobs, obsdelay, anarchy, team_anarchy, robot_anarchy, coop, bounty;
+	int closed, refuse, maxnet, maxobs, obsdelay, anarchy, team_anarchy, robot_anarchy, coop, bounty, ctf; 
 } param_opt;
 
 int net_udp_start_game(void);
@@ -4209,7 +4325,7 @@ int net_udp_setup_game()
 	int optnum;
 	param_opt opt;
 	//the other other thing you are looking for dumbass stop forgetting -> code
-	newmenu_item m[34];
+	newmenu_item m[42];
 	char slevel[5];
 	char level_text[32];
 	char srmaxnet[50];
@@ -4251,7 +4367,16 @@ int net_udp_setup_game()
 	Netgame.Deathmatch = 0;
 	Netgame.CTF = 0;
 	Netgame.FusionShake = 0;
+	//start of static weapons toggles - code
 	Netgame.StaticPowerups = 0;
+	Netgame.StaticFusion = 0;
+	Netgame.StaticVulcan = 0;
+	Netgame.StaticLasers = 0;
+	Netgame.StaticPlasma = 0;
+	Netgame.StaticSpread = 0;
+	Netgame.StaticBombs = 0;
+	Netgame.StaticMissiles = 0;
+	//end of static weapons toggles - code
 	Netgame.VulcanShake = 0;
 	Netgame.QuietFan = 0;
 	Netgame.PurpleFlash = 0;
@@ -7080,3 +7205,5 @@ int net_udp_show_game_info()
 		return 0;
 }
 #endif
+
+

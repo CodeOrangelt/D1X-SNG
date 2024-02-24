@@ -280,7 +280,6 @@ void init_player_stats_game(ubyte pnum)
 	Players[pnum].flags = 0;
 	Players[pnum].shields_delta = 0;
 	Players[pnum].shields_time = 0;
-
 	init_player_stats_new_ship(pnum);
 
 }

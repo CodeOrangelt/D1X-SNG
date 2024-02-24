@@ -2065,6 +2065,7 @@ void do_obs_menu()
 
 }
 
+
 int menu_obs_options_handler ( newmenu *menu, d_event *event, void *userdata )
 {
 	/*
@@ -2157,7 +2158,8 @@ void do_options_menu()
 	m[ 7].type = NM_TYPE_MENU;   m[ 7].text="Primary autoselect ordering...";
 	m[ 8].type = NM_TYPE_MENU;   m[ 8].text="Secondary autoselect ordering...";
 	m[ 9].type = NM_TYPE_MENU;   m[ 9].text="Misc Options...";
-	m[10].type = NM_TYPE_MENU;   m[10].text="Observer Options...";
+	m[10].type = NM_TYPE_MENU;   m[10].text="Observer Options";
+
 
 	// Fall back to main event loop
 	// Allows clean closing and re-opening when resolution changes

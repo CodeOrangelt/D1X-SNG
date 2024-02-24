@@ -96,6 +96,15 @@ typedef struct powerup_type_info {
 extern int N_powerup_types;
 extern powerup_type_info Powerup_info[MAX_POWERUP_TYPES];
 
+//sng static weapons
+extern int static_fusion;
+extern int static_spread;
+extern int static_vulcan;
+extern int static_plasma;
+extern int static_lasers;
+extern int static_bombs;
+extern int static_missiles;
+
 void draw_powerup(object *obj);
 
 //returns true if powerup consumed

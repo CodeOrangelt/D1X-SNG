@@ -1239,7 +1239,7 @@ int FinalCheats(int key)
 }
 
 // Internal Cheat Menu
-#ifndef RELEASE
+//#ifndef RELEASE
 void do_cheat_menu()
 {
 	int mmn;
@@ -1294,7 +1294,7 @@ void do_cheat_menu()
 		init_gauges();
 	}
 }
-#endif
+//#endif
 
 
 

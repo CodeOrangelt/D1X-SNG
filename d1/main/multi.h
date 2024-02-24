@@ -135,6 +135,8 @@ for_each_multiplayer_command(enum {, define_multiplayer_command, });
 #define NETGAME_ROBOT_ANARCHY   2
 #define NETGAME_COOPERATIVE     3
 #define NETGAME_BOUNTY		7
+#define NETGAME_CTF		8
+
 
 #define NETSTAT_MENU                0
 #define NETSTAT_PLAYING             1
@@ -481,6 +483,13 @@ typedef struct netgame_info
 	ubyte						FusionShake;
 	ubyte						VulcanShake;
 	ubyte						StaticPowerups;
+	ubyte						StaticFusion;
+	ubyte						StaticPlasma;
+	ubyte						StaticVulcan;
+	ubyte						StaticSpread;
+	ubyte						StaticLasers;
+	ubyte						StaticMissiles;
+	ubyte						StaticBombs;
 	ubyte						FastDoor;
 	ubyte						PointCapture;
 	ubyte						FairColors;	

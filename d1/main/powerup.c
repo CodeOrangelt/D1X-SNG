@@ -281,13 +281,15 @@ int do_powerup(object *obj)
 				powerup_basic(10, 0, 10, LASER_SCORE, "%s %s %d",TXT_LASER,TXT_BOOSTED_TO, Players[Player_num].laser_level+1);
 				update_laser_weapon_info();
 				pick_up_primary (LASER_INDEX);
-				used=1;
-			}
-
-			if (Netgame.CTF || Netgame.StaticPowerups)
-			{
-				only_sound = used;
-				used = 0;
+					if (Netgame.CTF || Netgame.StaticPowerups || Netgame.StaticLasers)
+					{
+						only_sound = used;
+						used = 0;
+					}
+					else
+					{
+						used=1;
+					}
 			}
 
 			if (!used && !(Game_mode & GM_MULTI) )
@@ -402,8 +404,7 @@ int do_powerup(object *obj)
 				used=1;
 			} else
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_HAVE,TXT_QUAD_LASERS);
-
-			if (Netgame.CTF || Netgame.StaticPowerups)
+			if (Netgame.CTF || Netgame.StaticPowerups || Netgame.StaticLasers)
 			{
 				only_sound = used;
 				used = 0;
@@ -427,7 +428,7 @@ int do_powerup(object *obj)
 				pick_up_ammo(CLASS_PRIMARY, VULCAN_INDEX, vulcan_ammo_to_add_with_cannon);
 			}
 
-			if (Netgame.CTF || Netgame.StaticPowerups)
+			if (Netgame.CTF || Netgame.StaticPowerups || Netgame.StaticVulcan)
 			{
 				only_sound = used;
 				used = 0;
@@ -452,17 +453,17 @@ int do_powerup(object *obj)
 			break;
 		case	POW_SPREADFIRE_WEAPON:
 			used = pick_up_primary(SPREADFIRE_INDEX);
-			if (Netgame.CTF || Netgame.StaticPowerups)
+			if (!used && !(Game_mode & GM_MULTI) )
+				used = pick_up_energy();
+			if (Netgame.CTF || Netgame.StaticPowerups || Netgame.StaticSpread)
 			{
 				only_sound = used;
 				used = 0;
 			}
-			if (!used && !(Game_mode & GM_MULTI) )
-				used = pick_up_energy();
 			break;
 		case	POW_PLASMA_WEAPON:
 			used = pick_up_primary(PLASMA_INDEX);
-			if (Netgame.CTF || Netgame.StaticPowerups)
+			if (Netgame.CTF || Netgame.StaticPowerups || Netgame.StaticPlasma)
 			{
 				only_sound = used;
 				used = 0;
@@ -472,20 +473,30 @@ int do_powerup(object *obj)
 			break;
 		case	POW_FUSION_WEAPON:
 			used = pick_up_primary(FUSION_INDEX);
-			if (Netgame.CTF || Netgame.StaticPowerups)
+			if (!used && !(Game_mode & GM_MULTI) )
+				used = pick_up_energy();
+			if (Netgame.CTF || Netgame.StaticPowerups || Netgame.StaticFusion)
 			{
 				only_sound = used;
 				used = 0;
 			}
-			if (!used && !(Game_mode & GM_MULTI) )
-				used = pick_up_energy();
 			break;
 
 		case	POW_PROXIMITY_WEAPON:
 			used=pick_up_secondary(PROXIMITY_INDEX,4);
+				if (Netgame.StaticBombs)
+					{
+						only_sound = used;
+						used = 0;
+					}
 			break;
 		case	POW_SMARTBOMB_WEAPON:
 			used=pick_up_secondary(SMART_INDEX,1);
+				if (Netgame.StaticMissiles)
+					{
+						only_sound = used;
+						used = 0;
+					}
 			break;
 		case	POW_MEGA_WEAPON:
 			used=pick_up_secondary(MEGA_INDEX,1);
@@ -499,9 +510,19 @@ int do_powerup(object *obj)
 			break;
 		case	POW_HOMING_AMMO_1:
 			used=pick_up_secondary(HOMING_INDEX,1);
+				if (Netgame.StaticMissiles)
+					{
+						only_sound = used;
+						used = 0;
+					}
 			break;
 		case	POW_HOMING_AMMO_4:
 			used=pick_up_secondary(HOMING_INDEX,4);
+				if (Netgame.StaticMissiles)
+					{
+						only_sound = used;
+						used = 0;
+					}
 			break;
 		case	POW_CLOAK:
 			if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
