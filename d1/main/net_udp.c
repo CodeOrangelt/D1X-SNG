@@ -3893,9 +3893,9 @@ void net_udp_more_game_options ()
 	char PrimDupText[80],SecDupText[80],SecCapText[80]; 
 	char HomingUpdateRateText[80];
 #ifdef USE_TRACKER
-	newmenu_item m[50];
+	newmenu_item m[49];
 #else
- 	newmenu_item m[49];
+ 	newmenu_item m[48];
 #endif
 
 	snprintf(packstring,sizeof(char)*4,"%d",Netgame.PacketsPerSec);
@@ -3983,10 +3983,7 @@ void net_udp_more_game_options ()
 
 	opt_deathmatch = opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Last Man Standing.";  m[opt].value = Netgame.Deathmatch; opt++;
-
-	opt_ctf = opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Capture The Flag";  m[opt].value = Netgame.CTF; opt++;
-
+	
 	m[opt].type = NM_TYPE_TEXT; m[opt].text = ""; opt++;
 
 	m[opt].type = NM_TYPE_TEXT; m[opt].text = "SNG Toggles "; opt++;
@@ -4352,11 +4349,11 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 
 			if ((citem >= opt->mode) && (citem <= opt->mode_end))
 			{
-				if ( menus[opt->anarchy].value )
+				if (menus[opt->anarchy].value)
 					Netgame.gamemode = NETGAME_ANARCHY;
-				
 				else if (menus[opt->team_anarchy].value) {
 					Netgame.gamemode = NETGAME_TEAM_ANARCHY;
+					Netgame.CTF = 0;
 				}
 // 		 		else if (ANARCHY_ONLY_MISSION) {
 // 					int i = 0;
@@ -4366,11 +4363,15 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 // 					menus[opt->anarchy].value = 1;
 // 		 			return 0;
 // 		 		}
-				else if ( menus[opt->robot_anarchy].value ) 
+				else if (menus[opt->ctf].value) {
+					Netgame.gamemode = NETGAME_TEAM_ANARCHY;
+					Netgame.CTF = 1;
+				}
+				else if (menus[opt->robot_anarchy].value)
 					Netgame.gamemode = NETGAME_ROBOT_ANARCHY;
-				else if ( menus[opt->coop].value ) 
+				else if (menus[opt->coop].value)
 					Netgame.gamemode = NETGAME_COOPERATIVE;
-				else if ( menus[opt->bounty].value )
+				else if (menus[opt->bounty].value)
 					Netgame.gamemode = NETGAME_BOUNTY;
 				else Int3(); // Invalid mode -- see Rob
 			}
@@ -4417,7 +4418,7 @@ int net_udp_setup_game()
 	int optnum;
 	param_opt opt;
 	//the other other thing you are looking for dumbass stop forgetting -> code
-	newmenu_item m[50];
+	newmenu_item m[51];
 	char slevel[5];
 	char level_text[32];
 	char srmaxnet[50];
@@ -4527,11 +4528,12 @@ int net_udp_setup_game()
 
 	opt.mode = optnum;
 	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_ANARCHY; m[optnum].value=(Netgame.gamemode == NETGAME_ANARCHY); m[optnum].group=0; opt.anarchy=optnum; optnum++;
-	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_TEAM_ANARCHY; m[optnum].value=(Netgame.gamemode == NETGAME_TEAM_ANARCHY); m[optnum].group=0; opt.team_anarchy=optnum; optnum++;
+	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_TEAM_ANARCHY; m[optnum].value=(Netgame.gamemode == NETGAME_TEAM_ANARCHY && !Netgame.CTF); m[optnum].group=0; opt.team_anarchy=optnum; optnum++;
 	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_ANARCHY_W_ROBOTS; m[optnum].value=(Netgame.gamemode == NETGAME_ROBOT_ANARCHY); m[optnum].group=0; opt.robot_anarchy=optnum; optnum++;
 	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_COOPERATIVE; m[optnum].value=(Netgame.gamemode == NETGAME_COOPERATIVE); m[optnum].group=0; opt.coop=optnum; optnum++;
 	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "Bounty"; m[optnum].value = ( Netgame.gamemode & NETGAME_BOUNTY ); m[optnum].group = 0; opt.mode_end=opt.bounty=optnum; optnum++;
-
+	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "CTF";  m[optnum].value = (Netgame.gamemode == NETGAME_TEAM_ANARCHY && Netgame.CTF); m[optnum].group = 0; opt.ctf=optnum; optnum++;
+	opt.mode_end = opt.ctf;
 	m[optnum].type = NM_TYPE_TEXT; m[optnum].text = ""; optnum++;
 
 	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "Open game"; m[optnum].group=1; m[optnum].value=(!Netgame.RefusePlayers && !Netgame.game_flags & NETGAME_FLAG_CLOSED); optnum++;
