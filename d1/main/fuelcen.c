@@ -690,8 +690,6 @@ fix fuelcen_give_fuel(segment* segp, fix MaxAmountCanTake)
 	
 	if ((segp) && (segp->special == SEGMENT_IS_FUELCEN))
 	{
-		fix amount;
-
 		//		if (Station[segp->value].MaxCapacity<=0)	{
 		//			HUD_init_message(HM_DEFAULT, "Fuelcenter %d is destroyed.", segp->value );
 		//			return 0;
@@ -707,12 +705,13 @@ fix fuelcen_give_fuel(segment* segp, fix MaxAmountCanTake)
 			return 0;
 		}
 
-		amount = fixmul(FrameTime, Fuelcen_give_amount);
+		fix amount = fixmul(FrameTime, Fuelcen_give_amount);
+
+		if (!Netgame.PointCapture && amount > MaxAmountCanTake) //forbid the energy capacity for unlimited point draw on Point Capture, regular energy still works as normal - code.
+			return 0;
 
 		if (amount > MaxAmountCanTake)
 			amount = MaxAmountCanTake;
-		else if (!Netgame.PointCapture & amount > MaxAmountCanTake) //forbid the energy capacity for unlimited point draw on Point Capture, regular energy still works as normal - code.
-			return;
 
 
 		if (Netgame.PointCapture)

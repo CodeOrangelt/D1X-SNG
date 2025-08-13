@@ -173,7 +173,7 @@ void apply_force_damage(object *obj,fix force,object *other_obj)
 			{
 				con_printf(CON_NORMAL, "You took %0.1f damage from colliding with a ship!\n", (double)(damage) / (double)(F1_0)); 
 
-				multi_send_damage(damage, Players[Player_num].shields, OBJ_PLAYER, other_obj->id, DAMAGE_COLLISION, NULL);
+				multi_send_damage(damage, Players[Player_num].shields, 0, 0, DAMAGE_COLLISION, NULL);
 			}
 			#endif
 			apply_damage_to_player(obj,other_obj,damage,0);
@@ -320,7 +320,7 @@ void collide_player_and_wall( object * player, fix hitspeed, short hitseg, short
 				{
 			  		con_printf(CON_NORMAL, "You took %0.1f damage from hitting a wall!\n", (double)(damage) / (double)(F1_0)); 
 
-					multi_send_damage(damage, Players[Player_num].shields, NULL, NULL, DAMAGE_WALL, NULL);
+					multi_send_damage(damage, Players[Player_num].shields, 0, 0, DAMAGE_WALL, NULL);
 				}
 			  	#endif
 			  	apply_damage_to_player( player, player, damage, 0 );			  	
@@ -354,7 +354,7 @@ void scrape_player_on_wall(object *obj, short hitseg, short hitside, vms_vector 
 			{
 				con_printf(CON_NORMAL, "You took %0.1f damage from lava!\n", (double)(damage) / (double)(F1_0)); 
 
-				multi_send_damage(damage, Players[Player_num].shields, NULL, NULL, DAMAGE_LAVA, NULL);
+				multi_send_damage(damage, Players[Player_num].shields, 0, 0, DAMAGE_LAVA, NULL);
 			}
 			#endif
 			  	
@@ -1564,7 +1564,7 @@ void collide_player_and_nasty_robot( object * player, object * robot, vms_vector
 		{
 			con_printf(CON_NORMAL, "You took %0.1f damage from bumping a robot!\n", (double)(damage) / (double)(F1_0)); 
 
-			multi_send_damage(damage, Players[Player_num].shields, OBJ_ROBOT, NULL, DAMAGE_COLLISION, NULL);
+			multi_send_damage(damage, Players[Player_num].shields, OBJ_ROBOT, 0, DAMAGE_COLLISION, NULL);
 		}
 	#endif
 	apply_damage_to_player( player, robot, damage, 0);
@@ -1710,7 +1710,7 @@ int maybe_detonate_weapon(object *weapon1, object *weapon2, vms_vector *collisio
 
 		dist = vm_vec_dist_quick(&weapon1->pos, &weapon2->pos);
 		if (dist < F1_0*5) {
-			maybe_kill_weapon(weapon1,weapon2);
+			maybe_kill_weapon(weapon1, weapon2);
 			if (weapon1->flags & OF_SHOULD_BE_DEAD) {
 				explode_badass_weapon(weapon1);
 				digi_link_sound_to_pos( Weapon_info[weapon1->id].robot_hit_sound, weapon1->segnum , 0, collision_point, 0, F1_0 );
