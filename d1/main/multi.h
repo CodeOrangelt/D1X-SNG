@@ -121,6 +121,7 @@ extern int multi_protocol; // set and determinate used protocol
 	VALUE(MULTI_DAMAGE               , 15)  \
 	VALUE(MULTI_REPAIR               , 11)  \
 	VALUE(MULTI_FLAGS				 , 6)   \
+	VALUE(MULTI_PLAYER_SPAWN_WEAPONS    , 31)   \
 	AFTER
 for_each_multiplayer_command(enum {, define_multiplayer_command, });
 
@@ -284,6 +285,8 @@ void multi_object_rw_to_object(object_rw *obj_rw, object *obj);
 int get_color_for_player(int id, int missile); 
 int get_color_for_team(int team, int missile);
 void multi_send_obs_update(ubyte event, ubyte event_data);
+void multi_send_player_spawn_weapons(int pnum);
+void multi_do_player_spawn_weapons(const ubyte *buf);
 
 // Exported variables
 

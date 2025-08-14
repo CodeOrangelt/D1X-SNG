@@ -2841,6 +2841,78 @@ multi_send_endlevel_start(int secret)
 	}
 }
 
+#ifdef NETWORK
+void multi_send_player_spawn_weapons(int pnum)
+{
+    if (!(Game_mode & GM_MULTI))
+        return;
+        
+    // Send player weapon flags and ammo to all other players
+    multibuf[0] = MULTI_PLAYER_SPAWN_WEAPONS;
+    multibuf[1] = pnum;
+    
+    // Pack primary weapon flags
+    PUT_INTEL_SHORT(multibuf+2, Players[pnum].primary_weapon_flags);
+    
+    // Pack secondary weapon flags  
+    PUT_INTEL_SHORT(multibuf+4, Players[pnum].secondary_weapon_flags);
+    
+    // Pack laser level
+    multibuf[6] = Players[pnum].laser_level;
+    
+    // Pack player flags (for quad lasers)
+    PUT_INTEL_INT(multibuf+7, Players[pnum].flags);
+    
+    // Pack primary ammo
+    int offset = 11;
+    for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++) {
+        PUT_INTEL_SHORT(multibuf+offset, Players[pnum].primary_ammo[i]);
+        offset += 2;
+    }
+    
+    // Pack secondary ammo  
+    for (int i = 0; i < MAX_SECONDARY_WEAPONS; i++) {
+        PUT_INTEL_SHORT(multibuf+offset, Players[pnum].secondary_ammo[i]);
+        offset += 2;
+    }
+    
+    multi_send_data(multibuf, 31, 2);
+}
+
+void multi_do_player_spawn_weapons(const ubyte *buf)
+{
+    int pnum = buf[1];
+    
+    if (pnum < 0 || pnum >= MAX_PLAYERS)
+        return;
+        
+    // Unpack primary weapon flags
+    Players[pnum].primary_weapon_flags = GET_INTEL_SHORT(buf+2);
+    
+    // Unpack secondary weapon flags
+    Players[pnum].secondary_weapon_flags = GET_INTEL_SHORT(buf+4);
+    
+    // Unpack laser level
+    Players[pnum].laser_level = buf[6];
+    
+    // Unpack player flags
+    Players[pnum].flags = GET_INTEL_INT(buf+7);
+    
+    // Unpack primary ammo
+    int offset = 11;
+    for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++) {
+        Players[pnum].primary_ammo[i] = GET_INTEL_SHORT(buf+offset);
+        offset += 2;
+    }
+    
+    // Unpack secondary ammo
+    for (int i = 0; i < MAX_SECONDARY_WEAPONS; i++) {
+        Players[pnum].secondary_ammo[i] = GET_INTEL_SHORT(buf+offset);
+        offset += 2;
+    }
+}
+#endif
+
 void
 multi_send_player_explode(char type)
 {
@@ -4759,6 +4831,8 @@ multi_process_data(const ubyte *buf, int len)
 			multi_do_repair(buf); break;
 		case MULTI_FLAGS:
 			multi_do_flags(buf); break;
+		case MULTI_PLAYER_SPAWN_WEAPONS:
+			multi_do_player_spawn_weapons(buf); break;
 		default:
 			Int3();
 	}

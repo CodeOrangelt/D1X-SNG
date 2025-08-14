@@ -3777,7 +3777,7 @@ void net_udp_spawn_with_weapons_menu()
 	m[opt].type = NM_TYPE_CHECK;  m[opt].text = "Spread";  m[opt].value = Netgame.SpreadSpawn; opt++;
 
 	opt_spawnwithlasers = opt;
-	m[opt].type = NM_TYPE_SLIDER; m[opt].value = Netgame.LasersSpawn; m[opt].text = "Laser Level: 1-4"; m[opt].min_value = 0; m[opt].max_value = 3; opt++;
+	m[opt].type = NM_TYPE_SLIDER; m[opt].value = Netgame.LasersSpawn; m[opt].text = "Quad Laser Level: 1-4"; m[opt].min_value = 0; m[opt].max_value = 4; opt++;
 
 	opt_spawnwithhomers = opt;
 	m[opt].type = NM_TYPE_CHECK;  m[opt].text = "Homers";  m[opt].value = Netgame.HomersSpawn; opt++;

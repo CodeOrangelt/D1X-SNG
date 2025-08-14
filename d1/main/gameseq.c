@@ -357,134 +357,154 @@ void init_player_stats_level(int secret_flag)
 // Setup player for a brand-new ship
 void init_player_stats_new_ship(ubyte pnum)
 {
-	int i;
+    int i;
 
-	if (pnum == Player_num)
-	{
-		if (Newdemo_state == ND_STATE_RECORDING)
-		{
-			newdemo_record_laser_level(Players[Player_num].laser_level, 0);
-			newdemo_record_player_weapon(0, 0);
-			newdemo_record_player_weapon(1, 0);
-		}
-		Global_laser_firing_count=0;
-		Primary_weapon = 0;
-		Secondary_weapon = 0;
-		dead_player_end(); //player no longer dead
-		Player_is_dead = 0;
-		Player_exploded = 0;
-		Player_eggs_dropped = 0;
+    if (pnum == Player_num)
+    {
+        if (Newdemo_state == ND_STATE_RECORDING)
+        {
+            newdemo_record_laser_level(Players[Player_num].laser_level, 0);
+            newdemo_record_player_weapon(0, 0);
+            newdemo_record_player_weapon(1, 0);
+        }
+        Global_laser_firing_count=0;
+        dead_player_end(); //player no longer dead
+        Player_is_dead = 0;
+        Player_exploded = 0;
+        Player_eggs_dropped = 0;
 
-		int delete_camera = 1; 
+        int delete_camera = 1; 
 #ifdef NETWORK	
-		if ((Game_mode & GM_MULTI) && (Netgame.SpawnStyle == SPAWN_STYLE_PREVIEW)) {	
-			delete_camera = 0; 
-		}	
+        if ((Game_mode & GM_MULTI) && (Netgame.SpawnStyle == SPAWN_STYLE_PREVIEW)) {	
+            delete_camera = 0; 
+        }	
 #endif
-		if(delete_camera)
-			Dead_player_camera = 0;
-	}
+        if(delete_camera)
+            Dead_player_camera = 0;
+    }
 
-	Players[pnum].energy = INITIAL_ENERGY;
-	Players[pnum].shields = StartingShields;
-	Players[pnum].laser_level = 0;
-	Players[pnum].killer_objnum = -1;
-	Players[pnum].hostages_on_board = 0;
-	for (i=0; i<MAX_PRIMARY_WEAPONS; i++)
-		Players[pnum].primary_ammo[i] = 0;
-	for (i=1; i<MAX_SECONDARY_WEAPONS; i++)
-		Players[pnum].secondary_ammo[i] = 0;
-	Players[pnum].secondary_ammo[0] = 2 + NDL - Difficulty_level;
-	Players[pnum].primary_weapon_flags = HAS_LASER_FLAG;
-	Players[pnum].secondary_weapon_flags = HAS_CONCUSSION_FLAG;
-	Players[pnum].flags &= ~(PLAYER_FLAGS_QUAD_LASERS | PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
-	Players[pnum].cloak_time = 0;
-	Players[pnum].invulnerable_time = 0;
-	Players[pnum].homing_object_dist = -F1_0;
+    // Set default weapons for local player only
+    if (pnum == Player_num)
+    {
+        Primary_weapon = 0;
+        Secondary_weapon = 0;
+    }
 
-	RespawningConcussions[pnum] = 0; 
+    Players[pnum].energy = INITIAL_ENERGY;
+    Players[pnum].shields = StartingShields;
+    Players[pnum].laser_level = 0;
+    Players[pnum].killer_objnum = -1;
+    Players[pnum].hostages_on_board = 0;
+    for (i=0; i<MAX_PRIMARY_WEAPONS; i++)
+        Players[pnum].primary_ammo[i] = 0;
+    for (i=1; i<MAX_SECONDARY_WEAPONS; i++)
+        Players[pnum].secondary_ammo[i] = 0;
+    Players[pnum].secondary_ammo[0] = 2 + NDL - Difficulty_level;
+    Players[pnum].primary_weapon_flags = HAS_LASER_FLAG;
+    Players[pnum].secondary_weapon_flags = HAS_CONCUSSION_FLAG;
+    Players[pnum].flags &= ~(PLAYER_FLAGS_QUAD_LASERS | PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
+    Players[pnum].cloak_time = 0;
+    Players[pnum].invulnerable_time = 0;
+    Players[pnum].homing_object_dist = -F1_0;
 
-	digi_kill_sound_linked_to_object(Players[pnum].objnum);
+    RespawningConcussions[pnum] = 0; 
 
-	if (Netgame.Deathmatch)
-		Players[Player_num].shields = i2f(2000);
-		Players[Player_num].lives = (1);
+    digi_kill_sound_linked_to_object(Players[pnum].objnum);
 
-	if (Netgame.PointCapture)
-		Players[Player_num].lives = (100);
+    // Only apply these to the specific player, not Player_num
+    if (Netgame.Deathmatch && pnum < MAX_PLAYERS)
+    {
+        Players[pnum].shields = i2f(2000);
+        Players[pnum].lives = 1;
+    }
 
-	if (Netgame.FusionSpawn)
-	{
-		Primary_weapon = FUSION_INDEX;
-		Players[pnum].primary_weapon_flags |= HAS_FUSION_FLAG;
-	}
+    if (Netgame.PointCapture && pnum < MAX_PLAYERS)
+        Players[pnum].lives = 100;
 
-	if (Netgame.VulcanSpawn)
-	{
+	if (Game_mode & GM_MULTI)
+    {
+        if (Netgame.FusionSpawn)
+        {
+            if (pnum == Player_num)
+                Primary_weapon = FUSION_INDEX;
+            Players[pnum].primary_weapon_flags |= HAS_FUSION_FLAG;
+        }
 
-		Players[pnum].primary_weapon_flags |= HAS_VULCAN_FLAG;
-		pick_up_ammo(CLASS_PRIMARY, VULCAN_INDEX, 12.80); // cant get 1250 exact... BUMMER.- code
-		Primary_weapon = VULCAN_INDEX;
-	}
-	if (Netgame.PlasmaSpawn)
-	{
-		Primary_weapon = PLASMA_INDEX;
-		Players[pnum].primary_weapon_flags |= HAS_PLASMA_FLAG;
-	}
-	if (Netgame.LasersSpawn)
-	{
-		Primary_weapon = LASER_INDEX;
-		Players[pnum].primary_weapon_flags |= HAS_LASER_FLAG;
-		if (Netgame.LasersSpawn == 1)
+		if (Netgame.VulcanSpawn)
 		{
-			Players[pnum].laser_level = 1;
-			Players[pnum].flags = (PLAYER_FLAGS_QUAD_LASERS);
+			Players[pnum].primary_weapon_flags |= HAS_VULCAN_FLAG;
+			Players[pnum].primary_ammo[VULCAN_INDEX] = VULCAN_AMMO_MAX / 4;
+			if (pnum == Player_num)
+				Primary_weapon = VULCAN_INDEX;
 		}
-		else if (Netgame.LasersSpawn == 2)
+
+        if (Netgame.PlasmaSpawn)
+        {
+            if (pnum == Player_num)
+                Primary_weapon = PLASMA_INDEX;
+            Players[pnum].primary_weapon_flags |= HAS_PLASMA_FLAG;
+        }
+
+		if (Netgame.LasersSpawn)
 		{
-			Players[pnum].laser_level = 2;
-			Players[pnum].flags = (PLAYER_FLAGS_QUAD_LASERS);
+			if (pnum == Player_num)
+				Primary_weapon = LASER_INDEX;
+			Players[pnum].primary_weapon_flags |= HAS_LASER_FLAG;
+
+			if (Netgame.LasersSpawn >= 1 && Netgame.LasersSpawn <= 4)
+			{
+				Players[pnum].laser_level = Netgame.LasersSpawn - 1; 
+				Players[pnum].flags |= PLAYER_FLAGS_QUAD_LASERS;
+			}
 		}
-		else if (Netgame.LasersSpawn == 3)
-		{
-			Players[pnum].laser_level = 3;
-			Players[pnum].flags = (PLAYER_FLAGS_QUAD_LASERS);
-		}
-		else if (Netgame.LasersSpawn == 4)
-		{
-			Players[pnum].laser_level = 4;
-			Players[pnum].flags = (PLAYER_FLAGS_QUAD_LASERS);
-		}
-	}
-	if (Netgame.SpreadSpawn)
-	{
-		Primary_weapon = SPREADFIRE_INDEX;
-		Players[pnum].primary_weapon_flags |= HAS_SPREADFIRE_FLAG;
-	}
-	if (Netgame.HomersSpawn)
-	{
-		Secondary_weapon = HOMING_INDEX;
-		Players[pnum].secondary_weapon_flags |= HAS_HOMER_FLAG;
-		Players[pnum].secondary_ammo[HOMING_INDEX] = 4;
-	}
-	if (Netgame.SmartsSpawn)
-	{
-		Secondary_weapon = SMART_INDEX;
-		Players[pnum].secondary_weapon_flags |= HAS_SMART_FLAG;
-		Players[pnum].secondary_ammo[SMART_INDEX] = 4;
-	}
-	if (Netgame.BombsSpawn)
-	{
-		Secondary_weapon = PROXIMITY_INDEX;
-		Players[pnum].secondary_weapon_flags |= HAS_PROXY_FLAG;
-		Players[pnum].secondary_ammo[PROXIMITY_INDEX] = 4;
-	}
-	if (Netgame.MegasSpawn)	
-	{
-		Secondary_weapon = MEGA_INDEX;
-		Players[pnum].secondary_weapon_flags |= HAS_MEGA_FLAG;
-		Players[pnum].secondary_ammo[MEGA_INDEX] = 4;
-	}
+
+        if (Netgame.SpreadSpawn)
+        {
+            if (pnum == Player_num)
+                Primary_weapon = SPREADFIRE_INDEX;
+            Players[pnum].primary_weapon_flags |= HAS_SPREADFIRE_FLAG;
+        }
+
+        if (Netgame.HomersSpawn)
+        {
+            if (pnum == Player_num)
+                Secondary_weapon = HOMING_INDEX;
+            Players[pnum].secondary_weapon_flags |= HAS_HOMER_FLAG;
+            Players[pnum].secondary_ammo[HOMING_INDEX] = 5; 
+        }
+
+        if (Netgame.SmartsSpawn)
+        {
+            if (pnum == Player_num)
+                Secondary_weapon = SMART_INDEX;
+            Players[pnum].secondary_weapon_flags |= HAS_SMART_FLAG;
+            Players[pnum].secondary_ammo[SMART_INDEX] = 5; 
+        }
+
+        if (Netgame.BombsSpawn)
+        {
+            if (pnum == Player_num)
+                Secondary_weapon = PROXIMITY_INDEX;
+            Players[pnum].secondary_weapon_flags |= HAS_PROXY_FLAG;
+            Players[pnum].secondary_ammo[PROXIMITY_INDEX] = 16; 
+        }
+
+        if (Netgame.MegasSpawn)	
+        {
+            if (pnum == Player_num)
+                Secondary_weapon = MEGA_INDEX;
+            Players[pnum].secondary_weapon_flags |= HAS_MEGA_FLAG;
+            Players[pnum].secondary_ammo[MEGA_INDEX] = 5;
+        }
+
+		#ifdef NETWORK
+			// Send packet for ALL players to spawn w/weapons.
+			if ((Game_mode & GM_MULTI) && multi_i_am_master())
+			{
+				multi_send_player_spawn_weapons(pnum);
+			}
+		#endif
+    }
 }
 
 #ifdef EDITOR
