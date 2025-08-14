@@ -1,43 +1,42 @@
-19:39:37 D1X SNG 1.7.1  Aug 13 2025 19:49:09
-19:39:37 This is a MODIFIED version of Descent, based on Fork by Code.
-19:39:37 Copyright (C) 1994, 1995 Parallax Software Corporation
+20:07:39 D1X SNG 1.7.1  Aug 13 2025 19:49:09
+20:07:39 This is a MODIFIED version of Descent, based on Fork by Code.
+20:07:39 Copyright (C) 1994, 1995 Parallax Software Corporation
 DESCENT is a trademark of Interplay Productions, Inc.
-19:39:37 Copyright (C) 2005-2011 Christian Beckhaeuser
+20:07:39 Copyright (C) 2005-2011 Christian Beckhaeuser
 
-19:39:37 Using SDL_mixer library
-19:39:37 sdl-joystick: found 0 joysticks
-19:39:53 Homing update rate: 25
-19:39:54 Plasma Cannon selected!
+20:07:39 Using SDL_mixer library
+20:07:40 sdl-joystick: found 0 joysticks
+20:07:53 Dropped UPID_GAME_INFO_LITE_REQ: received by non-game master
+20:07:53 Dropped pid UPID_GAME_INFO_LITE_REQ: failed security checks.
+20:08:16 xxx len: 575
+20:08:17 xxx len: 575
+20:08:19 Dropped UPID_MDATA_PNEEDACK: token 97194837 != -1471350245
+20:08:19 Dropped pid UPID_MDATA_PNEEDACK: failed security checks.
+20:08:19 xxx len: 575
+20:08:19 xxx len: 575
+20:08:19 Homing update rate: 25
+20:08:22 Laser Cannon selected!
 
-19:39:54 Fusion Cannon selected!
+20:08:25 Concussion Missile selected!
 
-19:39:55 Laser Cannon selected!
+20:08:28 Laser Cannon selected!
 
-19:39:56 Vulcan Cannon selected!
+20:08:31 Laser boosted to 2
+20:08:31 Laser boosted to 3
+20:08:31 Laser boosted to 4
+20:08:31 Your Laser is maxed out!
+20:08:31 Quad Lasers!
+20:08:31 Laser Cannon!
+20:08:31 You already have Quad Lasers!
+20:08:32 Fusion Cannon!
+20:08:32 You already have the Fusion Cannon!
+20:08:33 Vulcan Cannon!
+20:08:33 You already have the Vulcan Cannon!
+20:08:33 Spreadfire Cannon!
+20:08:33 You already have the Spreadfire Cannon!
+20:08:34 Laser Cannon selected!
 
-19:40:20 Demigod 'code' is joining the game.
-
-19:40:46 code has left the game!
-19:40:46 You are the only person remaining in this netgame
-19:40:49 demos/code_code_0_0_PyroFact.dem does not exist!19:40:50 Demo saved as tmpdemo.dem
-25 Homing Missile!
-19:40:26 Mega Missile selected!
-
-19:40:28 Smart Missile selected!
-
-19:40:28 Homing Missile selected!
-
-19:40:29 Concussion Missile selected!
-
-19:40:30 Mega Missile selected!
-
-19:40:31 You already have the Plasma Cannon!
-19:40:36 You took 0.3 damage from hitting a wall!
-19:40:36 Smart Missile selected!
-
-19:40:37 You took 0.4 damage from hitting a wall!
-19:40:41 Homing Missile selected!
-
-19:40:42 Concussion Missile selected!
-
-19:40:46 demos/code_code_0_0_PyroFact.dem does not exist!19:40:46 Demo saved as tmpdemo.dem
+20:08:38 demos/code_code_0_0_PyroFact.dem does not exist!20:08:39 Demo saved as tmpdemo.dem
+20:08:59 udp_open_socket: bind name to socket failed (port 42424)
+20:09:00 udp_open_socket: bind name to socket failed (port 42424)
+20:09:04 xxx len: 575

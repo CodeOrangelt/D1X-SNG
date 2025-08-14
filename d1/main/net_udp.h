@@ -34,7 +34,7 @@ void do_cheat_menu();
 #endif
 #define UDP_BCAST_ADDR "255.255.255.255"
 #define UDP_PORT_DEFAULT 42424 // Our default port - easy to remember: D = 4, X = 24, X = 24
-#define UDP_MANUAL_ADDR_DEFAULT "localhost"
+#define UDP_MANUAL_ADDR_DEFAULT "127.0.0.1"
 #ifdef USE_TRACKER
 #define TRACKER_ADDR_DEFAULT "retro-tracker.game-server.cc"
 #define TRACKER_PORT_DEFAULT 42420

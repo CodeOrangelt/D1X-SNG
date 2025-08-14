@@ -1116,6 +1116,7 @@ void net_udp_manual_join_game()
 	direct_join *dj;
 	newmenu_item m[7];
 	int nitems = 0;
+	int random_port = 42420;
 
 	MALLOC(dj, direct_join, 1);
 	if (!dj)
@@ -1137,7 +1138,9 @@ void net_udp_manual_join_game()
 	if (GameArg.MplUdpMyPort != 0)
 		snprintf (UDP_MyPort, sizeof(UDP_MyPort), "%d", GameArg.MplUdpMyPort);
 	else
-		snprintf (UDP_MyPort, sizeof(UDP_MyPort), "%d", UDP_PORT_DEFAULT);
+		// Pick a random port between 42420 and 42428
+		random_port + (d_rand() % 9);
+		snprintf (UDP_MyPort, sizeof(UDP_MyPort), "%d", random_port);
 
 	nitems = 0;
 	
