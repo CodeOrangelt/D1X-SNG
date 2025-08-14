@@ -1,42 +1,41 @@
-20:07:39 D1X SNG 1.7.1  Aug 13 2025 19:49:09
-20:07:39 This is a MODIFIED version of Descent, based on Fork by Code.
-20:07:39 Copyright (C) 1994, 1995 Parallax Software Corporation
+20:18:54 D1X SNG 1.7.1  Aug 13 2025 19:49:09
+20:18:54 This is a MODIFIED version of Descent, based on Fork by Code.
+20:18:54 Copyright (C) 1994, 1995 Parallax Software Corporation
 DESCENT is a trademark of Interplay Productions, Inc.
-20:07:39 Copyright (C) 2005-2011 Christian Beckhaeuser
+20:18:54 Copyright (C) 2005-2011 Christian Beckhaeuser
 
-20:07:39 Using SDL_mixer library
-20:07:40 sdl-joystick: found 0 joysticks
-20:07:53 Dropped UPID_GAME_INFO_LITE_REQ: received by non-game master
-20:07:53 Dropped pid UPID_GAME_INFO_LITE_REQ: failed security checks.
-20:08:16 xxx len: 575
-20:08:17 xxx len: 575
-20:08:19 Dropped UPID_MDATA_PNEEDACK: token 97194837 != -1471350245
-20:08:19 Dropped pid UPID_MDATA_PNEEDACK: failed security checks.
-20:08:19 xxx len: 575
-20:08:19 xxx len: 575
-20:08:19 Homing update rate: 25
-20:08:22 Laser Cannon selected!
+20:18:54 Using SDL_mixer library
+20:18:54 sdl-joystick: found 0 joysticks
+20:19:05 Homing update rate: 25
+20:19:07 Laser boosted to 2
+20:19:07 Laser boosted to 3
+20:19:07 Laser boosted to 4
+20:19:07 Your Laser is maxed out!
+20:19:07 Quad Lasers!
+20:19:07 Laser Cannon!
+20:19:08 Fusion Cannon!
+20:19:09 Laser Cannon selected!
 
-20:08:25 Concussion Missile selected!
+20:19:11 Your Laser is maxed out!
+20:19:12 Fusion Cannon selected!
 
-20:08:28 Laser Cannon selected!
+20:19:13 Vulcan Cannon!
+20:19:14 Spreadfire Cannon!
+20:19:15 Plasma Cannon!
+20:19:16 Homing Missile!
+20:19:19 Shield boosted to 106
+20:19:22 Your Laser is maxed out!
+20:19:23 Homing Missile!
+20:19:23 Smart Missile!
+20:19:27 You already have the Fusion Cannon!
+20:19:27 You already have Quad Lasers!
+20:19:29 You already have the Spreadfire Cannon!
+20:19:31 Laser Cannon selected!
 
-20:08:31 Laser boosted to 2
-20:08:31 Laser boosted to 3
-20:08:31 Laser boosted to 4
-20:08:31 Your Laser is maxed out!
-20:08:31 Quad Lasers!
-20:08:31 Laser Cannon!
-20:08:31 You already have Quad Lasers!
-20:08:32 Fusion Cannon!
-20:08:32 You already have the Fusion Cannon!
-20:08:33 Vulcan Cannon!
-20:08:33 You already have the Vulcan Cannon!
-20:08:33 Spreadfire Cannon!
-20:08:33 You already have the Spreadfire Cannon!
-20:08:34 Laser Cannon selected!
-
-20:08:38 demos/code_code_0_0_PyroFact.dem does not exist!20:08:39 Demo saved as tmpdemo.dem
-20:08:59 udp_open_socket: bind name to socket failed (port 42424)
-20:09:00 udp_open_socket: bind name to socket failed (port 42424)
-20:09:04 xxx len: 575
+20:19:33 Shield boosted to 112
+20:19:34 Homing Missile!
+20:19:38 4 Proximity Bombs!
+20:19:42 Smart Missile!
+20:19:49 demos/code_ANARCHY_PyroFact.dem does not exist!20:19:50 Demo saved as tmpdemo.dem
+20:19:51 Dropped UPID_GAME_INFO_LITE_REQ: received by non-game master
+20:19:51 Dropped pid UPID_GAME_INFO_LITE_REQ: failed security checks.

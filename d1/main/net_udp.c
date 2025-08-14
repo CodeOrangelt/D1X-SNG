@@ -4350,33 +4350,28 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 				}
 			}			
 
-			if ((citem >= opt->mode) && (citem <= opt->mode_end))
-			{
-				if (menus[opt->anarchy].value)
-					Netgame.gamemode = NETGAME_ANARCHY;
-				else if (menus[opt->team_anarchy].value) {
-					Netgame.gamemode = NETGAME_TEAM_ANARCHY;
-					Netgame.CTF = 0;
-				}
-// 		 		else if (ANARCHY_ONLY_MISSION) {
-// 					int i = 0;
-// 		 			nm_messagebox(NULL, 1, TXT_OK, TXT_ANARCHY_ONLY_MISSION);
-// 					for (i = opt->mode; i <= opt->mode_end; i++)
-// 						menus[i].value = 0;
-// 					menus[opt->anarchy].value = 1;
-// 		 			return 0;
-// 		 		}
-				else if (menus[opt->ctf].value) {
-					Netgame.gamemode = NETGAME_TEAM_ANARCHY;
-					Netgame.CTF = 1;
-				}
-				else if (menus[opt->robot_anarchy].value)
-					Netgame.gamemode = NETGAME_ROBOT_ANARCHY;
-				else if (menus[opt->coop].value)
-					Netgame.gamemode = NETGAME_COOPERATIVE;
-				else if (menus[opt->bounty].value)
-					Netgame.gamemode = NETGAME_BOUNTY;
-				else Int3(); // Invalid mode -- see Rob
+		if ((citem >= opt->mode) && (citem <= opt->mode_end))
+		{
+			if (menus[opt->anarchy].value) {
+				Netgame.gamemode = NETGAME_ANARCHY;
+				Netgame.CTF = 0;
+			} else if (menus[opt->team_anarchy].value) {
+				Netgame.gamemode = NETGAME_TEAM_ANARCHY;
+				Netgame.CTF = 0;
+			} else if (menus[opt->ctf].value) {
+				Netgame.gamemode = NETGAME_TEAM_ANARCHY;
+				Netgame.CTF = 1;
+			} else if (menus[opt->robot_anarchy].value) {
+				Netgame.gamemode = NETGAME_ROBOT_ANARCHY;
+				Netgame.CTF = 0;
+			} else if (menus[opt->coop].value) {
+				Netgame.gamemode = NETGAME_COOPERATIVE;
+				Netgame.CTF = 0;
+			} else if (menus[opt->bounty].value) {
+				Netgame.gamemode = NETGAME_BOUNTY;
+				Netgame.CTF = 0;
+			}
+			  else Int3(); // Invalid mode -- see Rob
 			}
 
 			if (menus[opt->closed].value)
