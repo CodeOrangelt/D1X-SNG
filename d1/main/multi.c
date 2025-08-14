@@ -2911,6 +2911,51 @@ void multi_do_player_spawn_weapons(const ubyte *buf)
         offset += 2;
     }
 }
+
+void multi_disable_spawn_weapon_powerups()
+{
+    int i;
+    
+    // Loop through all objects and bash spawn weapons to shields if host want's to spawn with them.
+    for (i = 0; i <= Highest_object_index; i++)
+    {
+        if (Objects[i].type == OBJ_POWERUP)
+        {
+            if (Objects[i].id == POW_FUSION_WEAPON && Netgame.FusionSpawn)
+                bash_to_shield(i, "fusion weapon (spawn enabled)");
+                
+            if (Objects[i].id == POW_VULCAN_WEAPON && Netgame.VulcanSpawn)
+                bash_to_shield(i, "vulcan weapon (spawn enabled)");
+                
+            if (Objects[i].id == POW_VULCAN_AMMO && Netgame.VulcanSpawn)
+                bash_to_shield(i, "vulcan ammo (spawn enabled)");
+                
+            if (Objects[i].id == POW_PLASMA_WEAPON && Netgame.PlasmaSpawn)
+                bash_to_shield(i, "plasma weapon (spawn enabled)");
+                
+            if (Objects[i].id == POW_SPREADFIRE_WEAPON && Netgame.SpreadSpawn)
+                bash_to_shield(i, "spreadfire weapon (spawn enabled)");
+                
+            if (Objects[i].id == POW_LASER && Netgame.LasersSpawn)
+                bash_to_shield(i, "laser powerup (spawn enabled)");
+                
+            if (Objects[i].id == POW_QUAD_FIRE && Netgame.LasersSpawn)
+                bash_to_shield(i, "quad lasers (spawn enabled)");
+                
+            if ((Objects[i].id == POW_HOMING_AMMO_1 || Objects[i].id == POW_HOMING_AMMO_4) && Netgame.HomersSpawn)
+                bash_to_shield(i, "homing missiles (spawn enabled)");
+                
+            if (Objects[i].id == POW_SMARTBOMB_WEAPON && Netgame.SmartsSpawn)
+                bash_to_shield(i, "smart missiles (spawn enabled)");
+                
+            if (Objects[i].id == POW_PROXIMITY_WEAPON && Netgame.BombsSpawn)
+                bash_to_shield(i, "proximity bombs (spawn enabled)");
+                
+            if (Objects[i].id == POW_MEGA_WEAPON && Netgame.MegasSpawn)
+                bash_to_shield(i, "mega missiles (spawn enabled)");
+        }
+    }
+}
 #endif
 
 void

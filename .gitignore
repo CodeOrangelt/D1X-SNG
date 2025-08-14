@@ -86,3 +86,5 @@ d1/stdout.txt
 d1/comp relevant.ngs
 d1/descent.cfg
 d1/gamelog.txt
+d1/netlog.txt
+*.txt

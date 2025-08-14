@@ -287,6 +287,7 @@ int get_color_for_team(int team, int missile);
 void multi_send_obs_update(ubyte event, ubyte event_data);
 void multi_send_player_spawn_weapons(int pnum);
 void multi_do_player_spawn_weapons(const ubyte *buf);
+void multi_disable_spawn_weapon_powerups(void);
 
 // Exported variables
 

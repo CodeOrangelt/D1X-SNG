@@ -1242,6 +1242,12 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 	gameseq_init_network_players(); // Initialize the Players array for
 	// this level
 
+	// Disable powerups that players spawn with
+	#ifdef NETWORK
+		if (Game_mode & GM_MULTI)
+			multi_disable_spawn_weapon_powerups();
+	#endif
+
 	if (Netgame.CTF)
 	{
 		for (int i = 0; i <= Highest_object_index; i++)
