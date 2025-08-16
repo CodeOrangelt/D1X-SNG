@@ -1,0 +1,53 @@
+01:59:50 D1X SNG 1.7.1  Aug 13 2025 19:49:09
+01:59:50 This is a MODIFIED version of Descent, based on Fork by Code.
+01:59:50 Copyright (C) 1994, 1995 Parallax Software Corporation
+DESCENT is a trademark of Interplay Productions, Inc.
+01:59:50 Copyright (C) 2005-2011 Christian Beckhaeuser
+
+01:59:50 Using SDL_mixer library
+01:59:50 sdl-joystick: found 0 joysticks
+02:00:13 Homing update rate: 25
+02:00:18 You took 0.4 damage from colliding with a ship!
+02:00:18 You took 0.4 damage from colliding with a ship!
+02:00:30 You took 6.2 damage from code's concussion blast!
+02:00:30 You killed code (RED)!
+02:00:32 No secondary weapons available!
+02:00:34 You killed code (RED)!
+02:00:35 Concussion Missile!
+02:00:42 Homing Missile!
+02:00:43 Concussion Missile!
+02:00:45 You took 28.7 damage from code's homer blast!
+02:00:46 4 Proximity Bombs!
+02:00:46 You took 20.7 damage from code's concussion blast!
+02:00:47 No secondary weapons available!
+02:00:47 You took 23.9 damage from code's concussion blast!
+02:00:47 You have  40  shields left
+ft
+02:00:47 You took 26.5 damage from code's proxy blast!
+02:00:47 You killed yourself!
+02:00:49 Ship destroyed!
+02:00:52 Concussion Missile!
+02:00:57 Homing Missile!
+02:00:59 4 Proximity Bombs!
+02:01:02 You took 26.3 damage from code's proxy blast!
+02:01:07 Laser Cannon selected!
+
+02:01:09 Laser boosted to 2
+02:01:09 Laser boosted to 3
+02:01:09 Laser boosted to 4
+02:01:09 Your Laser is maxed out!
+02:01:09 Quad Lasers!
+02:01:09 Laser Cannon!
+02:01:09 You already have Quad Lasers!
+02:01:10 Fusion Cannon!
+02:01:10 You already have the Fusion Cannon!
+02:01:10 Smart Missile!
+02:01:13 Your Laser is maxed out!
+02:01:20 Spreadfire Cannon!
+02:01:20 You already have the Spreadfire Cannon!
+02:01:20 You took 0.4 damage from hitting a wall!
+02:01:27 code has left the game!
+02:01:27 Concussion Missile!
+02:01:33 code has left the game!
+02:01:33 You are the only person remaining in this netgame
+02:01:36 demos/code_ANARCHY_PyroFact.dem does not exist!02:01:36 Demo saved as tmpdemo.dem

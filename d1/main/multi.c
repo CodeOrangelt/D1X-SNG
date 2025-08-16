@@ -2683,44 +2683,44 @@ int get_color_for_team(int team, int missile) {
 
 void multi_reset_object_texture (object *objp)
 {
-	disable_faircolors_if_3_connected();
+    disable_faircolors_if_3_connected();
 
-	int wid = get_color_for_player(objp->id, 0);
-	int mid = get_color_for_player(objp->id, 1);
+    int wid, mid;
+    
+    // For CTF mode, use team colors instead of individual player colors
+    if (Game_mode & GM_MULTI && Netgame.CTF) {
+        int team = get_team(objp->id);
+        wid = team; // Use team number directly (0=blue, 1=red)
+        mid = team; 
+    } else {
+        wid = get_color_for_player(objp->id, 0);
+        mid = get_color_for_player(objp->id, 1);
+    }
 
-	//con_printf(CON_NORMAL, "Custom color for player %d is %d,%d\n", objp->id, wid, mid); 
+    if (objp->id == 0) {
+        if(wid == 0 && mid == 0) {
+            objp->rtype.pobj_info.alt_textures=0;
+        } else {
+            objp->rtype.pobj_info.alt_textures=8;
+            // Initialize the other textures
+            for(int i = 0; i<Polygon_models[objp->rtype.pobj_info.model_num].n_textures; i++) {
+                multi_player_textures[7][i] = ObjBitmaps[ObjBitmapPtrs[Polygon_models[objp->rtype.pobj_info.model_num].first_texture+i]];
+            }
+            multi_player_textures[7][4] = ObjBitmaps[ObjBitmapPtrs[First_multi_bitmap_num+(mid-1)*2]];
+            multi_player_textures[7][5] = ObjBitmaps[ObjBitmapPtrs[First_multi_bitmap_num+(wid-1)*2+1]];
+        }
+    } else {
+        if (N_PLAYER_SHIP_TEXTURES < Polygon_models[objp->rtype.pobj_info.model_num].n_textures)
+            Error("Too many player ship textures!\n");
 
-    int id; 
-	if (Game_mode & GM_TEAM)
-		id = get_team(objp->id);
-	else
-		id = objp->id;
+        for (int i=0;i<Polygon_models[objp->rtype.pobj_info.model_num].n_textures;i++)
+            multi_player_textures[objp->id-1][i] = ObjBitmaps[ObjBitmapPtrs[Polygon_models[objp->rtype.pobj_info.model_num].first_texture+i]];
 
-	if(id == 0) {
-		if(wid == 0 && mid == 0) {
-			objp->rtype.pobj_info.alt_textures=0;
-		} else {
-			objp->rtype.pobj_info.alt_textures=8;
+        multi_player_textures[objp->id-1][4] = ObjBitmaps[ObjBitmapPtrs[First_multi_bitmap_num+(mid-1)*2]];
+        multi_player_textures[objp->id-1][5] = ObjBitmaps[ObjBitmapPtrs[First_multi_bitmap_num+(wid-1)*2+1]];
 
-			// Initialize the other textures
-			for(int i = 0; i<Polygon_models[objp->rtype.pobj_info.model_num].n_textures; i++) {
-				multi_player_textures[7][i] = ObjBitmaps[ObjBitmapPtrs[Polygon_models[objp->rtype.pobj_info.model_num].first_texture+i]];
-			}
-			multi_player_textures[7][4] = ObjBitmaps[ObjBitmapPtrs[First_multi_bitmap_num+(mid-1)*2]];
-			multi_player_textures[7][5] = ObjBitmaps[ObjBitmapPtrs[First_multi_bitmap_num+(wid-1)*2+1]];
-		}
-	} else {
-		if (N_PLAYER_SHIP_TEXTURES < Polygon_models[objp->rtype.pobj_info.model_num].n_textures)
-			Error("Too many player ship textures!\n");
-
-		for (int i=0;i<Polygon_models[objp->rtype.pobj_info.model_num].n_textures;i++)
-			multi_player_textures[id-1][i] = ObjBitmaps[ObjBitmapPtrs[Polygon_models[objp->rtype.pobj_info.model_num].first_texture+i]];
-
-		multi_player_textures[id-1][4] = ObjBitmaps[ObjBitmapPtrs[First_multi_bitmap_num+(mid-1)*2]];
-		multi_player_textures[id-1][5] = ObjBitmaps[ObjBitmapPtrs[First_multi_bitmap_num+(wid-1)*2+1]];
-
-		objp->rtype.pobj_info.alt_textures = id;
-	}
+        objp->rtype.pobj_info.alt_textures = objp->id;
+    }
 }
 
 void

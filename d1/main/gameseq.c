@@ -101,6 +101,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "multibot.h"
 
+// CTF helpers - code
+void init_flag_bases(void);
+int check_spawn_position_clear(vms_vector *pos, int segnum);
+int find_nearby_segment(int base_seg, int max_distance, int preferred_side);
+
 void init_player_stats_new_ship(ubyte pnum);
 void copy_defaults_to_robot_all(void);
 int AdvanceLevel(int secret_flag);
@@ -1437,87 +1442,251 @@ void StartNewLevel(int level_num)
 
 int previewed_spawn_point = 0; 
 
+int check_spawn_position_clear(vms_vector *pos, int segnum)
+{
+    // Check if any players are too close to this spawn position
+    fix min_spawn_distance = F1_0 * 30; // Increased from 20 to 30 units minimum distance
+    
+    for (int i = 0; i < MAX_PLAYERS; i++) {
+        if (i == Player_num)
+            continue;
+            
+        // Check all players, not just connected ones (during simultaneous spawning)
+        if (Players[i].objnum < 0 || Players[i].objnum > Highest_object_index)
+            continue;
+            
+        object *other_player = &Objects[Players[i].objnum];
+        
+        // Only check actual player objects that exist
+        if (other_player->type != OBJ_PLAYER)
+            continue;
+            
+        // Skip if player is in a completely different segment cluster
+        if (other_player->segnum < 0 || other_player->segnum > Highest_segment_index)
+            continue;
+        
+        // Check both straight-line distance and path distance
+        fix distance = vm_vec_dist_quick(pos, &other_player->pos);
+        if (distance < min_spawn_distance) {
+            return 0; // Too close to another player
+        }
+        
+        // Additional check: make sure we're not in the exact same segment
+        if (other_player->segnum == segnum) {
+            return 0; // Same segment, definitely too close
+        }
+    }
+    
+    return 1; // Position is clear
+}
+
+int find_nearby_segment(int base_seg, int max_distance, int preferred_side)
+{
+    // Simple breadth-first search for nearby segments
+    static int visited[MAX_SEGMENTS];
+    static int queue[MAX_SEGMENTS];
+    static int distance_from_base[MAX_SEGMENTS];
+    int queue_head = 0, queue_tail = 0;
+    
+    if (base_seg < 0 || base_seg > Highest_segment_index)
+        return -1;
+    
+    memset(visited, 0, sizeof(visited));
+    memset(distance_from_base, 0, sizeof(distance_from_base));
+    
+    queue[queue_tail++] = base_seg;
+    visited[base_seg] = 1;
+    distance_from_base[base_seg] = 0;
+    
+    while (queue_head < queue_tail) {
+        int current_seg = queue[queue_head++];
+        int current_dist = distance_from_base[current_seg];
+        
+        if (current_dist >= max_distance)
+            continue;
+        
+        // Check all connected segments
+        for (int side = 0; side < MAX_SIDES_PER_SEGMENT; side++) {
+            int child = Segments[current_seg].children[side];
+            
+            if (child >= 0 && child <= Highest_segment_index && !visited[child]) {
+                // Make sure we can fly through this connection
+                if (WALL_IS_DOORWAY(&Segments[current_seg], side) & WID_FLY_FLAG) {
+                    visited[child] = 1;
+                    distance_from_base[child] = current_dist + 1;
+                    
+                    // If this is far enough from base, return it as a candidate
+                    if (current_dist >= 1) {
+                        return child;
+                    }
+                    
+                    if (queue_tail < MAX_SEGMENTS)
+                        queue[queue_tail++] = child;
+                }
+            }
+        }
+    }
+    
+    return -1; // No suitable segment found
+}
+
+void add_random_spawn_offset(vms_vector *pos, int segnum)
+{
+    // Create a much smaller random offset to stay within segment bounds
+    vms_vector offset;
+    
+    // Much smaller offset - only 2 units in each direction
+    offset.x = (d_rand() - 16384) * F1_0 / 16384; // Roughly ±2 units  
+    offset.y = (d_rand() - 16384) * F1_0 / 16384;
+    offset.z = (d_rand() - 16384) * F1_0 / 16384;
+    
+    // Test the new position before applying
+    vms_vector test_pos = *pos;
+    vm_vec_add2(&test_pos, &offset);
+    
+    // Only apply offset if it keeps us inside the segment
+    if (!get_seg_masks(&test_pos, segnum, 0, __FILE__, __LINE__).centermask) {
+        *pos = test_pos;
+    }
+    // If offset would put us outside, just use original position
+}
+
 //initialize the player object position & orientation (at start of game, or new ship)
 void InitPlayerPosition(int random)
 {
-	int NewPlayer=0;
+    int NewPlayer = 0;
 
-	if (! ((Game_mode & GM_MULTI) && !(Game_mode&GM_MULTI_COOP)) ) // If not deathmatch
-		NewPlayer = Player_num;
+    // Handle non-deathmatch modes (single player, coop)
+    if (! ((Game_mode & GM_MULTI) && !(Game_mode&GM_MULTI_COOP)) ) {
+        NewPlayer = Player_num;
+    }
 #ifdef NETWORK	
-	else if ((Game_mode & GM_MULTI) && (Netgame.SpawnStyle == SPAWN_STYLE_PREVIEW)  && Dead_player_camera != NULL)
-		NewPlayer = previewed_spawn_point; 
+    // Handle spawn preview mode
+    else if ((Game_mode & GM_MULTI) && (Netgame.SpawnStyle == SPAWN_STYLE_PREVIEW) && Dead_player_camera != NULL) {
+        NewPlayer = previewed_spawn_point; 
+    }
 #endif
-	if (Game_mode & GM_MULTI && Netgame.CTF && flag_bases_initialized) {
-		// CTF spawning - spawn at your team's flag base
-		int team = get_team(Player_num);
-		if (team == TEAM_BLUE && blue_flag_home_seg != -1) {
-			// Blue team spawns at blue flag
-			ConsoleObject->pos = blue_flag_home_pos;
-			obj_relink(ConsoleObject-Objects, blue_flag_home_seg);
-			reset_player_object();
-			reset_cruise();
-			return;
-		} 
-		else if (team == TEAM_RED && red_flag_home_seg != -1) {
-			// Red team spawns at red flag
-			ConsoleObject->pos = red_flag_home_pos;
-			obj_relink(ConsoleObject-Objects, red_flag_home_seg);
+
+    // CTF team spawning logic
+    if (Game_mode & GM_MULTI && Netgame.CTF && flag_bases_initialized) {
+        int team = get_team(Player_num);
+        vms_vector spawn_pos;
+        int spawn_seg;
+        int found_clear_spot = 0;
+        
+        // Determine team spawn location
+        if (team == TEAM_BLUE && blue_flag_home_seg != -1) {
+            spawn_pos = blue_flag_home_pos;
+            spawn_seg = blue_flag_home_seg;
+        } 
+        else if (team == TEAM_RED && red_flag_home_seg != -1) {
+            spawn_pos = red_flag_home_pos;
+            spawn_seg = red_flag_home_seg;
+        }
+        else {
+            // Flag position not set, fall through to normal spawning
+            goto normal_spawning;
+        }
+        
+		// Try exact flag base position first
+		vms_vector test_spawn_pos = spawn_pos;
+		add_random_spawn_offset(&test_spawn_pos, spawn_seg);
+		if (check_spawn_position_clear(&test_spawn_pos, spawn_seg)) {
+			ConsoleObject->pos = test_spawn_pos;
+			obj_relink(ConsoleObject-Objects, spawn_seg);
 			reset_player_object();
 			reset_cruise();
 			return;
 		}
-		// If we get here, one of the flag positions wasn't set yet
-	}
-	else if (random == 1)
-	{
-		int i, trys=0;
-		fix closest_dist = 0x7ffffff, dist;
+        
+        // Flag base occupied, search nearby segments
+        for (int search_dist = 1; search_dist <= 3 && !found_clear_spot; search_dist++) {
+            for (int side = 0; side < MAX_SIDES_PER_SEGMENT; side++) {
+                int child_seg = find_nearby_segment(spawn_seg, search_dist, side);
+                if (child_seg != -1) {
+					// In the nearby segment search loop:
+					vms_vector test_pos;
+					compute_segment_center(&test_pos, &Segments[child_seg]);
+					add_random_spawn_offset(&test_pos, child_seg);
 
-		timer_update();
-		d_srand((fix)timer_query());
-		do {
-			trys++;
-			NewPlayer = d_rand() % NumNetPlayerPositions;
-
-			closest_dist = 0x7fffffff;
-
-			for (i=0; i<N_players; i++ )	{
-				if ( (i!=Player_num) && (Objects[Players[i].objnum].type == OBJ_PLAYER) )	{
-					dist = find_connected_distance(&Objects[Players[i].objnum].pos, Objects[Players[i].objnum].segnum, &Player_init[NewPlayer].pos, Player_init[NewPlayer].segnum, 15, WID_FLY_FLAG ); // Used to be 5, search up to 15 segments // come back for net toggle - code
-					if ( (dist < closest_dist) && (dist >= 0) )	{
-						closest_dist = dist;
+					if (check_spawn_position_clear(&test_pos, child_seg)) {
+						ConsoleObject->pos = test_pos;
+						obj_relink(ConsoleObject-Objects, child_seg);
+						reset_player_object();
+						reset_cruise();
+						return;
 					}
-				}
-			}
-		} while ( (closest_dist<i2f(15*20)) && (trys<MAX_PLAYERS*2) );
-	}
-	else
-	{
-		// If deathmatch and not random, positions were already determined by sync packet
-		reset_player_object();
-		reset_cruise();
-		return;
-	}
+                }
+            }
+        }
+        
+        // Still couldn't find clear spot, use flag base anyway
+        ConsoleObject->pos = spawn_pos;
+        obj_relink(ConsoleObject-Objects, spawn_seg);
+        reset_player_object();
+        reset_cruise();
+        return;
+    }
 
-	Assert(NewPlayer >= 0);
-	Assert(NewPlayer < NumNetPlayerPositions);
-	ConsoleObject->pos = Player_init[NewPlayer].pos;
-	ConsoleObject->orient = Player_init[NewPlayer].orient;
+normal_spawning:
+    // Random deathmatch spawning
+    if (random == 1) {
+        int i, trys = 0;
+        fix closest_dist = 0x7ffffff, dist;
+
+        timer_update();
+        d_srand((fix)timer_query());
+        
+        do {
+            trys++;
+            NewPlayer = d_rand() % NumNetPlayerPositions;
+            closest_dist = 0x7fffffff;
+
+            // Check distance to all other players
+            for (i = 0; i < N_players; i++) {
+                if ((i != Player_num) && (Objects[Players[i].objnum].type == OBJ_PLAYER)) {
+                    dist = find_connected_distance(&Objects[Players[i].objnum].pos, 
+                                                   Objects[Players[i].objnum].segnum, 
+                                                   &Player_init[NewPlayer].pos, 
+                                                   Player_init[NewPlayer].segnum, 
+                                                   15, WID_FLY_FLAG); // Used to be 5, search up to 15 segments
+                    if ((dist < closest_dist) && (dist >= 0)) {
+                        closest_dist = dist;
+                    }
+                }
+            }
+        } while ((closest_dist < i2f(15*20)) && (trys < MAX_PLAYERS*2));
+    }
+    else {
+        // If deathmatch and not random, positions were already determined by sync packet
+        reset_player_object();
+        reset_cruise();
+        return;
+    }
+
+    // Finalize spawn position
+    Assert(NewPlayer >= 0);
+    Assert(NewPlayer < NumNetPlayerPositions);
+    ConsoleObject->pos = Player_init[NewPlayer].pos;
+    ConsoleObject->orient = Player_init[NewPlayer].orient;
+	
 #ifdef NETWORK	
-	if ((Game_mode & GM_MULTI) && (Netgame.SpawnStyle == SPAWN_STYLE_PREVIEW) && Dead_player_camera != NULL) {
-		ConsoleObject->orient = Dead_player_camera->orient;  
-		Dead_player_camera = NULL; 
-	}
+    // Handle spawn preview camera orientation
+    if ((Game_mode & GM_MULTI) && (Netgame.SpawnStyle == SPAWN_STYLE_PREVIEW) && Dead_player_camera != NULL) {
+        ConsoleObject->orient = Dead_player_camera->orient;  
+        Dead_player_camera = NULL; 
+    }
 
-	if (Game_mode & GM_OBSERVER) {
-		ConsoleObject->pos = Objects[Players[Current_obs_player].objnum].pos;
-		ConsoleObject->orient = Objects[Players[Current_obs_player].objnum].orient;
-	}
+    // Handle observer mode
+    if (Game_mode & GM_OBSERVER) {
+        ConsoleObject->pos = Objects[Players[Current_obs_player].objnum].pos;
+        ConsoleObject->orient = Objects[Players[Current_obs_player].objnum].orient;
+    }
 #endif	
-	obj_relink(ConsoleObject-Objects,Player_init[NewPlayer].segnum);
-	reset_player_object();
-	reset_cruise();
+
+    obj_relink(ConsoleObject-Objects, Player_init[NewPlayer].segnum);
+    reset_player_object();
+    reset_cruise();
 }
 
 //	-----------------------------------------------------------------------------------------------------
