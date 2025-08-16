@@ -1642,19 +1642,21 @@ normal_spawning:
             NewPlayer = d_rand() % NumNetPlayerPositions;
             closest_dist = 0x7fffffff;
 
-            // Check distance to all other players
-            for (i = 0; i < N_players; i++) {
-                if ((i != Player_num) && (Objects[Players[i].objnum].type == OBJ_PLAYER)) {
-                    dist = find_connected_distance(&Objects[Players[i].objnum].pos, 
-                                                   Objects[Players[i].objnum].segnum, 
-                                                   &Player_init[NewPlayer].pos, 
-                                                   Player_init[NewPlayer].segnum, 
-                                                   15, WID_FLY_FLAG); // Used to be 5, search up to 15 segments
-                    if ((dist < closest_dist) && (dist >= 0)) {
-                        closest_dist = dist;
-                    }
-                }
-            }
+		for (i = 0; i < N_players; i++) {
+			if ((i != Player_num) && (Objects[Players[i].objnum].type == OBJ_PLAYER)) {
+				// Use Netgame.SmallerSpawn to determine search distance
+				int search_segments = Netgame.SmallerSpawn ? 5 : 15;
+				
+				dist = find_connected_distance(&Objects[Players[i].objnum].pos, 
+											Objects[Players[i].objnum].segnum, 
+											&Player_init[NewPlayer].pos, 
+											Player_init[NewPlayer].segnum, 
+											search_segments, WID_FLY_FLAG);
+				if ((dist < closest_dist) && (dist >= 0)) {
+					closest_dist = dist;
+				}
+			}
+		}
         } while ((closest_dist < i2f(15*20)) && (trys < MAX_PLAYERS*2));
     }
     else {

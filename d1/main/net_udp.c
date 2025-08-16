@@ -2947,6 +2947,7 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid, ubyte
 		buf[len] = Netgame.VulcanShake;			 					len++;
 		buf[len] = Netgame.DarkSmartBlobs;							len++;
 		buf[len] = Netgame.PurpleFlash;			 					len++;
+		buf[len] = Netgame.SmallerSpawn;								len++; 
 		//sng toggles end
 		buf[len] = Netgame.BlackAndWhitePyros; 						len++; 
 		buf[len] = Netgame.SpawnStyle;								len++; 
@@ -3197,6 +3198,7 @@ int net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_a
 		Netgame.VulcanShake = data[len];							len++;
 		Netgame.DarkSmartBlobs = data[len];                    len++;
 		Netgame.PurpleFlash = data[len];							len++;
+		Netgame.SmallerSpawn = data[len];							len++;
 		//sng toggles end
 		Netgame.BlackAndWhitePyros = data[len];				len++; 
 		Netgame.SpawnStyle = data[len];				len++; 
@@ -3696,6 +3698,7 @@ static int opt_spawn_no_invul, opt_spawn_short_invul, opt_spawn_long_invul, opt_
 static int opt_staticfusion, opt_staticvulcan, opt_staticplasma, opt_staticlasers, opt_staticspread, opt_staticmissiles, opt_staticbombs, opt_staticpowerups;
 static int opt_spawnwithfusion, opt_spawnwithvulcan, opt_spawnwithplasma, opt_spawnwithspread, opt_spawnwithlasers, opt_spawnwithsmarts, opt_spawnwithhomers, opt_spawnwithmegas, opt_spawnwithbombs;
 static int opt_scoregoal;
+static int opt_smallerspawn;
 static int opt_deathmatch;
 static int opt_pointcapture;
 static int opt_fasterdoor;
@@ -3896,9 +3899,9 @@ void net_udp_more_game_options ()
 	char PrimDupText[80],SecDupText[80],SecCapText[80]; 
 	char HomingUpdateRateText[80];
 #ifdef USE_TRACKER
-	newmenu_item m[49];
+	newmenu_item m[50];
 #else
- 	newmenu_item m[48];
+ 	newmenu_item m[49];
 #endif
 
 	snprintf(packstring,sizeof(char)*4,"%d",Netgame.PacketsPerSec);
@@ -3959,7 +3962,9 @@ void net_udp_more_game_options ()
 	m[opt].type = NM_TYPE_RADIO; m[opt].text = "Two Second Invuln"; m[opt].value = Netgame.SpawnStyle == SPAWN_STYLE_LONG_INVUL; m[opt].group = 0; opt++;
 	opt_spawn_preview = opt; 
 	m[opt].type = NM_TYPE_RADIO; m[opt].text = "Preview"; m[opt].value = Netgame.SpawnStyle == SPAWN_STYLE_PREVIEW; m[opt].group = 0; opt++;
-		
+	opt_smallerspawn = opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Smaller map spawning"; m[opt].value = Netgame.SmallerSpawn; opt++;	
+
 
 	m[opt].type = NM_TYPE_TEXT; m[opt].text = ""; opt++;
 
@@ -4121,6 +4126,7 @@ menu:
 	Netgame.PurpleFlash = m[opt_purpleflash].value;
 	Netgame.BlackAndWhitePyros  = m[opt_blackwhite].value;
 	Netgame.DarkSmartBlobs = m[opt_dark_smarts].value;
+	Netgame.SmallerSpawn = m[opt_smallerspawn].value;
 	Netgame.LowVulcan = m[opt_low_vulcan].value;
 	Netgame.AllowPreferredColors = m[opt_allowprefcolor].value;
 	Netgame.HomingUpdateRate = m[opt_homing_update_rate].value + 15;
@@ -4449,6 +4455,7 @@ int net_udp_setup_game()
 		snprintf (UDP_MyPort, sizeof(UDP_MyPort), "%d", UDP_PORT_DEFAULT);
 	Netgame.BrightPlayers = 1;
 	Netgame.SpawnStyle = SPAWN_STYLE_PREVIEW;
+	Netgame.SpawnStyle = 1;
 	Netgame.AllowedItems = 0;
 	Netgame.AllowedItems |= NETFLAG_DOPOWERUP;
 	Netgame.PacketLossPrevention = 1;
@@ -4481,6 +4488,7 @@ int net_udp_setup_game()
 	Netgame.VulcanShake = 0;
 	Netgame.QuietFan = 0;
 	Netgame.PurpleFlash = 0;
+	Netgame.SmallerSpawn = 1;
 	Netgame.PointCapture = 0;
 	Netgame.FastDoor = 0;
 	Netgame.DarkSmartBlobs = 0;
