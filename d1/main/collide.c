@@ -1267,8 +1267,8 @@ void drop_player_eggs_remote(object *playerobj, ubyte remote)
 			}
 		}
 
-		//	Always drop a shield and energy powerup.
-		if (Game_mode & GM_MULTI) {
+		//	Always drop a shield and energy powerup. except for CTF/Static Weapons
+		if ((Game_mode & GM_MULTI) && !(Netgame.CTF || Netgame.StaticPowerups)) {
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_SHIELD_BOOST);
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_ENERGY);
 		}

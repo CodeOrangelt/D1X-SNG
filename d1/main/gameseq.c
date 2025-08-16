@@ -106,6 +106,12 @@ void copy_defaults_to_robot_all(void);
 int AdvanceLevel(int secret_flag);
 void StartLevel(int random);
 
+vms_vector blue_flag_home_pos;
+short blue_flag_home_seg = -1;
+vms_vector red_flag_home_pos;
+short red_flag_home_seg = -1;
+int flag_bases_initialized = 0;
+
 //Current_level_num starts at 1 for the first level
 //-1,-2,-3 are secret levels
 //0 means not a real level loaded
@@ -1215,6 +1221,34 @@ void DoPlayerDead()
 
 }
 
+void init_flag_bases(void)
+{
+    if (!(Game_mode & GM_MULTI && Netgame.CTF))
+        return;
+        
+    // Reset flag state tracking variables
+    blue_flag_home_seg = -1;
+    red_flag_home_seg = -1;
+    flag_bases_initialized = 0;
+    
+    // Search for the flag objects in the level to get their initial positions
+    for (int i = 0; i <= Highest_object_index; i++) {
+        if (Objects[i].type == OBJ_POWERUP) {
+            if (Objects[i].id == POW_KEY_BLUE) {
+                blue_flag_home_pos = Objects[i].pos;
+                blue_flag_home_seg = Objects[i].segnum;
+            }
+            else if (Objects[i].id == POW_KEY_RED) {
+                red_flag_home_pos = Objects[i].pos;
+                red_flag_home_seg = Objects[i].segnum;
+            }
+        }
+    }
+    
+    if (blue_flag_home_seg != -1 && red_flag_home_seg != -1)
+        flag_bases_initialized = 1;
+}
+
 //called when the player is starting a new level for normal game mode and restore state
 void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 {
@@ -1241,6 +1275,10 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 
 	gameseq_init_network_players(); // Initialize the Players array for
 	// this level
+
+	    // Initialize flag positions for CTF mode
+    if (Game_mode & GM_MULTI && Netgame.CTF)
+        init_flag_bases();
 
 	// Disable powerups that players spawn with
 	#ifdef NETWORK
@@ -1410,6 +1448,27 @@ void InitPlayerPosition(int random)
 	else if ((Game_mode & GM_MULTI) && (Netgame.SpawnStyle == SPAWN_STYLE_PREVIEW)  && Dead_player_camera != NULL)
 		NewPlayer = previewed_spawn_point; 
 #endif
+	if (Game_mode & GM_MULTI && Netgame.CTF && flag_bases_initialized) {
+		// CTF spawning - spawn at your team's flag base
+		int team = get_team(Player_num);
+		if (team == TEAM_BLUE && blue_flag_home_seg != -1) {
+			// Blue team spawns at blue flag
+			ConsoleObject->pos = blue_flag_home_pos;
+			obj_relink(ConsoleObject-Objects, blue_flag_home_seg);
+			reset_player_object();
+			reset_cruise();
+			return;
+		} 
+		else if (team == TEAM_RED && red_flag_home_seg != -1) {
+			// Red team spawns at red flag
+			ConsoleObject->pos = red_flag_home_pos;
+			obj_relink(ConsoleObject-Objects, red_flag_home_seg);
+			reset_player_object();
+			reset_cruise();
+			return;
+		}
+		// If we get here, one of the flag positions wasn't set yet
+	}
 	else if (random == 1)
 	{
 		int i, trys=0;
