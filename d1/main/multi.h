@@ -484,6 +484,7 @@ typedef struct netgame_info
 	ubyte						PurpleFlash;
 	ubyte   					CTF;
 	ubyte						SmallerSpawn;
+	ubyte						WeaponStun;
 	ubyte						QuietFan;
 	ubyte						FusionShake;
 	ubyte						VulcanShake;

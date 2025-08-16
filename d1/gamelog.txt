@@ -1,20 +1,59 @@
-02:31:01 D1X SNG 1.7.7  Aug 17 2025 02:04:36
-02:31:01 This is a MODIFIED version of Descent, based on Fork by Code.
-02:31:01 Copyright (C) 1994, 1995 Parallax Software Corporation
+02:51:23 D1X SNG 1.7.7  Aug 17 2025 02:04:36
+02:51:23 This is a MODIFIED version of Descent, based on Fork by Code.
+02:51:23 Copyright (C) 1994, 1995 Parallax Software Corporation
 DESCENT is a trademark of Interplay Productions, Inc.
-02:31:01 Copyright (C) 2005-2011 Christian Beckhaeuser
+02:51:23 Copyright (C) 2005-2011 Christian Beckhaeuser
 
-02:31:01 Using SDL_mixer library
-02:31:02 sdl-joystick: found 0 joysticks
-02:31:37 Homing update rate: 25
-02:31:45 Laser boosted to 2
-02:31:45 Laser boosted to 3
-02:31:45 Laser boosted to 4
-02:31:45 Your Laser is maxed out!
-02:31:45 Quad Lasers!
-02:31:45 Laser Cannon!
-02:31:45 You already have Quad Lasers!
-02:31:47 You took 0.4 damage from hitting a wall!
-02:31:47 You took 0.6 damage from hitting a wall!
-02:31:52 No secondary weapons available!
-02:31:57 demos/code_ANARCHY_PyroFact.dem does not exist!02:31:57 Demo saved as tmpdemo.dem
+02:51:23 Using SDL_mixer library
+02:51:23 sdl-joystick: found 0 joysticks
+02:52:27 Homing update rate: 25
+02:52:29 Homing Missile!
+02:52:33 Plasma Cannon!
+02:52:33 You already have the Plasma Cannon!
+02:52:33 You took 0.4 damage from hitting a wall!
+02:52:36 You took 0.3 damage from hitting a wall!
+02:52:37 Smart Missile!
+02:52:38 Fusion Cannon!
+02:52:38 You already have the Fusion Cannon!
+02:52:38 Laser boosted to 2
+02:52:38 Laser boosted to 3
+02:52:38 Laser boosted to 4
+02:52:38 Your Laser is maxed out!
+02:52:38 Quad Lasers!
+02:52:38 Laser Cannon!
+02:52:38 You already have Quad Lasers!
+02:52:40 Smart Missile!
+02:52:43 Homing Missile!
+02:52:45 You took 0.4 damage from hitting a wall!
+02:52:46 You took 0.3 damage from hitting a wall!
+02:52:47 Your Laser is maxed out!
+02:52:47 You already have the Fusion Cannon!
+02:52:48 Laser Cannon selected!
+
+02:52:48 Vulcan Cannon!
+02:52:48 You already have the Vulcan Cannon!
+02:52:48 Spreadfire Cannon!
+02:52:48 You already have the Spreadfire Cannon!
+02:52:50 You already have Quad Lasers!
+02:52:51 Vulcan Cannon selected!
+
+02:52:55 You took 0.4 damage from hitting a wall!
+02:53:01 4 Proximity Bombs!
+02:53:01 Smart Missile!
+02:53:01 You took 8.8 damage from code's smart blast!
+02:53:03 4 Proximity Bombs!
+02:53:03 You took 9.0 damage from code's smart blast!
+02:53:04 The other team has been alerted!
+
+02:53:06 Smart Missile!
+02:53:06 You took 8.5 damage from code's smart blast!
+02:53:07 You took 12.9 damage from code's smart blast!
+02:53:10 demos/code_ANARCHY_PyroFact.dem does not exist!02:53:10 Demo saved as tmpdemo.dem
+02:53:15 Homing update rate: 25
+02:53:17 demos/code_ANARCHY_PyroFact.dem does not exist!02:53:18 Demo saved as tmpdemo.dem
+02:53:22 Homing update rate: 25
+02:53:23 demos/code_ANARCHY_PyroFact.dem does not exist!02:53:23 Demo saved as tmpdemo.dem
+02:53:30 Homing update rate: 25
+02:53:33 demos/code_ANARCHY_PyroFact.dem does not exist!02:53:33 Demo saved as tmpdemo.dem
+02:53:34 Dropped UPID_GAME_INFO_LITE_REQ: received by non-game master
+02:53:34 Dropped pid UPID_GAME_INFO_LITE_REQ: failed security checks.

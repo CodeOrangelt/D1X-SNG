@@ -1485,7 +1485,13 @@ void collide_player_and_weapon( object * player, object * weapon, vms_vector *co
 
 	maybe_kill_weapon(weapon,player);
 
-	bump_two_objects(player, weapon, 0);	//no damage from bump
+	if(Netgame.WeaponStun) {
+		// NO BUMP -- code.
+	}
+	else {
+		bump_two_objects(player, weapon, 0);	//no damage from bump
+
+	}
 
 	if ( !Weapon_info[weapon->id].damage_radius ) {
 		if ( weapon->ctype.laser_info.parent_num > -1 )
