@@ -1929,6 +1929,8 @@ multi_do_player_explode(const ubyte* buf)
 	remote_created = buf[count++]; // How many did the other guy create?
 	Net_create_loc = 0;
 
+	drop_player_eggs_remote(objp, 1);
+
 	// Create mapping from remote to local numbering system
 
 	// We now handle this situation gracefully, Int3 not required
