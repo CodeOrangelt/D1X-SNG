@@ -90,3 +90,6 @@ d1/netlog.txt
 *.txt
 d1/gamelog.txt
 *.txt
+d1/netlog.txt
+d1/descent.cfg
+d1/d1x.ini

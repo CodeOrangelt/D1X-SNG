@@ -66,7 +66,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "vers_id.h"
 #ifdef USE_UDP
-#include "net_udp.h"
+#include "net_udp.h" 
 #endif
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -104,7 +104,8 @@ enum MENUS
     MENU_START_UDP_NETGAME,
     MENU_JOIN_MANUAL_UDP_NETGAME,
     MENU_JOIN_LIST_UDP_NETGAME,
-    #endif
+	MENU_DXMA_MISSIONS,
+	#endif
     #ifndef RELEASE
     MENU_SANDBOX
     #endif
@@ -115,18 +116,434 @@ enum MENUS
 
 #define ADD_ITEM(t,value,key)  do { m[num_options].type=NM_TYPE_MENU; m[num_options].text=t; menu_choice[num_options]=value;num_options++; } while (0)
 
-static window *menus[16] = { NULL };
+#define MAX_DXMA_MISSIONS 3000
+#define DXMA_CSV_FILE "dxma_missions_complete_with_direct_links.csv"
 
-// Function Prototypes added after LINTING
+typedef struct {
+    char id[16];
+    char title[128];
+    char author[64];
+    char mode[32];
+    char download_url[512];
+} dxma_mission_info;
+
+typedef struct {
+    int start_index;
+    int missions_per_page;
+    int total_missions;
+    int current_page;
+    int total_pages;
+} dxma_page_info;
+
+static dxma_page_info page_state = {0};
+static dxma_mission_info dxma_missions[MAX_DXMA_MISSIONS];
+static int dxma_mission_count = 0;
+static window *menus[16] = { NULL }; 
+static char *ljtext;
+
 int do_option(int select);
 int do_new_game_menu(void);
 void do_multi_player_menu();
+void dxma_missions_menu(void);  
 #ifndef RELEASE
 void do_sandbox_menu();
 #endif
 extern void newmenu_free_background();
 extern void ReorderPrimary();
 extern void ReorderSecondary();
+
+static int parse_csv_line(char *line, dxma_mission_info *mission)
+{
+    char *token;
+    int field = 0;
+    char *saveptr = NULL;
+    char game_type[8] = {0}; 
+    
+    if (!line || line[0] == '\0' || line[0] == '\n')
+        return 0;
+    
+    if (strstr(line, "id,title,mode,game"))
+        return 0;
+    
+    token = strtok_r(line, ",", &saveptr);
+    
+    while (token != NULL && field < 10)
+    {
+        if (token[0] == '"')
+        {
+            token++;
+            char *end = strrchr(token, '"');
+            if (end) *end = '\0';
+        }
+        
+        switch (field)
+        {
+            case 0: strncpy(mission->id, token, sizeof(mission->id) - 1); mission->id[sizeof(mission->id) - 1] = '\0'; break;
+            case 1: strncpy(mission->title, token, sizeof(mission->title) - 1); mission->title[sizeof(mission->title) - 1] = '\0'; break;
+            case 2: strncpy(mission->mode, token, sizeof(mission->mode) - 1); mission->mode[sizeof(mission->mode) - 1] = '\0'; break;
+            case 3: strncpy(game_type, token, sizeof(game_type) - 1); game_type[sizeof(game_type) - 1] = '\0'; break;
+            case 5: strncpy(mission->author, token, sizeof(mission->author) - 1); mission->author[sizeof(mission->author) - 1] = '\0'; break;
+            case 8: strncpy(mission->download_url, token, sizeof(mission->download_url) - 1); mission->download_url[sizeof(mission->download_url) - 1] = '\0'; break;
+        }
+        
+        token = strtok_r(NULL, ",", &saveptr);
+        field++;
+    }
+    
+    if (strcmp(game_type, "D1") != 0)
+        return 0;
+    
+    return (mission->id[0] && mission->title[0] && mission->download_url[0]);
+}
+
+static int compare_missions(const void *a, const void *b)
+{
+    const dxma_mission_info *mission_a = (const dxma_mission_info *)a;
+    const dxma_mission_info *mission_b = (const dxma_mission_info *)b;
+    return d_stricmp(mission_a->title, mission_b->title);
+}
+
+static int load_dxma_missions_from_csv(void)
+{
+    FILE *fp;
+    char line[2048];
+    int loaded = 0;
+    int i;
+    
+    dxma_mission_count = 0;
+    
+    const char *paths[] = {
+        DXMA_CSV_FILE,
+        "missions/" DXMA_CSV_FILE,
+        "../" DXMA_CSV_FILE,
+        NULL
+    };
+    
+    fp = NULL;
+    for (i = 0; paths[i] != NULL && !fp; i++)
+    {
+        fp = fopen(paths[i], "r");
+    }
+    
+    if (!fp)
+        return 0;
+    
+    while (fgets(line, sizeof(line), fp) && dxma_mission_count < MAX_DXMA_MISSIONS)
+    {
+        line[strcspn(line, "\r\n")] = '\0';
+        
+        if (parse_csv_line(line, &dxma_missions[dxma_mission_count]))
+        {
+            dxma_mission_count++;
+            loaded++;
+        }
+    }
+    
+    fclose(fp);
+    
+    if (dxma_mission_count > 0)
+        qsort(dxma_missions, dxma_mission_count, sizeof(dxma_mission_info), compare_missions);
+    
+    return loaded;
+}
+
+static int unzip_mission_file(const char *zip_path)
+{
+    char cmd[1024];
+    char extract_dir[PATH_MAX];
+    char *filename, *dot;
+    
+    filename = strrchr(zip_path, '/');
+    if (!filename) filename = strrchr(zip_path, '\\');
+    if (!filename) filename = (char*)zip_path;
+    else filename++;
+    
+    strncpy(extract_dir, zip_path, sizeof(extract_dir) - 1);
+    extract_dir[sizeof(extract_dir) - 1] = '\0';
+    
+    dot = strrchr(extract_dir, '.');
+    if (dot && d_stricmp(dot, ".zip") == 0)
+        *dot = '\0';
+    
+#ifdef _WIN32
+    snprintf(cmd, sizeof(cmd), 
+        "powershell -Command \"Expand-Archive -Path '%s' -DestinationPath '%s' -Force\"", 
+        zip_path, extract_dir);
+#else
+    snprintf(cmd, sizeof(cmd), 
+        "unzip -o '%s' -d '%s' 2>/dev/null", 
+        zip_path, extract_dir);
+#endif
+    
+    return (system(cmd) == 0);
+}
+
+static int download_dxma_mission_static(int mission_index)
+{
+    char cmd[1024];
+    char dest_path[PATH_MAX];
+    char filename[256];
+    const char *download_url;
+    int success = 0;
+    int is_zip = 0;
+    char *ext;
+    
+    if (mission_index < 0 || mission_index >= dxma_mission_count)
+        return 0;
+    
+    download_url = dxma_missions[mission_index].download_url;
+    
+    if (!download_url[0])
+        return 0;
+    
+    const char *last_slash = strrchr(download_url, '/');
+    if (!last_slash)
+        return 0;
+    
+    strncpy(filename, last_slash + 1, sizeof(filename) - 1);
+    filename[sizeof(filename) - 1] = '\0';
+
+#ifdef _WIN32
+    CreateDirectoryA("missions", NULL);
+#else
+    mkdir("missions", 0755);
+#endif
+    
+    snprintf(dest_path, sizeof(dest_path), "missions/%s", filename);
+    
+    ext = strrchr(filename, '.');
+    is_zip = (ext && d_stricmp(ext, ".zip") == 0);
+    
+#ifdef _WIN32
+    snprintf(cmd, sizeof(cmd), 
+        "powershell -Command \"Invoke-WebRequest -Uri '%s' -OutFile '%s' -UseBasicParsing\"", 
+        download_url, dest_path);
+#else
+    snprintf(cmd, sizeof(cmd), 
+        "wget --no-check-certificate -O '%s' '%s' 2>/dev/null || curl -L -k -o '%s' '%s' 2>/dev/null", 
+        dest_path, download_url, dest_path, download_url);
+#endif
+    
+    success = (system(cmd) == 0);
+    
+    if (success && is_zip)
+        success = unzip_mission_file(dest_path);
+    
+    return success;
+}
+
+static int dxma_initial_selection = 2; 
+
+int dxma_mission_menu_handler_static(newmenu *menu, d_event *event, void *userdata)
+{
+    int citem = newmenu_get_citem(menu);
+    newmenu_item *items = newmenu_get_items(menu);
+    
+    switch (event->type)
+    {
+        case EVENT_KEY_COMMAND:
+        {
+            int key = event_key_get(event);
+            int ascii = key_ascii();
+            
+            switch (key)
+            {
+                case KEY_LEFT:
+                case KEY_PAGEUP:
+                    if (page_state.current_page > 0)
+                    {
+                        page_state.current_page--;
+                        page_state.start_index = page_state.current_page * page_state.missions_per_page;
+                        window_close(newmenu_get_window(menu));
+                        dxma_missions_menu();
+                        return 1;
+                    }
+                    break;
+                    
+                case KEY_RIGHT:
+                case KEY_PAGEDOWN:
+                    if (page_state.current_page < page_state.total_pages - 1)
+                    {
+                        page_state.current_page++;
+                        page_state.start_index = page_state.current_page * page_state.missions_per_page;
+                        window_close(newmenu_get_window(menu));
+                        dxma_missions_menu();
+                        return 1;
+                    }
+                    break;
+            }
+            
+            if (ascii >= 32 && ascii < 255)
+            {
+                int search_char = toupper(ascii);
+                dxma_mission_info temp;
+                int i;
+                int found_any = 0;
+                int first_pos = 0;
+                
+                for (i = 0; i < dxma_mission_count; i++)
+                {
+                    if (toupper(dxma_missions[i].title[0]) == search_char)
+                    {
+                        if (!found_any)
+                        {
+                            if (i != 0)
+                            {
+                                memcpy(&temp, &dxma_missions[i], sizeof(dxma_mission_info));
+                                memcpy(&dxma_missions[i], &dxma_missions[0], sizeof(dxma_mission_info));
+                                memcpy(&dxma_missions[0], &temp, sizeof(dxma_mission_info));
+                            }
+                        }
+                        else
+                        {
+                            if (i != first_pos + 1)
+                            {
+                                memcpy(&temp, &dxma_missions[i], sizeof(dxma_mission_info));
+                                memmove(&dxma_missions[first_pos + 1], &dxma_missions[first_pos], sizeof(dxma_mission_info) * (i - first_pos));
+                                memcpy(&dxma_missions[first_pos + 1], &temp, sizeof(dxma_mission_info));
+                            }
+                        }
+                        found_any = 1;
+                        first_pos++;
+                    }
+                }
+
+                if (found_any)
+                {
+                    page_state.current_page = 0;
+                    page_state.start_index = 0;
+                    dxma_initial_selection = 2;
+                    window_close(newmenu_get_window(menu));
+                    dxma_missions_menu();
+                }
+                return 1;
+            }
+            break;
+        }
+
+        case EVENT_NEWMENU_SELECTED:
+        {
+            if (citem < 2) return 1;
+            
+            if (items[citem].type != NM_TYPE_MENU) return 1;
+            
+            int mission_index = (citem - 2) + page_state.start_index;
+            
+            if (mission_index >= 0 && mission_index < dxma_mission_count)
+            {
+                if (download_dxma_mission_static(mission_index))
+                {
+                    nm_messagebox(NULL, 1, "OK", 
+                        "Mission downloaded!\n\n%s\n\nSaved to missions folder.",
+                        dxma_missions[mission_index].title);
+                }
+                else
+                {
+                    nm_messagebox(NULL, 1, "OK", 
+                        "Download failed!\n\nCheck internet connection.");
+                }
+            }
+            return 1;
+        }
+            
+        case EVENT_WINDOW_CLOSE:
+            if (ljtext) d_free(ljtext);
+            if (userdata) d_free(userdata);
+            break;
+            
+        default:
+            break;
+    }
+    
+    return 0;
+}
+
+void dxma_missions_menu(void)
+{
+    int i;
+    newmenu_item *m;
+    int loaded = load_dxma_missions_from_csv();
+    int missions_per_page = 60;
+    int missions_on_page;
+    int menu_items_needed;
+    
+    if (loaded == 0)
+    {
+        nm_messagebox(NULL, 1, "OK", 
+            "Could not load mission database.\n\n"
+            "Make sure '%s'\n"
+            "is in the game directory.", DXMA_CSV_FILE);
+        return;
+    }
+
+    if (page_state.total_missions != dxma_mission_count)
+    {
+        page_state.missions_per_page = missions_per_page;
+        page_state.total_missions = dxma_mission_count;
+        page_state.total_pages = (dxma_mission_count + missions_per_page - 1) / missions_per_page;
+        if (page_state.current_page >= page_state.total_pages)
+            page_state.current_page = 0;
+        page_state.start_index = page_state.current_page * missions_per_page;
+        dxma_initial_selection = 2;
+    }
+
+    missions_on_page = missions_per_page;
+    if (page_state.start_index + missions_on_page > dxma_mission_count)
+        missions_on_page = dxma_mission_count - page_state.start_index;
+
+    menu_items_needed = 2 + missions_per_page;
+
+    MALLOC(m, newmenu_item, menu_items_needed);
+    if (!m) return;
+    
+    MALLOC(ljtext, char, menu_items_needed * 100);
+    if (!ljtext) { d_free(m); return; }
+
+    memset(m, 0, sizeof(newmenu_item) * menu_items_needed);
+    gr_set_fontcolor(BM_XRGB(15,15,23), -1);
+
+    m[0].text = ljtext;
+    m[0].type = NM_TYPE_TEXT;
+    snprintf(m[0].text, 100, "Left/Right: Up/Down a Page - Page %d/%d (%d-%d of %d)                      \n", 
+             page_state.current_page + 1, page_state.total_pages,
+             page_state.start_index + 1, page_state.start_index + missions_on_page,
+             page_state.total_missions);
+    
+    m[1].text = ljtext + 100;
+    m[1].type = NM_TYPE_TEXT;
+    snprintf(m[1].text, 100, "#\tTitle\t\t\tMode\tAuthor\n");
+
+    for (i = 0; i < missions_per_page; i++)
+    {
+        m[i+2].text = ljtext + 100 * (i+2);
+        
+        if (i < missions_on_page)
+        {
+            int mission_idx = page_state.start_index + i;
+            
+            m[i+2].type = NM_TYPE_MENU;
+            
+            snprintf(m[i+2].text, 100, "%d  \t%.18s\t\t\t%.6s\t%.12s", 
+                    mission_idx + 1,
+                    dxma_missions[mission_idx].title,
+                    dxma_missions[mission_idx].mode,
+                    dxma_missions[mission_idx].author);
+        }
+        else
+        {
+            m[i+2].type = NM_TYPE_TEXT;
+            strcpy(m[i+2].text, " ");
+        }
+    }
+
+    if (dxma_initial_selection >= missions_on_page + 2)
+        dxma_initial_selection = 2;
+
+    newmenu_dotiny("DXMA MISSIONS", NULL, menu_items_needed, m, 1, 
+                   (int (*)(newmenu *, d_event *, void *))dxma_mission_menu_handler_static, NULL);
+                
+    dxma_initial_selection = 2;
+}
 
 // Hide all menus
 int hide_menus(void)
@@ -534,84 +951,89 @@ extern void show_order_form(void);	// John didn't want this in inferno.h so I ju
 //returns flag, true means quit menu
 int do_option ( int select)
 {
-	switch (select) {
-		case MENU_NEW_GAME:
-			select_mission(0, "New Game\n\nSelect mission", do_new_game_menu);
-			break;
-		case MENU_GAME:
-			break;
-		case MENU_DEMO_PLAY:
-			select_demo();
-			break;
-		case MENU_LOAD_GAME:
-			state_restore_all(0);
-			break;
-		#ifdef EDITOR
-		case MENU_EDITOR:
-			if (!Current_mission)
-			{
-				create_new_mine();
-				SetPlayerFromCurseg();
-			}
+    switch (select) {
+        case MENU_NEW_GAME:
+            select_mission(0, "New Game\n\nSelect mission", do_new_game_menu);
+            break;
+        case MENU_GAME:
+            break;
+        case MENU_DEMO_PLAY:
+            select_demo();
+            break;
+        case MENU_LOAD_GAME:
+            state_restore_all(0);
+            break;
+        #ifdef EDITOR
+        case MENU_EDITOR:
+            if (!Current_mission)
+            {
+                create_new_mine();
+                SetPlayerFromCurseg();
+            }
 
-			hide_menus();
-			init_editor();
-			break;
-		#endif
-		case MENU_VIEW_SCORES:
-			scores_view(NULL, -1);
-			break;
+            hide_menus();
+            init_editor();
+            break;
+        #endif
+        case MENU_VIEW_SCORES:
+            scores_view(NULL, -1);
+            break;
 #if 1 //def SHAREWARE
-		case MENU_ORDER_INFO:
-			show_order_form();
-			break;
+        case MENU_ORDER_INFO:
+            show_order_form();
+            break;
 #endif
-		case MENU_QUIT:
-			#ifdef EDITOR
-			if (! SafetyCheck()) break;
-			#endif
-			return 0;
+        case MENU_QUIT:
+            #ifdef EDITOR
+            if (! SafetyCheck()) break;
+            #endif
+            return 0;
 
-		case MENU_NEW_PLAYER:
-			RegisterPlayer();
-			break;
+        case MENU_NEW_PLAYER:
+            RegisterPlayer();
+            break;
 
-#ifdef USE_UDP
-		case MENU_START_UDP_NETGAME:
-			multi_protocol = MULTI_PROTO_UDP;
-			select_mission(1, TXT_MULTI_MISSION, net_udp_setup_game);
-			break;
-		case MENU_JOIN_MANUAL_UDP_NETGAME:
-			multi_protocol = MULTI_PROTO_UDP;
-			net_udp_manual_join_game();
-			break;
-		case MENU_JOIN_LIST_UDP_NETGAME:
-			multi_protocol = MULTI_PROTO_UDP;
-			net_udp_list_join_game();
-			break;
-#endif
-#if defined(USE_UDP)
-		case MENU_MULTIPLAYER:
-			do_multi_player_menu();
-			break;
-#endif
-		case MENU_CONFIG:
-			do_options_menu();
-			break;
-		case MENU_SHOW_CREDITS:
-			credits_show(NULL);
-			break;
+        #ifdef USE_UDP
+        case MENU_START_UDP_NETGAME:
+            multi_protocol = MULTI_PROTO_UDP;
+            select_mission(1, TXT_MULTI_MISSION, net_udp_setup_game);
+            break;
+        case MENU_JOIN_MANUAL_UDP_NETGAME:
+            multi_protocol = MULTI_PROTO_UDP;
+            net_udp_manual_join_game();
+            break;
+        case MENU_JOIN_LIST_UDP_NETGAME:
+            multi_protocol = MULTI_PROTO_UDP;
+            net_udp_list_join_game();
+            break;
+        case MENU_DXMA_MISSIONS:
+            dxma_missions_menu();
+            break;
+        #endif
+        
+        #if defined(USE_UDP)
+        case MENU_MULTIPLAYER:
+            do_multi_player_menu();
+            break;
+        #endif
+        
+        case MENU_CONFIG:
+            do_options_menu();
+            break;
+        case MENU_SHOW_CREDITS:
+            credits_show(NULL);
+            break;
 #ifndef RELEASE
-		case MENU_SANDBOX:
-			do_sandbox_menu();
-			break;
+        case MENU_SANDBOX:
+            do_sandbox_menu();
+            break;
 #endif
-		default:
-			Error("Unknown option %d in do_option",select);
-			break;
-	}
+        default:
+            Error("Unknown option %d in do_option",select);
+            break;
+    }
 
-	return 1;		// stay in main menu unless quitting
+    return 1;		// stay in main menu unless quitting
 }
 
 void delete_player_saved_games(char * name)
@@ -1923,8 +2345,6 @@ void do_sound_menu()
 
 #define ADD_CHECK(n,txt,v)  do { m[n].type=NM_TYPE_CHECK; m[n].text=txt; m[n].value=v;} while (0)
 
-int menu_misc_options_handler ( newmenu *menu, d_event *event, void *userdata );
-
 void print_ship_color(char* color_string, int color_value) {
 	char color[10];
 	switch(color_value) {
@@ -1933,7 +2353,7 @@ void print_ship_color(char* color_string, int color_value) {
 		case 2:  sprintf(color, "%s", "Green"); break;
 		case 3:  sprintf(color, "%s", "Pink"); break;
 		case 4:  sprintf(color, "%s", "Orange"); break;
-		case 5:  sprintf(color, "%s", "Purple"); break;
+		case 5:  sprintf(color, "%s", "Purple"); break; 
 		case 6:  sprintf(color, "%s", "White"); break;
 		case 7:  sprintf(color, "%s", "Yellow"); break;
 		case 8:  sprintf(color, "%s", "None"); break;
@@ -1959,6 +2379,26 @@ void print_missile_color(char* color_string, int color_value) {
 	}
 
 	sprintf( color_string, "Missiles/Guns: %s", color);
+}
+
+int menu_misc_options_handler ( newmenu *menu, d_event *event, void *userdata )
+{
+	
+	newmenu_item *menus = newmenu_get_items(menu);
+	int citem = newmenu_get_citem(menu);
+	
+	if (event->type == EVENT_NEWMENU_CHANGED)
+	{
+		if (citem == 14) {
+			PlayerCfg.ShipColor = menus[14].value;
+			print_ship_color(menus[14].text, PlayerCfg.ShipColor);			
+		} else if (citem == 15) {
+			PlayerCfg.MissileColor = menus[15].value;
+			print_missile_color(menus[15].text, PlayerCfg.MissileColor);			
+		}		
+	}
+	
+	return 0;
 }
 
 void do_misc_menu()
@@ -2023,68 +2463,42 @@ void do_misc_menu()
 
 }
 
-int menu_misc_options_handler ( newmenu *menu, d_event *event, void *userdata )
-{
-	
-	newmenu_item *menus = newmenu_get_items(menu);
-	int citem = newmenu_get_citem(menu);
-	
-	if (event->type == EVENT_NEWMENU_CHANGED)
-	{
-		if (citem == 14) {
-			PlayerCfg.ShipColor = menus[14].value;
-			print_ship_color(menus[14].text, PlayerCfg.ShipColor);			
-		} else if (citem == 15) {
-			PlayerCfg.MissileColor = menus[15].value;
-			print_missile_color(menus[15].text, PlayerCfg.MissileColor);			
-		}		
-	}
-	
-	return 0;
-}
+// Replace lines 2310-2312 with:
 
-int menu_obs_options_handler ( newmenu *menu, d_event *event, void *userdata );
+static int menu_obs_options_handler ( newmenu *menu, d_event *event, void *userdata )
+{
+    /*
+    newmenu_item *menus = newmenu_get_items(menu);
+    int citem = newmenu_get_citem(menu);
+    
+    if (event->type == EVENT_NEWMENU_CHANGED)
+    {
+        // Handle observer options changes if needed
+    }
+    */
+    return 0;
+}
 
 void do_obs_menu()
 {
-	newmenu_item m[3];
-	int i = 0;
+    newmenu_item m[3];
+    int i = 0;
 
-	do {
-		ADD_CHECK(0, "Fly Fast",          PlayerCfg.ObsTurbo);
-		ADD_CHECK(1, "Show Player Names", PlayerCfg.ObsShowNames);
-		ADD_CHECK(2, "List observers",    PlayerCfg.ObsShowObs);
+    do {
+        ADD_CHECK(0, "Fly Fast",          PlayerCfg.ObsTurbo);
+        ADD_CHECK(1, "Show Player Names", PlayerCfg.ObsShowNames);
+        ADD_CHECK(2, "List observers",    PlayerCfg.ObsShowObs);
 
-		i = newmenu_do1( NULL, "JinX Mode Options", sizeof(m)/sizeof(*m), m, menu_obs_options_handler, NULL, i );
+        i = newmenu_do1( NULL, "JinX Mode Options", sizeof(m)/sizeof(*m), m, menu_obs_options_handler, NULL, i );
 
-		PlayerCfg.ObsTurbo			= m[0].value;
-		PlayerCfg.ObsShowNames		= m[1].value;
-		PlayerCfg.ObsShowObs 		= m[2].value;
+        PlayerCfg.ObsTurbo			= m[0].value;
+        PlayerCfg.ObsShowNames		= m[1].value;
+        PlayerCfg.ObsShowObs 		= m[2].value;
 
-	} while( i>-1 );
-
+    } while( i>-1 );
 }
 
 
-int menu_obs_options_handler ( newmenu *menu, d_event *event, void *userdata )
-{
-	/*
-	newmenu_item *menus = newmenu_get_items(menu);
-	int citem = newmenu_get_citem(menu);
-	
-	if (event->type == EVENT_NEWMENU_CHANGED)
-	{
-		if (citem == 14) {
-			PlayerCfg.ShipColor = menus[14].value;
-			print_ship_color(menus[14].text, PlayerCfg.ShipColor);			
-		} else if (citem == 15) {
-			PlayerCfg.MissileColor = menus[15].value;
-			print_missile_color(menus[15].text, PlayerCfg.MissileColor);			
-		}		
-	}
-	*/ 
-	return 0;
-}
 
 #if defined(USE_UDP)
 static int multi_player_menu_handler(newmenu *menu, d_event *event, int *menu_choice)
@@ -2115,11 +2529,11 @@ void do_multi_player_menu()
 	newmenu_item *m;
 	int num_options = 0;
 
-	MALLOC(menu_choice, int, 3);
+	MALLOC(menu_choice, int, 4);
 	if (!menu_choice)
 		return;
 
-	MALLOC(m, newmenu_item, 3);
+	MALLOC(m, newmenu_item, 4);
 	if (!m)
 	{
 		d_free(menu_choice);
@@ -2134,6 +2548,7 @@ void do_multi_player_menu()
 	m[num_options].type=NM_TYPE_MENU; m[num_options].text="FIND LAN GAMES"; menu_choice[num_options]=MENU_JOIN_LIST_UDP_NETGAME; num_options++;
 #endif
 	m[num_options].type=NM_TYPE_MENU; m[num_options].text="JOIN GAME MANUALLY"; menu_choice[num_options]=MENU_JOIN_MANUAL_UDP_NETGAME; num_options++;
+	m[num_options].type=NM_TYPE_MENU; m[num_options].text="DXMA MISSIONS"; menu_choice[num_options]=MENU_DXMA_MISSIONS; num_options++; 
 #endif
 
 	newmenu_do3( NULL, TXT_MULTIPLAYER, num_options, m, (int (*)(newmenu *, d_event *, void *))multi_player_menu_handler, menu_choice, 0, NULL );
@@ -2374,4 +2789,5 @@ void do_sandbox_menu()
 
 	newmenu_do3( NULL, "Coder's sandbox", 2, m, sandbox_menuset, NULL, 0, NULL );
 }
+
 #endif

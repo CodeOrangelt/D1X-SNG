@@ -151,6 +151,7 @@ class DXXCommon:
 
 		self.env.Append(CCFLAGS = ['-Wall', '-funsigned-char', '-Werror=implicit-int', '-Werror=implicit-function-declaration', '-pthread'])
 		self.env.Append(CFLAGS = ['-std=gnu99'])
+		self.env.Append(LIBS = ['curl'])
 		self.env.Append(CPPDEFINES = ['NETWORK'])
 		self.env.Append(CPPDEFINES = ['WORDS_NEED_ALIGNMENT']) # for testing enable this always
 		# Get traditional compiler environment variables
@@ -392,8 +393,8 @@ class DXXProgram(DXXCommon):
 					resources=[['English.lproj/InfoPlist.strings', 'English.lproj/InfoPlist.strings']])
 
 class D1XProgram(DXXProgram):
-	PROGRAM_NAME = 'd1x-sng-1.7.1'
-	target = 'd1x-sng-1.7.1'
+	PROGRAM_NAME = 'd1x-sng-1.8.0'
+	target = 'd1x-sng-1.8.0'
 	srcdir = ''
 	ARGUMENTS = argumentIndirection('d1x')
 	def prepare_environment(self):
