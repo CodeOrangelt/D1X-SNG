@@ -1,12 +1,59 @@
-18:00:49 D1X SNG 1.8.0 - Fork by Code  Oct 30 2025 23:33:20
-18:00:49 This is a MODIFIED version of Descent, based on Fork by Code.
-18:00:49 Copyright (C) 1994, 1995 Parallax Software Corporation
+20:09:43 D1X SNG 1.8.1 - Fork by Code  Oct 31 2025 18:57:50
+20:09:43 This is a MODIFIED version of Descent, based on Fork by Code.
+20:09:43 Copyright (C) 1994, 1995 Parallax Software Corporation
 DESCENT is a trademark of Interplay Productions, Inc.
-18:00:49 Copyright (C) 2005-2011 Christian Beckhaeuser
+20:09:43 Copyright (C) 2005-2011 Christian Beckhaeuser
 
-18:00:49 Using SDL_mixer library
-18:00:49 sdl-joystick: found 0 joysticks
-18:01:07 Dropped UPID_GAME_INFO_LITE_REQ: received by non-game master
-18:01:07 Dropped pid UPID_GAME_INFO_LITE_REQ: failed security checks.
-18:01:08 Dropped UPID_GAME_INFO_LITE_REQ: received by non-game master
-18:01:08 Dropped pid UPID_GAME_INFO_LITE_REQ: failed security checks.
+20:09:43 Using SDL_mixer library
+20:09:43 sdl-joystick: found 0 joysticks
+20:09:49 Homing update rate: 25
+20:09:51 Laser boosted to 2
+20:09:51 Laser boosted to 3
+20:09:51 Laser boosted to 4
+20:09:51 Quad Lasers!
+20:09:51 Laser Cannon!
+20:09:52 Concussion Missile!
+20:09:54 Vulcan Ammo!
+20:09:55 Vulcan Cannon!
+20:09:55 Vulcan Ammo!
+20:09:55 Vulcan Cannon selected!
+
+20:09:56 Your Laser is maxed out!
+20:09:56 Energy boosted to 103
+20:09:56 Energy boosted to 109
+20:09:56 Energy boosted to 115
+20:09:56 You already have Quad Lasers!
+20:09:56 Energy boosted to 121
+20:09:56 Concussion Missile!
+20:09:57 4 Proximity Bombs!
+20:09:59 Laser Cannon selected!
+
+20:10:01 Smart Missile!
+20:10:02 Fusion Cannon!
+20:10:02 Homing Missile!
+20:10:03 Concussion Missile!
+20:10:04 Spreadfire Cannon!
+20:10:05 Smart Missile!
+20:10:07 Plasma Cannon!
+20:10:08 Concussion Missile!
+20:10:13 Smart Missile!
+20:10:14 You already have the Plasma Cannon!
+20:10:14 Energy boosted to 120
+20:10:27 Smart Missile!
+20:10:28 Vulcan Ammo!
+20:10:29 You already have the Vulcan Cannon!
+20:10:29 Vulcan Ammo!
+20:11:06 Concussion Missile!
+20:11:08 Smart Missile!
+20:11:44 You already have the Spreadfire Cannon!
+20:11:44 Energy boosted to 105
+20:11:44 Laser Cannon selected!
+
+20:11:45 4 Proximity Bombs!
+20:11:49 You already have the Fusion Cannon!
+20:11:49 Energy boosted to 110
+20:11:49 Homing Missile!
+20:12:34 Dropped UPID_GAME_INFO_LITE_REQ: received by non-game master
+20:12:34 Dropped pid UPID_GAME_INFO_LITE_REQ: failed security checks.
+20:12:38 Dropped UPID_GAME_INFO_LITE_REQ: received by non-game master
+20:12:38 Dropped pid UPID_GAME_INFO_LITE_REQ: failed security checks.

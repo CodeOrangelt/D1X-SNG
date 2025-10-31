@@ -1028,7 +1028,7 @@ int do_option ( int select)
 {
     switch (select) {
         case MENU_NEW_GAME:
-            select_mission(0, "New Game\n\nSelect mission", do_new_game_menu);
+            select_mission(0, "New Game - Select mission\n CTRL+D to delete mission", do_new_game_menu);
             break;
         case MENU_GAME:
             break;

@@ -1,20 +1,20 @@
 0.000000 Tx 13 bytes  255.255.255.255:42424  UPID_GAME_INFO_LITE_REQ (4)
 04 44 31 58 52 00 00 3a 00 01 00 00 00 
-0.000393 Tx 3 bytes  23.94.198.101:42420  UPID_GAME_INFO_REQ (2)
+0.000269 Tx 3 bytes  23.94.198.101:42420  UPID_GAME_INFO_REQ (2)
 02 01 00 
-0.000500 Rx 13 bytes  100.109.8.246:42424  UPID_GAME_INFO_LITE_REQ (4)
+0.000336 Rx 13 bytes  10.5.0.2:42424  UPID_GAME_INFO_LITE_REQ (4)
 04 44 31 58 52 00 00 3a 00 01 00 00 00 
-0.000539 Dropped UPID_GAME_INFO_LITE_REQ: received by non-game master
+0.000378 Dropped UPID_GAME_INFO_LITE_REQ: received by non-game master
 
-18:01:07 Dropped UPID_GAME_INFO_LITE_REQ: received by non-game master
-18:01:07 Dropped pid UPID_GAME_INFO_LITE_REQ: failed security checks.
-1.061579 Tx 13 bytes  255.255.255.255:42424  UPID_GAME_INFO_LITE_REQ (4)
+20:12:34 Dropped UPID_GAME_INFO_LITE_REQ: received by non-game master
+20:12:34 Dropped pid UPID_GAME_INFO_LITE_REQ: failed security checks.
+3.246844 Tx 13 bytes  255.255.255.255:42424  UPID_GAME_INFO_LITE_REQ (4)
 04 44 31 58 52 00 00 3a 00 01 00 00 00 
-1.061902 Tx 3 bytes  23.94.198.101:42420  UPID_GAME_INFO_REQ (2)
+3.247027 Tx 3 bytes  23.94.198.101:42420  UPID_GAME_INFO_REQ (2)
 02 01 00 
-1.061993 Rx 13 bytes  100.109.8.246:42424  UPID_GAME_INFO_LITE_REQ (4)
+3.247096 Rx 13 bytes  10.5.0.2:42424  UPID_GAME_INFO_LITE_REQ (4)
 04 44 31 58 52 00 00 3a 00 01 00 00 00 
-1.062032 Dropped UPID_GAME_INFO_LITE_REQ: received by non-game master
+3.247134 Dropped UPID_GAME_INFO_LITE_REQ: received by non-game master
 
-18:01:08 Dropped UPID_GAME_INFO_LITE_REQ: received by non-game master
-18:01:08 Dropped pid UPID_GAME_INFO_LITE_REQ: failed security checks.
+20:12:38 Dropped UPID_GAME_INFO_LITE_REQ: received by non-game master
+20:12:38 Dropped pid UPID_GAME_INFO_LITE_REQ: failed security checks.

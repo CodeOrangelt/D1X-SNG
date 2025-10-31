@@ -36,6 +36,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "u_mem.h"
 #include "ignorecase.h"
+#include "key.h"    
+#include "event.h"
 
 //values that describe where a mission is located
 enum mle_loc
@@ -751,39 +753,157 @@ typedef struct mission_menu
 	int (*when_selected)(void);
 } mission_menu;
 
+int mission_menu_keycommand(listbox *lb, d_event *event, mission_menu *mm);
+int mission_menu_handler(listbox *lb, d_event *event, mission_menu *mm);
+
+int mission_menu_keycommand(listbox *lb, d_event *event, mission_menu *mm)
+{
+    char **items = listbox_get_items(lb);
+    int citem = listbox_get_citem(lb);
+
+    switch (event_key_get(event))
+    {
+        case KEY_CTRLED+KEY_D:
+            if (citem >= 0 && citem < num_missions)
+            {
+                int x;
+                mle *mission = &mm->mission_list[citem];
+                
+                // Don't allow deleting the built-in missions
+                if (mission->builtin_hogsize > 0)
+                {
+                    nm_messagebox(NULL, 1, TXT_OK, "Cannot delete built-in mission!");
+                    return 1;
+                }
+                
+                x = nm_messagebox(NULL, 2, TXT_YES, TXT_NO, "Delete mission\n\n%s?", items[citem]);
+                if (x == 0)
+                {
+                    char mission_path[PATH_MAX];
+                    char hog_path[PATH_MAX];
+                    int success = 1;
+                    int files_deleted = 0;
+                    
+                    con_printf(CON_NORMAL, "Deleting mission: %s", items[citem]);
+                    
+                    // Try to delete .msn file
+                    snprintf(mission_path, PATH_MAX, MISSION_DIR "%s.msn", mission->filename);
+                    if (PHYSFSX_exists(mission_path, 1))
+                    {
+                        if (PHYSFS_delete(mission_path))
+                        {
+                            con_printf(CON_NORMAL, "  Deleted: %s", mission_path);
+                            files_deleted++;
+                        }
+                        else
+                        {
+                            con_printf(CON_URGENT, "  Failed to delete: %s", mission_path);
+                            success = 0;
+                        }
+                    }
+                    
+                    // Try to delete .hog file
+                    snprintf(hog_path, PATH_MAX, MISSION_DIR "%s.hog", mission->filename);
+                    if (PHYSFSX_exists(hog_path, 1))
+                    {
+                        if (PHYSFS_delete(hog_path))
+                        {
+                            con_printf(CON_NORMAL, "  Deleted: %s", hog_path);
+                            files_deleted++;
+                        }
+                        else
+                        {
+                            con_printf(CON_URGENT, "  Failed to delete: %s", hog_path);
+                            success = 0;
+                        }
+                    }
+                    
+                    // Also try .mn2 extension
+                    snprintf(mission_path, PATH_MAX, MISSION_DIR "%s.mn2", mission->filename);
+                    if (PHYSFSX_exists(mission_path, 1))
+                    {
+                        if (PHYSFS_delete(mission_path))
+                        {
+                            con_printf(CON_NORMAL, "  Deleted: %s", mission_path);
+                            files_deleted++;
+                        }
+                        else
+                        {
+                            con_printf(CON_URGENT, "  Failed to delete: %s", mission_path);
+                            success = 0;
+                        }
+                    }
+
+                    if (!success)
+                    {
+                        nm_messagebox(NULL, 1, TXT_OK, "Could not delete mission\n\n%s", items[citem]);
+                        con_printf(CON_URGENT, "Mission deletion incomplete for: %s", items[citem]);
+                    }
+                    else
+                    {
+                        con_printf(CON_NORMAL, "Mission deleted successfully: %s (%d file(s) removed)", items[citem], files_deleted);
+                        
+                        // Remove from listbox
+                        listbox_delete_item(lb, citem);
+                        
+                        // Free the mission entry
+                        d_free(mission->path);
+                        
+                        // Shift remaining missions down in array
+                        if (citem < num_missions - 1)
+                        {
+                            memmove(&mm->mission_list[citem], 
+                                    &mm->mission_list[citem + 1], 
+                                    (num_missions - citem - 1) * sizeof(mle));
+                        }
+                        num_missions--;
+                    }
+                }
+
+                return 1;
+            }
+            break;
+    }
+
+    return 0;
+}
+
 int mission_menu_handler(listbox *lb, d_event *event, mission_menu *mm)
 {
-	char **list = listbox_get_items(lb);
-	int citem = listbox_get_citem(lb);
+    char **list = listbox_get_items(lb);
+    int citem = listbox_get_citem(lb);
 
-	switch (event->type)
-	{
-		case EVENT_NEWMENU_SELECTED:
-			if (citem >= 0)
-			{
-				// Chose a mission
-				strcpy(GameCfg.LastMission, list[citem]);
-				
-				if (!load_mission(mm->mission_list + citem))
-				{
-					nm_messagebox( NULL, 1, TXT_OK, TXT_MISSION_ERROR);
-					return 1;	// stay in listbox so user can select another one
-				}
-			}
-			return !(*mm->when_selected)();
-			break;
+    switch (event->type)
+    {
+        case EVENT_KEY_COMMAND:
+            return mission_menu_keycommand(lb, event, mm);
+            
+        case EVENT_NEWMENU_SELECTED:
+            if (citem >= 0)
+            {
+                // Chose a mission
+                strcpy(GameCfg.LastMission, list[citem]);
+                
+                if (!load_mission(mm->mission_list + citem))
+                {
+                    nm_messagebox( NULL, 1, TXT_OK, TXT_MISSION_ERROR);
+                    return 1;	// stay in listbox so user can select another one
+                }
+            }
+            return !(*mm->when_selected)();
+            break;
 
-		case EVENT_WINDOW_CLOSE:
-			free_mission_list(mm->mission_list);
-			d_free(list);
-			d_free(mm);
-			break;
-			
-		default:
-			break;
-	}
-	
-	return 0;
+        case EVENT_WINDOW_CLOSE:
+            free_mission_list(mm->mission_list);
+            d_free(list);
+            d_free(mm);
+            break;
+            
+        default:
+            break;
+    }
+    
+    return 0;
 }
 
 int select_mission(int anarchy_mode, char *message, int (*when_selected)(void))
