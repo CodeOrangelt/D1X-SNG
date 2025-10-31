@@ -75,6 +75,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef OGL
 #include "ogl_init.h"
 #endif
+#ifdef _WIN32
+#include <process.h> 
+#endif
 
 
 // Menu IDs...
@@ -134,6 +137,15 @@ typedef struct {
     int current_page;
     int total_pages;
 } dxma_page_info;
+
+typedef struct {
+    int active;
+    int percent;
+    char filename[256];
+    newmenu *progress_menu;
+} download_progress;
+
+static download_progress dl_progress = {0};
 
 static dxma_page_info page_state = {0};
 static dxma_mission_info dxma_missions[MAX_DXMA_MISSIONS];
@@ -261,9 +273,9 @@ static int unzip_mission_file(const char *zip_path)
     strncpy(extract_dir, zip_path, sizeof(extract_dir) - 1);
     extract_dir[sizeof(extract_dir) - 1] = '\0';
     
-    dot = strrchr(extract_dir, '.');
-    if (dot && d_stricmp(dot, ".zip") == 0)
-        *dot = '\0';
+	dot = strrchr(extract_dir, '.');
+	if (dot && (d_stricmp(dot, ".zip") == 0 || d_stricmp(dot, ".7z") == 0 || d_stricmp(dot, ".rar") == 0)) 
+		*dot = '\0';
     
 #ifdef _WIN32
     snprintf(cmd, sizeof(cmd), 
@@ -278,15 +290,28 @@ static int unzip_mission_file(const char *zip_path)
     return (system(cmd) == 0);
 }
 
+int download_progress_handler(newmenu *menu, d_event *event, void *userdata)
+{
+    switch (event->type)
+    {
+        case EVENT_WINDOW_CLOSE:
+            break;
+        default:
+            break;
+    }
+    return 0;
+}
+
 static int download_dxma_mission_static(int mission_index)
 {
-    char cmd[1024];
+    char cmd[2048];
     char dest_path[PATH_MAX];
     char filename[256];
     const char *download_url;
     int success = 0;
     int is_zip = 0;
     char *ext;
+    int user_choice;
     
     if (mission_index < 0 || mission_index >= dxma_mission_count)
         return 0;
@@ -314,20 +339,63 @@ static int download_dxma_mission_static(int mission_index)
     ext = strrchr(filename, '.');
     is_zip = (ext && d_stricmp(ext, ".zip") == 0);
     
+    if (PHYSFSX_exists(dest_path, 0))
+    {
+        user_choice = nm_messagebox(NULL, 2, "Overwrite", "Cancel", 
+            "File already exists:\n\n%s\n", filename);
+        
+        if (user_choice != 0)
+            return 0;
+        
+        PHYSFS_delete(dest_path);
+    }
+    
+    user_choice = nm_messagebox(NULL, 2, "Continue", "Cancel", "Download:\n\n%s\n", filename);
+    
+    if (user_choice != 0)
+        return 0;
+    
+    newmenu_item m[1];
+    char msg_text[256];
+    
+    snprintf(msg_text, sizeof(msg_text), "Downloading:\n%.60s\n\nPlease wait...", filename);
+    m[0].type = NM_TYPE_TEXT;
+    m[0].text = msg_text;
+    
+    newmenu *wait_menu = newmenu_do3(NULL, NULL, 1, m, NULL, NULL, 0, NULL);
+    
+    timer_delay(F1_0 / 4);
+    event_process();
+    
 #ifdef _WIN32
     snprintf(cmd, sizeof(cmd), 
-        "powershell -Command \"Invoke-WebRequest -Uri '%s' -OutFile '%s' -UseBasicParsing\"", 
+        "powershell -WindowStyle Hidden -Command \"Invoke-WebRequest -Uri '%s' -OutFile '%s'\"",
         download_url, dest_path);
 #else
     snprintf(cmd, sizeof(cmd), 
-        "wget --no-check-certificate -O '%s' '%s' 2>/dev/null || curl -L -k -o '%s' '%s' 2>/dev/null", 
+        "wget -q -O '%s' '%s' || curl -s -L -o '%s' '%s'",
         dest_path, download_url, dest_path, download_url);
 #endif
     
     success = (system(cmd) == 0);
     
-    if (success && is_zip)
-        success = unzip_mission_file(dest_path);
+    if (wait_menu)
+        window_close(newmenu_get_window(wait_menu));
+    
+    if (success)
+    {
+        FILE *test = fopen(dest_path, "rb");
+        if (test)
+        {
+            fclose(test);
+            if (is_zip)
+            {
+                success = unzip_mission_file(dest_path);
+            }
+        }
+        else
+            success = 0;
+    }
     
     return success;
 }
@@ -350,10 +418,13 @@ int dxma_mission_menu_handler_static(newmenu *menu, d_event *event, void *userda
             {
                 case KEY_LEFT:
                 case KEY_PAGEUP:
+                case KEY_PAD4:
                     if (page_state.current_page > 0)
                     {
                         page_state.current_page--;
                         page_state.start_index = page_state.current_page * page_state.missions_per_page;
+                        dxma_initial_selection = 2;
+                        digi_play_sample(Weapon_info[9].flash_sound, F1_0); // SOUNDS NOT FOUND IN SOUNDS.H ARE OBJ EVENTS, AND NEED TO BE TRIGGERED LIKE THIS. THIS IS A FLARE -- CODE.
                         window_close(newmenu_get_window(menu));
                         dxma_missions_menu();
                         return 1;
@@ -362,10 +433,13 @@ int dxma_mission_menu_handler_static(newmenu *menu, d_event *event, void *userda
                     
                 case KEY_RIGHT:
                 case KEY_PAGEDOWN:
+                case KEY_PAD6:
                     if (page_state.current_page < page_state.total_pages - 1)
                     {
                         page_state.current_page++;
                         page_state.start_index = page_state.current_page * page_state.missions_per_page;
+                        dxma_initial_selection = 2;
+                        digi_play_sample(Weapon_info[9].flash_sound, F1_0); // SOUNDS NOT FOUND IN SOUNDS.H ARE OBJ EVENTS, AND NEED TO BE TRIGGERED LIKE THIS. THIS IS A FLARE -- CODE.
                         window_close(newmenu_get_window(menu));
                         dxma_missions_menu();
                         return 1;
@@ -433,6 +507,7 @@ int dxma_mission_menu_handler_static(newmenu *menu, d_event *event, void *userda
             {
                 if (download_dxma_mission_static(mission_index))
                 {
+                    digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
                     nm_messagebox(NULL, 1, "OK", 
                         "Mission downloaded!\n\n%s\n\nSaved to missions folder.",
                         dxma_missions[mission_index].title);
@@ -440,7 +515,7 @@ int dxma_mission_menu_handler_static(newmenu *menu, d_event *event, void *userda
                 else
                 {
                     nm_messagebox(NULL, 1, "OK", 
-                        "Download failed!\n\nCheck internet connection.");
+                        "Download has failed");
                 }
             }
             return 1;

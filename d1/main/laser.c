@@ -920,7 +920,7 @@ void Flare_create(object *obj)
 	}
 
 	if (Netgame.DarkSmartBlobs)
-	{
+	{												// need to incorporate turkey shoot game mode
 		Weapon_info[FLARE_ID].strength == 100;
 	}
 }

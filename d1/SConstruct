@@ -393,8 +393,8 @@ class DXXProgram(DXXCommon):
 					resources=[['English.lproj/InfoPlist.strings', 'English.lproj/InfoPlist.strings']])
 
 class D1XProgram(DXXProgram):
-	PROGRAM_NAME = 'd1x-sng-1.8.0'
-	target = 'd1x-sng-1.8.0'
+	PROGRAM_NAME = 'd1x-sng-1.8.1'
+	target = 'd1x-sng-1.8.1'
 	srcdir = ''
 	ARGUMENTS = argumentIndirection('d1x')
 	def prepare_environment(self):
